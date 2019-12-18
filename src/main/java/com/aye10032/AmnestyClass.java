@@ -29,7 +29,13 @@ public class AmnestyClass {
 
         Date date = new Date();
         SimpleDateFormat ft = new SimpleDateFormat("yyyy-MM-dd hh:mm");
-        CQ.sendGroupMsg(fromGroup, ft.format(date) + " 王大赦天下\n------《史记 奥创本纪》");
+        String msg = ft.format(date) + " 群臣奏请大赦天下，王曰：“善。” ，乃大赦天下\n";
+        if (fromGroup == 995497677L){
+             msg += "------《史记 奥创本纪》";
+        }else if (fromGroup == 792666782L){
+            msg += "------《史记 卞高祖本纪》";
+        }
+        CQ.sendGroupMsg(fromGroup, msg);
 
     }
 
