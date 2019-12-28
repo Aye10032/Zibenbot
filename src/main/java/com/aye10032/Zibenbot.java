@@ -200,7 +200,7 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
             Anonymous anonymous = CQ.getAnonymous(fromAnonymous);
         }
 
-        if (fromGroup == 995497677L || fromGroup == 792666782L || fromGroup == 517709950L) { // 这里的 0L 可以换成您的测试群
+        if (fromGroup == 995497677L || fromGroup == 792666782L || fromGroup == 517709950L || fromGroup == 295904863) { // 这里的 0L 可以换成您的测试群
             if (msg.equals("nmsl")) {
                 CQ.sendGroupMsg(fromGroup, CC.at(fromQQ) + msg);
             } else if (msg.contains("炼铜")) {
@@ -248,6 +248,8 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
+                } else if (msg.equals(".3")){
+                    CQ.sendGroupMsg(fromGroup,new AyeCube().getCuberandom());
                 }
             }
         }
