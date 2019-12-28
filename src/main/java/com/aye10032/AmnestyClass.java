@@ -12,11 +12,15 @@ public class AmnestyClass {
     private CoolQ CQ;
     private long fromGroup;
 
-    public AmnestyClass(CoolQ CQ, long fromGroup) {
+    public AmnestyClass(CoolQ CQ, long fromGroup, int mode) {
         this.CQ = CQ;
         this.fromGroup = fromGroup;
-        System.out.println("start");
-        done();
+//        System.out.println("start");
+        if (mode == 0) {
+            done();
+        }else if (mode == 1){
+            shutup();
+        }
     }
 
     private void done() {
@@ -36,6 +40,18 @@ public class AmnestyClass {
             msg += "------《史记 卞高祖本纪》";
         }
         CQ.sendGroupMsg(fromGroup, msg);
+
+    }
+
+    private void shutup() {
+        List<Member> memberList = CQ.getGroupMemberList(fromGroup);
+        for (Member persion : memberList) {
+            long qq = persion.getQQId();
+            if (qq != 2375985957L) {
+                int flag = CQ.setGroupBan(fromGroup, qq, 114514);
+            }
+
+        }
 
     }
 

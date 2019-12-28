@@ -20,7 +20,7 @@ public class XiagongClass {
         calendar.set(Calendar.MINUTE, 0);
         calendar.set(Calendar.SECOND, 0);
 
-        groupList.add(792666782L);
+//        groupList.add(792666782L);
         groupList.add(995497677L);
 
         Date date = calendar.getTime(); //第一次执行定时任务的时间
