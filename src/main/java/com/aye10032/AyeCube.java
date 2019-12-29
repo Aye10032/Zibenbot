@@ -7,7 +7,7 @@ public class AyeCube {
 
     private Stack<String> cubeStack = new Stack<String>();
     private String[] cubarr = new String[]{"F", "B", "U", "D", "R", "L"};
-    private String[] statusarr = new String[]{"","","'","'","2"};
+    private String[] statusarr = new String[]{"", "", "'", "'", "2"};
     private int step = 20;
     private String cuberandom = "";
 
@@ -20,23 +20,37 @@ public class AyeCube {
         int num = random.nextInt(5);
         step += num;
         for (int i = 0; i < step; i++) {
-            String thisStep = cubarr[random.nextInt(cubarr.length)] + statusarr[random.nextInt(statusarr.length)];
+            String thisStep = nextStep(random) + statusarr[random.nextInt(statusarr.length)];
             cubeStack.push(thisStep);
         }
 
         String temp = "";
-        while (!cubeStack.empty()){
+        while (!cubeStack.empty()) {
             temp += cubeStack.pop() + " ";
         }
 
         setCuberandom(temp);
     }
 
-    public void setCuberandom(String cuberandom){
+    private String nextStep(Random random) {
+        String temp = "";
+
+        if (!cubeStack.empty()) {
+            while (temp.equals("") || cubeStack.peek().contains(temp)) {
+                temp = cubarr[random.nextInt(cubarr.length)];
+            }
+        } else {
+            temp = cubarr[random.nextInt(cubarr.length)];
+        }
+
+        return temp;
+    }
+
+    public void setCuberandom(String cuberandom) {
         this.cuberandom = cuberandom;
     }
 
-    public String getCuberandom(){
+    public String getCuberandom() {
         return this.cuberandom;
     }
 
