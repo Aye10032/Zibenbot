@@ -209,8 +209,16 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-            } else if (msg.equals("肃静")){
-                new AmnestyClass(CQ,fromGroup,1);
+            }else if (msg.equals("方舟素材")) {
+                try {
+                    CQ.sendGroupMsg(fromGroup, CC.image(new File(appDirectory + "\\image\\素材掉落.png")));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } else if (msg.equals("肃静")) {
+                new AmnestyClass(CQ, fromGroup, 1);
+            } else if (msg.equals("大赦")) {
+                new AmnestyClass(CQ, fromGroup, 0);
             } else if (msg.startsWith(".")) {
                 if (msg.contains("禁言")) {
                     String[] strlist = msg.split(" ");
@@ -240,16 +248,14 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
                 } else if (msg.contains("小吃列表")) {
                     String food = new FoodUtil().slist();
                     CQ.sendGroupMsg(fromGroup, food);
-                } else if (msg.equals("大赦")) {
-                    new AmnestyClass(CQ, fromGroup, 0);
                 } else if (msg.equals(".p站") || msg.equals(".pixiv") || msg.equals(".P站")) {
                     try {
                         CQ.sendGroupMsg(fromGroup, CC.image(new SetuUtil(appDirectory).getImage()));
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                } else if (msg.equals(".3")){
-                    CQ.sendGroupMsg(fromGroup,new AyeCube().getCuberandom());
+                } else if (msg.equals(".3")) {
+                    CQ.sendGroupMsg(fromGroup, new AyeCube().getCuberandom());
                 }
             }
         }
