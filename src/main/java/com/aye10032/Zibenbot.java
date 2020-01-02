@@ -226,7 +226,7 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
             } else if (msg.equals("肃静")) {
                 new AmnestyClass(CQ, fromGroup, 1);
             } else if (msg.equals("大赦")) {
-                new AmnestyClass(CQ, fromGroup).done(banRecord.getGroupObject(fromGroup).getBanList());
+                new AmnestyClass(CQ, fromGroup, banRecord).done(banRecord.getGroupObject(fromGroup).getBanList());
             } else if (msg.startsWith(".")) {
                 if (msg.contains("禁言")) {
                     String[] strlist = msg.split(" ");
