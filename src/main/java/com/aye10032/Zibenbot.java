@@ -6,7 +6,9 @@ import org.meowy.cqp.jcq.event.JcqAppAbstract;
 import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Set;
 
 /**
@@ -170,7 +172,7 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
      */
     public int privateMsg(int subType, int msgId, long fromQQ, String msg, int font) {
         // 这里处理消息
-        CQ.sendPrivateMsg(fromQQ, "你发送了这样的消息：" + msg + "\n来自Java插件");
+//        CQ.sendPrivateMsg(fromQQ, "你发送了这样的消息：" + msg + "\n来自Java插件");
 //        try {
 //            CQ.sendPrivateMsg(fromQQ, CC.image(new SetuUtil(appDirectory).getImage()));
 //        } catch (IOException e) {
@@ -209,7 +211,7 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-            }else if (msg.equals("方舟素材")) {
+            } else if (msg.equals("方舟素材")) {
                 try {
                     CQ.sendGroupMsg(fromGroup, CC.image(new File(appDirectory + "\\image\\素材掉落.png")));
                 } catch (IOException e) {
@@ -228,9 +230,11 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
                                 CQ.sendGroupMsg(fromGroup, "对不起，做不到。");
                                 if (fromQQ != 2375985957L) {
                                     CQ.setGroupBan(fromGroup, fromQQ, Long.parseLong(strlist[2]));
+                                    groupBan(2, 00000001, fromGroup, fromQQ, fromQQ, Long.parseLong(strlist[2]));
                                 }
                             } else {
                                 CQ.setGroupBan(fromGroup, CC.getAt(msg), Long.parseLong(strlist[2]));
+                                groupBan(2, 00000001, fromGroup, fromQQ, CC.getAt(msg), Long.parseLong(strlist[2]));
                             }
                         } catch (NumberFormatException e) {
                             e.printStackTrace();
@@ -366,6 +370,11 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
      */
     public int groupBan(int subType, int sendTime, long fromGroup, long fromQQ, long beingOperateQQ, long duration) {
         // 这里处理消息
+        if (subType == 2) {
+            Date date = new Date();
+            SimpleDateFormat ft = new SimpleDateFormat("yyyy-MM-dd hh:mm");
+            CQ.sendGroupMsg(fromGroup, ft.format(date) + "，" + CC.at(beingOperateQQ) + "被" + CC.at(fromQQ) + "禁言" + duration + "秒");
+        }
 
         return 0;
     }
