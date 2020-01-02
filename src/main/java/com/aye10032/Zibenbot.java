@@ -266,6 +266,8 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
                 } else if (msg.contains("点怪")) {
                     String aim = new MHWUtil().getAim();
                     CQ.sendGroupMsg(fromGroup, aim);
+                } else if (msg.contains("大赦")) {
+                    new AmnestyClass(CQ, fromGroup, 0);
                 } else if (msg.contains("晚饭")) {
                     String food = new FoodUtil().eatWhat();
                     CQ.sendGroupMsg(fromGroup, food);
