@@ -39,7 +39,7 @@ public class BanRecord {
             AyeGroup group = getGroupObject(fromGroup);
             List<Map.Entry<Long, Integer>> killedList = group.getBanedTimeRank();
             for (Map.Entry<Long, Integer> entry : killedList) {
-                list.add(CC.at(entry.getKey()) + "，禁言他人" + entry.getValue() + "次\n");
+                list.add(CC.at(entry.getKey()) + "，被禁言" + entry.getValue() + "次\n");
             }
         }
         return list;

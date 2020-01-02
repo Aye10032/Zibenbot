@@ -250,7 +250,7 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
                             e.printStackTrace();
                         }
                     }
-                } else if (msg.equals("击杀榜")) {
+                } else if (msg.equals(".击杀榜")) {
                     List<String> list = banRecord.getKillRank(fromGroup);
                     if (list.size() >= 10) {
                         for (int i = 0; i < 10; i++) {
@@ -391,11 +391,6 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
      */
     public int groupBan(int subType, int sendTime, long fromGroup, long fromQQ, long beingOperateQQ, long duration) {
         // 这里处理消息
-        if (subType == 2) {
-            Date date = new Date();
-            SimpleDateFormat ft = new SimpleDateFormat("yyyy-MM-dd hh:mm");
-            CQ.sendGroupMsg(fromGroup, ft.format(date) + "，" + CC.at(beingOperateQQ) + "被" + CC.at(fromQQ) + "禁言" + duration + "秒");
-        }
 
         return 0;
     }
