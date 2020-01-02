@@ -252,15 +252,17 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
                     }
                 } else if (msg.equals(".击杀榜")) {
                     List<String> list = banRecord.getKillRank(fromGroup);
+                    StringBuilder msgs = new StringBuilder();
                     if (list.size() >= 10) {
                         for (int i = 0; i < 10; i++) {
-                            CQ.sendGroupMsg(fromGroup, list.get(i));
+                            msgs.append(list.get(i));
                         }
                     } else {
-                        for (String msgs : list) {
-                            CQ.sendGroupMsg(fromGroup, msgs);
+                        for (String temp : list) {
+                            msgs.append(temp);
                         }
                     }
+                    CQ.sendGroupMsg(fromGroup, msgs.toString());
                 } else if (msg.contains("点怪")) {
                     String aim = new MHWUtil().getAim();
                     CQ.sendGroupMsg(fromGroup, aim);

@@ -79,7 +79,7 @@ public class AyeGroup {
         }
     }
 
-    public List<Map.Entry<Long,Integer>> getBanedTimeRank(){
+    public List<Map.Entry<Long, Integer>> getBanedTimeRank(){
         sortBanedTime();
         return this.sortlist;
     }
