@@ -1,5 +1,6 @@
 package com.aye10032;
 
+import com.aye10032.BanUtil.BanRecord;
 import org.meowy.cqp.jcq.entity.*;
 import org.meowy.cqp.jcq.event.JcqAppAbstract;
 
@@ -35,6 +36,9 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
     /**
      * 老的方式依然支持，也就是不强行定构造方法也行
      */
+
+    BanRecord banRecord;
+
     public Zibenbot() {
 
     }
@@ -116,6 +120,7 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
         // 应用的所有数据、配置【必须】存放于此目录，避免给用户带来困扰。
         new ShangongClass(CQ, CC);
         new XiagongClass(CQ, CC);
+        banRecord = new BanRecord(CQ);
         return 0;
     }
 
@@ -220,7 +225,7 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
             } else if (msg.equals("肃静")) {
                 new AmnestyClass(CQ, fromGroup, 1);
             } else if (msg.equals("大赦")) {
-                new AmnestyClass(CQ, fromGroup, 0);
+                new AmnestyClass(CQ, fromGroup).done(banRecord.getGroupObject(fromGroup).getBanList());
             } else if (msg.startsWith(".")) {
                 if (msg.contains("禁言")) {
                     String[] strlist = msg.split(" ");
@@ -231,10 +236,14 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
                                 if (fromQQ != 2375985957L) {
                                     CQ.setGroupBan(fromGroup, fromQQ, Long.parseLong(strlist[2]));
                                     groupBan(2, 00000001, fromGroup, fromQQ, fromQQ, Long.parseLong(strlist[2]));
+                                    banRecord.getGroupObject(fromGroup).addBan(fromQQ);
+                                    banRecord.getGroupObject(fromGroup).addMemebrBanedTime(fromQQ, fromQQ);
                                 }
                             } else {
                                 CQ.setGroupBan(fromGroup, CC.getAt(msg), Long.parseLong(strlist[2]));
                                 groupBan(2, 00000001, fromGroup, fromQQ, CC.getAt(msg), Long.parseLong(strlist[2]));
+                                banRecord.getGroupObject(fromGroup).addBan(CC.getAt(msg));
+                                banRecord.getGroupObject(fromGroup).addMemebrBanedTime(fromQQ, CC.getAt(msg));
                             }
                         } catch (NumberFormatException e) {
                             e.printStackTrace();
