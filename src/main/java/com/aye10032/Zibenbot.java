@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -120,7 +121,7 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
         // 应用的所有数据、配置【必须】存放于此目录，避免给用户带来困扰。
         new ShangongClass(CQ, CC);
         new XiagongClass(CQ, CC);
-        banRecord = new BanRecord(CQ);
+        banRecord = new BanRecord(CQ, CC);
         return 0;
     }
 
@@ -247,6 +248,17 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
                             }
                         } catch (NumberFormatException e) {
                             e.printStackTrace();
+                        }
+                    }
+                } else if (msg.equals("击杀榜")) {
+                    List<String> list = banRecord.getKillRank(fromGroup);
+                    if (list.size() >= 10) {
+                        for (int i = 0; i < 10; i++) {
+                            CQ.sendGroupMsg(fromGroup, list.get(i));
+                        }
+                    } else {
+                        for (String msgs : list) {
+                            CQ.sendGroupMsg(fromGroup, msgs);
                         }
                     }
                 } else if (msg.contains("点怪")) {

@@ -1,15 +1,16 @@
 package com.aye10032.BanUtil;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.lang.reflect.Member;
+import java.util.*;
 
 public class AyeGroup {
 
     private long Group;
     private Map<Long, AyeMember> memberMap = new HashMap<Long, AyeMember>();
     private List<Long> banList = new ArrayList<Long>();
+    private LinkedHashMap<Long, Integer> banedMap = new LinkedHashMap<Long, Integer>();
+    private List<Map.Entry<Long,Integer>> sortlist;
+    private LinkedHashMap<Long, Integer> banOtherMap = new LinkedHashMap<Long, Integer>();
 
     public AyeGroup(long group) {
         this.Group = group;
@@ -23,7 +24,7 @@ public class AyeGroup {
         banList.add(QQ);
     }
 
-    public List<Long> getBanList(){
+    public List<Long> getBanList() {
         return this.banList;
     }
 
@@ -60,6 +61,27 @@ public class AyeGroup {
             AyeMember member = memberMap.get(QQ);
             return member.getBanOtherTime();
         }
+    }
+
+    private void sortBanedTime() {
+        Iterator<Map.Entry<Long,AyeMember>> entries = memberMap.entrySet().iterator();
+        while (entries.hasNext()){
+            Map.Entry<Long,AyeMember> entry = entries.next();
+            long QQ = entry.getKey();
+            int times = entry.getValue().getBanedTime();
+            banedMap.put(QQ,times);
+            sortlist = new ArrayList<Map.Entry<Long, Integer>>(banedMap.entrySet());
+            Collections.sort(sortlist, new Comparator<Map.Entry<Long, Integer>>() {
+                public int compare(Map.Entry<Long, Integer> o1, Map.Entry<Long, Integer> o2) {
+                    return o2.getValue().compareTo(o1.getValue());
+                }
+            });
+        }
+    }
+
+    public List<Map.Entry<Long,Integer>> getBanedTimeRank(){
+        sortBanedTime();
+        return this.sortlist;
     }
 
 }
