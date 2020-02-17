@@ -14,7 +14,7 @@ public class BanFunc extends BaseFunc {
         super(zibenbot);
     }
 
-    public void setUp(Zibenbot zibenbot) {
+    public void setUp() {
         this.banRecord = new BanRecord(CQ, CC);
     }
 
