@@ -14,7 +14,7 @@ public class EatFunc extends BaseFunc {
         super(zibenbot);
     }
 
-    public void setUp(Zibenbot zibenbot) {
+    public void setUp() {
         this.foodUtil = new FoodUtil();
     }
 
