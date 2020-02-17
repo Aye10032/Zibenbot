@@ -1,4 +1,4 @@
-package com.aye10032;
+package com.aye10032.Functions;
 
 import java.util.Random;
 import java.util.Stack;

@@ -1,5 +1,6 @@
-package com.aye10032;
+package com.aye10032.Functions;
 
+import com.aye10032.SendGroupMSGTask;
 import org.meowy.cqp.jcq.entity.CoolQ;
 import org.meowy.cqp.jcq.message.CQCode;
 
