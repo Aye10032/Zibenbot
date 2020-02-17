@@ -1,20 +1,14 @@
 package com.aye10032;
 
-import com.aye10032.Functions.AyeCube;
-import com.aye10032.Functions.CQMsg;
-import com.aye10032.Functions.ShangongClass;
-import com.aye10032.Functions.XiagongClass;
-import com.aye10032.Utils.BanUtil.BanRecord;
-import com.aye10032.Utils.FoodUtil;
-import com.aye10032.Utils.MHWUtil;
-import com.aye10032.Utils.SetuUtil;
+import com.aye10032.Functions.*;
 import org.meowy.cqp.jcq.entity.*;
 import org.meowy.cqp.jcq.event.JcqAppAbstract;
 
 import javax.swing.*;
-import java.io.File;
-import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+
+import static com.aye10032.Utils.ClassUtil.getAllAssignedClass;
 
 /**
  * 本文件是JCQ插件的主类<br>
@@ -41,7 +35,7 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
      * 老的方式依然支持，也就是不强行定构造方法也行
      */
 
-    BanRecord banRecord;
+    List<IFunc> registerFunc = new ArrayList<IFunc>();
 
     public Zibenbot() {
 
@@ -124,7 +118,18 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
         // 应用的所有数据、配置【必须】存放于此目录，避免给用户带来困扰。
         new ShangongClass(CQ, CC);
         new XiagongClass(CQ, CC);
-        banRecord = new BanRecord(CQ, CC);
+
+        try {
+            for (Class<?> c : getAllAssignedClass(BaseFunc.class)) {
+                Object o = c.getConstructors()[0].newInstance(this);
+                registerFunc.add((IFunc) o);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        for (IFunc func : registerFunc) {
+            func.setUp();
+        }
         return 0;
     }
 
@@ -214,74 +219,11 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
         CQMsg cqMsg = new CQMsg(subType, msgId, fromGroup, fromQQ, anonymous, msg, font);
 
         if (fromGroup == 995497677L || fromGroup == 792666782L || fromGroup == 517709950L || fromGroup == 295904863) { // 这里的 0L 可以换成您的测试群
-             if (msg.equals("方舟素材")) {
-                try {
-                    CQ.sendGroupMsg(fromGroup, CC.image(new File(appDirectory + "\\image\\素材掉落.png")));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            } else if (msg.equals("肃静")) {
-                new AmnestyClass(CQ, fromGroup, 1);
-            } else if (msg.equals("大赦")) {
-                new AmnestyClass(CQ, fromGroup, banRecord).done(banRecord.getGroupObject(fromGroup).getBanList());
-            } else if (msg.startsWith(".")) {
-                if (msg.contains("禁言")) {
-                    String[] strlist = msg.split(" ");
-                    if (strlist.length == 3) {
-                        try {
-                            if (CC.getAt(msg) == 2375985957L) {
-                                CQ.sendGroupMsg(fromGroup, "对不起，做不到。");
-                                if (fromQQ != 2375985957L) {
-                                    CQ.setGroupBan(fromGroup, fromQQ, Long.parseLong(strlist[2]));
-                                    groupBan(2, 00000001, fromGroup, fromQQ, fromQQ, Long.parseLong(strlist[2]));
-                                    banRecord.getGroupObject(fromGroup).addBan(fromQQ);
-                                    banRecord.getGroupObject(fromGroup).addMemebrBanedTime(fromQQ, fromQQ);
-                                }
-                            } else {
-                                CQ.setGroupBan(fromGroup, CC.getAt(msg), Long.parseLong(strlist[2]));
-                                groupBan(2, 00000001, fromGroup, fromQQ, CC.getAt(msg), Long.parseLong(strlist[2]));
-                                banRecord.getGroupObject(fromGroup).addBan(CC.getAt(msg));
-                                banRecord.getGroupObject(fromGroup).addMemebrBanedTime(fromQQ, CC.getAt(msg));
-                            }
-                        } catch (NumberFormatException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                } else if (msg.equals(".击杀榜")) {
-                    List<String> list = banRecord.getKillRank(fromGroup);
-                    StringBuilder msgs = new StringBuilder();
-                    if (list.size() >= 10) {
-                        for (int i = 0; i < 10; i++) {
-                            msgs.append(list.get(i));
-                        }
-                    } else {
-                        for (String temp : list) {
-                            msgs.append(temp);
-                        }
-                    }
-                    CQ.sendGroupMsg(fromGroup, msgs.toString());
-                } else if (msg.contains("点怪")) {
-                    String aim = new MHWUtil().getAim();
-                    CQ.sendGroupMsg(fromGroup, aim);
-                } else if (msg.contains("晚饭")) {
-                    String food = new FoodUtil().eatWhat();
-                    CQ.sendGroupMsg(fromGroup, food);
-                } else if (msg.contains("主食列表")) {
-                    String food = new FoodUtil().mlist();
-                    CQ.sendGroupMsg(fromGroup, food);
-                } else if (msg.contains("小吃列表")) {
-                    String food = new FoodUtil().slist();
-                    CQ.sendGroupMsg(fromGroup, food);
-                } else if (msg.equals(".p站") || msg.equals(".pixiv") || msg.equals(".P站")) {
-                    try {
-                        CQ.sendGroupMsg(fromGroup, CC.image(new SetuUtil(appDirectory).getImage()));
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                } else if (msg.equals(".3")) {
-                    CQ.sendGroupMsg(fromGroup, new AyeCube().getCuberandom());
-                }
+
+            for (IFunc func : registerFunc) {
+                func.run(cqMsg);
             }
+
         }
         return MSG_IGNORE;
     }
