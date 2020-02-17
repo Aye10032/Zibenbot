@@ -1,9 +1,11 @@
-package com.aye10032;
+package com.aye10032.Functions;
+
+import com.aye10032.Zibenbot;
 
 import java.util.Random;
 import java.util.Stack;
 
-public class AyeCube {
+public class AyeCube extends BaseFunc {
 
     private Stack<String> cubeStack = new Stack<String>();
     private String[] cubarr = new String[]{"F", "B", "U", "D", "R", "L"};
@@ -15,7 +17,8 @@ public class AyeCube {
         System.out.println(new AyeCube().getCuberandom());
     }*/
 
-    public AyeCube() {
+    public AyeCube(Zibenbot zibenbot) {
+        super(zibenbot);
         Random random = new Random();
         int num = random.nextInt(5);
         step += num;
@@ -54,4 +57,13 @@ public class AyeCube {
         return this.cuberandom;
     }
 
+    public void setUp(Zibenbot zibenbot) {
+
+    }
+
+    public void run(CQMsg CQmsg) {
+        if (CQmsg.msg.equals(".3")) {
+            CQ.sendGroupMsg(CQmsg.fromGroup, getCuberandom());
+        }
+    }
 }
