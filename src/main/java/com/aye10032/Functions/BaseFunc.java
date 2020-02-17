@@ -3,7 +3,6 @@ package com.aye10032.Functions;
 import com.aye10032.Zibenbot;
 import org.meowy.cqp.jcq.entity.CoolQ;
 import org.meowy.cqp.jcq.message.CQCode;
-import org.meowy.cqp.jcq.message.CoolQCode;
 
 /**
  * @author Dazo66
