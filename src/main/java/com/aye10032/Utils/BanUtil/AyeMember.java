@@ -1,4 +1,4 @@
-package com.aye10032.BanUtil;
+package com.aye10032.Utils.BanUtil;
 
 public class AyeMember {
 
