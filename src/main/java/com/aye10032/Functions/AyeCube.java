@@ -57,7 +57,7 @@ public class AyeCube extends BaseFunc {
         return this.cuberandom;
     }
 
-    public void setUp(Zibenbot zibenbot) {
+    public void setUp() {
 
     }
 

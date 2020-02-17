@@ -14,7 +14,7 @@ public class liantongFunc extends BaseFunc {
         super(zibenbot);
     }
 
-    public void setUp(Zibenbot zibenbot) {
+    public void setUp() {
 
     }
 
