@@ -1,4 +1,4 @@
-package com.aye10032.BanUtil;
+package com.aye10032.Utils.BanUtil;
 
 import org.meowy.cqp.jcq.entity.CoolQ;
 import org.meowy.cqp.jcq.message.CQCode;

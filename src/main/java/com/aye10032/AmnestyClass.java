@@ -1,6 +1,6 @@
 package com.aye10032;
 
-import com.aye10032.BanUtil.BanRecord;
+import com.aye10032.Utils.BanUtil.BanRecord;
 import org.meowy.cqp.jcq.entity.CoolQ;
 import org.meowy.cqp.jcq.entity.Member;
 

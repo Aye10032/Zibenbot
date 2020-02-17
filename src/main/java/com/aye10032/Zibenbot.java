@@ -1,17 +1,20 @@
 package com.aye10032;
 
-import com.aye10032.BanUtil.BanRecord;
+import com.aye10032.Functions.AyeCube;
+import com.aye10032.Functions.CQMsg;
+import com.aye10032.Functions.ShangongClass;
+import com.aye10032.Functions.XiagongClass;
+import com.aye10032.Utils.BanUtil.BanRecord;
+import com.aye10032.Utils.FoodUtil;
+import com.aye10032.Utils.MHWUtil;
+import com.aye10032.Utils.SetuUtil;
 import org.meowy.cqp.jcq.entity.*;
 import org.meowy.cqp.jcq.event.JcqAppAbstract;
 
 import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
 /**
  * 本文件是JCQ插件的主类<br>
@@ -203,21 +206,15 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
     public int groupMsg(int subType, int msgId, long fromGroup, long fromQQ, String fromAnonymous, String msg,
                         int font) {
         // 如果消息来自匿名者
+        Anonymous anonymous = null;
         if (fromQQ == 80000000L && !fromAnonymous.equals("")) {
             // 将匿名用户信息放到 anonymous 变量中
-            Anonymous anonymous = CQ.getAnonymous(fromAnonymous);
+            anonymous = CQ.getAnonymous(fromAnonymous);
         }
+        CQMsg cqMsg = new CQMsg(subType, msgId, fromGroup, fromQQ, anonymous, msg, font);
 
         if (fromGroup == 995497677L || fromGroup == 792666782L || fromGroup == 517709950L || fromGroup == 295904863) { // 这里的 0L 可以换成您的测试群
-            if (msg.equals("nmsl")) {
-                CQ.sendGroupMsg(fromGroup, CC.at(fromQQ) + msg);
-            } else if (msg.contains("炼铜")) {
-                try {
-                    CQ.sendGroupMsg(fromGroup, CC.image(new File(appDirectory + "\\image\\liantong.jpg")));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            } else if (msg.equals("方舟素材")) {
+             if (msg.equals("方舟素材")) {
                 try {
                     CQ.sendGroupMsg(fromGroup, CC.image(new File(appDirectory + "\\image\\素材掉落.png")));
                 } catch (IOException e) {
