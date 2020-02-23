@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TimerTask;
 
-public class SendGroupMSGTask extends TimerTask {
+public class SendGroupMSGTask implements Runnable {
 
     private CoolQ CQ;
     private CQCode CC;
@@ -23,7 +23,6 @@ public class SendGroupMSGTask extends TimerTask {
         }
     }
 
-    @Override
     public void run() {
         try {
             // 在这里写你要执行的内容

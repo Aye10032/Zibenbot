@@ -18,10 +18,10 @@ public class DianGuaiFunc extends BaseFunc {
         mhwUtil = new MHWUtil();
     }
 
-    public void run(CQMsg CQmsg) {
-        if (CQmsg.msg.contains("点怪")) {
+    public void run(CQMsg cqmsg) {
+        if (cqmsg.msg.contains("点怪")) {
             String aim = mhwUtil.getAim();
-            CQ.sendGroupMsg(CQmsg.fromGroup, aim);
+            CQ.sendGroupMsg(cqmsg.fromGroup, aim);
         }
     }
 }
