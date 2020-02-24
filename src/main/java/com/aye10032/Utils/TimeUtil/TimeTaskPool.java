@@ -1,8 +1,12 @@
 package com.aye10032.Utils.TimeUtil;
 
+import com.aye10032.Zibenbot;
+
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
 
 /**
  * @author Dazo66
@@ -21,6 +25,7 @@ public class TimeTaskPool {
 
     public void add(TimedTask task) {
         if (task.runnable != null) {
+            Zibenbot.logger.log(Level.INFO, String.format("添加时间任务 触发时间：%s 当前时间%s", task.tiggerTime.toString(), new Date().toString()));
             tasks.add(task);
             flow.flush();
         }
@@ -54,7 +59,6 @@ public class TimeTaskPool {
                 }
             }
         }
-
         return nextTasks;
     }
 
