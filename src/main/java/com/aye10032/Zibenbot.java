@@ -1,14 +1,21 @@
 package com.aye10032;
 
-import com.aye10032.Functions.*;
+import com.aye10032.Functions.BaseFunc;
+import com.aye10032.Functions.CQMsg;
+import com.aye10032.Functions.IFunc;
+import com.aye10032.Utils.TimeUtil.TimeTaskPool;
+import com.aye10032.Utils.TimeUtil.TimedTask;
 import org.meowy.cqp.jcq.entity.*;
 import org.meowy.cqp.jcq.event.JcqAppAbstract;
 
 import javax.swing.*;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import static com.aye10032.Utils.ClassUtil.getAllAssignedClass;
+import static com.aye10032.Utils.TimeUtil.TimeConstant.PER_DAY;
 
 /**
  * 本文件是JCQ插件的主类<br>
@@ -36,6 +43,59 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
      */
 
     List<IFunc> registerFunc = new ArrayList<IFunc>();
+
+    //由于不知道这个类的构造函数会用到什么 就用这种方法进行初始化了
+    {
+        //建立时间任务池 这里就两个任务 如果任务多的话 可以新建类进行注册
+        TimeTaskPool pool = new TimeTaskPool();
+        List<Long> groupList = new ArrayList<Long>();
+        groupList.add(995497677L);
+        SendGroupMSGTask shangong = new SendGroupMSGTask(CQ, CC, groupList, "崽种上工了！");
+        SendGroupMSGTask xiagong = new SendGroupMSGTask(CQ, CC, groupList, "崽种们下班了，快回家！");
+        //创建任务对象
+        TimedTask shangongtask = new TimedTask();
+        TimedTask xiagongtask = new TimedTask();
+        //设置时间
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY, 8);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        Date date = calendar.getTime();
+        //设置任务
+        shangongtask.setRunnable(shangong)
+                //设置周期
+                .setCycle(PER_DAY)
+                //设置次数 -1 表示无限
+                .setTimes(-1)
+                //避免拿到的是未来的8点
+                .setTiggerTime(PER_DAY.getNextTime(date));
+        //换成晚上8点
+        calendar.set(Calendar.HOUR_OF_DAY, 22);
+        //重新生成date对象
+        date = calendar.getTime();
+        xiagongtask.setRunnable(xiagong)
+                .setCycle(PER_DAY)
+                .setTimes(-1)
+                //避免拿到的是未来的8点
+                .setTiggerTime(PER_DAY.getNextTime(date));
+
+        try {
+            //得到BaseFunc.class的所有子类 并自动注册
+            for (Class<?> c : getAllAssignedClass(BaseFunc.class)) {
+                Object o = c.getConstructors()[0].newInstance(this);
+                registerFunc.add((IFunc) o);
+                System.out.println("registe : " + c.getSimpleName());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        //对功能进行初始化
+        for (IFunc func : registerFunc) {
+            func.setUp();
+        }
+    }
+
+
 
     public Zibenbot() {
 
@@ -116,20 +176,8 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
         appDirectory = CQ.getAppDirectory();
         // 返回如：D:\CoolQ\data\app\org.meowy.cqp.jcq\data\app\com.example.demo\
         // 应用的所有数据、配置【必须】存放于此目录，避免给用户带来困扰。
-        new ShangongClass(CQ, CC);
-        new XiagongClass(CQ, CC);
 
-        try {
-            for (Class<?> c : getAllAssignedClass(BaseFunc.class)) {
-                Object o = c.getConstructors()[0].newInstance(this);
-                registerFunc.add((IFunc) o);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        for (IFunc func : registerFunc) {
-            func.setUp();
-        }
+
         return 0;
     }
 
