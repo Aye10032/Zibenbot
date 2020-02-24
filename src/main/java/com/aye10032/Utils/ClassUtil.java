@@ -33,8 +33,6 @@ public class ClassUtil {
 
     /**
      * 获取同一路径下所有子类或接口实现类
-     *
-     * @param intf
      * @return
      * @throws IOException
      * @throws ClassNotFoundException
@@ -62,6 +60,7 @@ public class ClassUtil {
         String path = pk.replace('.', '/');
         ClassLoader classloader = Thread.currentThread().getContextClassLoader();
         URL url = classloader.getResource(path);
+
         return getClasses(new File(url.getFile()), pk);
     }
 

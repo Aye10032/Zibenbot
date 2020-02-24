@@ -18,7 +18,7 @@ public class nmslFunc extends BaseFunc {
 
     public void run(CQMsg cqMsg) {
         if (cqMsg.msg.contains("nmsl")) {
-            CQ.sendGroupMsg(cqMsg.fromGroup, CC.at(cqMsg.fromQQ) + cqMsg);
+            CQ.sendGroupMsg(cqMsg.fromGroup, CC.at(cqMsg.fromQQ) + cqMsg.msg);
         }
     }
 }
