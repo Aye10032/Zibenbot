@@ -1,5 +1,9 @@
 package com.aye10032.Utils.TimeUtil;
 
+import com.aye10032.Zibenbot;
+
+import java.util.logging.Level;
+
 /**
  * @author Dazo66
  */
@@ -21,6 +25,7 @@ public class TimeFlow implements Runnable {
     }
 
     public void run() {
+        Zibenbot.logger.log(Level.INFO, "Time Thread Start");
         while (!Thread.currentThread().isInterrupted()) {
             //如果没有任务 就使线程长时间休眠
             if (pool.getNextTasks().size() == 0) {
@@ -37,12 +42,13 @@ public class TimeFlow implements Runnable {
                     Thread.sleep(timeInterval);
                 }
             } catch (InterruptedException e) {
-                System.out.println("线程刷新");
+                Zibenbot.logger.log(Level.INFO, "Time Thread Flush");
                 break;//捕获到异常之后，执行break跳出循环。
             }
 
             for (TimedTask task : pool.nextTasks) {
                 try {
+                    Zibenbot.logger.log(Level.INFO, String.format("触发任务", task.runnable.getClass().getSimpleName()));
                     //依次运行任务
                     task.run();
                     //当执行次数为0时从等待任务中删除
@@ -50,7 +56,7 @@ public class TimeFlow implements Runnable {
                         pool.remove(task);
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    Zibenbot.logger.log(Level.WARNING, String.format("运行方法：[%s]时出现异常[%s]", task.getClass().getName(), e.getMessage()));
                 }
             }
         }
