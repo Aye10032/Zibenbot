@@ -1,6 +1,8 @@
 package com.aye10032;
 
-import com.aye10032.Functions.*;
+import com.aye10032.Functions.BaseFunc;
+import com.aye10032.Functions.CQMsg;
+import com.aye10032.Functions.IFunc;
 import com.aye10032.Utils.TimeUtil.TimeTaskPool;
 import com.aye10032.Utils.TimeUtil.TimedTask;
 import org.meowy.cqp.jcq.entity.*;
@@ -50,7 +52,9 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
         groupList.add(995497677L);
         SendGroupMSGTask shangong = new SendGroupMSGTask(CQ, CC, groupList, "崽种上工了！");
         SendGroupMSGTask xiagong = new SendGroupMSGTask(CQ, CC, groupList, "崽种们下班了，快回家！");
+        //创建任务对象
         TimedTask shangongtask = new TimedTask();
+        TimedTask xiagongtask = new TimedTask();
         //设置时间
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.HOUR_OF_DAY, 8);
@@ -67,7 +71,9 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
                 .setTiggerTime(PER_DAY.getNextTime(date));
         //换成晚上8点
         calendar.set(Calendar.HOUR_OF_DAY, 22);
-        shangongtask.setRunnable(xiagong)
+        //重新生成date对象
+        date = calendar.getTime();
+        xiagongtask.setRunnable(xiagong)
                 .setCycle(PER_DAY)
                 .setTimes(-1)
                 //避免拿到的是未来的8点

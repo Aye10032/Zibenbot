@@ -15,12 +15,10 @@ public class TimeTaskTest {
     public static void main(String[] args) {
 
         TimeTaskPool pool = new TimeTaskPool();
-        TimedTask task = new TimedTask();
-        task.setTiggerTime(new Date(System.currentTimeMillis() - 5000))
-        .setTimes(-1)
-        .setCycle(TimeConstant.PER_MIN)
-        .setRunnable(new print1());
-        pool.add(task);
+        pool.add(new TimedTask().setTiggerTime(new Date(System.currentTimeMillis() - 5000))
+                .setTimes(5)
+                .setCycle(TimeConstant.PER_MIN)
+                .setRunnable(new print1()));
 
         TimedTask task1 = new TimedTask();
         task1.setTiggerTime(new Date(System.currentTimeMillis() + 1000))

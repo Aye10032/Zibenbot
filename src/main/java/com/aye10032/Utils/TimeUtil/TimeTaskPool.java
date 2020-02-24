@@ -9,8 +9,10 @@ import java.util.List;
  */
 public class TimeTaskPool {
 
+    //创建线程安全的列表
     List<TimedTask> nextTasks = Collections.synchronizedList(new ArrayList<TimedTask>());
     List<TimedTask> tasks = Collections.synchronizedList(new ArrayList<TimedTask>());
+    //时间流对象 主要是包装了时间任务的线程
     TimeFlow flow;
 
     public TimeTaskPool(){
@@ -18,9 +20,10 @@ public class TimeTaskPool {
     }
 
     public void add(TimedTask task) {
-        tasks.add(task);
-
-        flow.flush();
+        if (task.runnable != null) {
+            tasks.add(task);
+            flow.flush();
+        }
     }
 
     public void remove(TimedTask task) {
@@ -28,7 +31,14 @@ public class TimeTaskPool {
         flow.flush();
     }
 
-
+    /**
+     * 得到下一个要运行的任务列表
+     * 同时运行的会放在一起
+     * 只会比较时间先后 总是把先运行的拿出来
+     *
+     *
+     * @return
+     */
     public List<TimedTask> getNextTasks() {
         nextTasks.clear();
         for (TimedTask task : tasks) {
