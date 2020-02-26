@@ -91,6 +91,7 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
         registerFunc.add(new liantongFunc(this));
         registerFunc.add(new nmslFunc(this));
         registerFunc.add(new PixivFunc(this));
+        registerFunc.add(new BiliFunc(this));
         //对功能进行初始化
         for (IFunc func : registerFunc) {
             func.setUp();
