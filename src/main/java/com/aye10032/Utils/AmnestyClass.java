@@ -17,7 +17,7 @@ public class AmnestyClass {
     public AmnestyClass(CoolQ CQ, long fromGroup, int mode) {
         this.CQ = CQ;
         this.fromGroup = fromGroup;
-//        System.out.println("start");
+        //        System.out.println("start");
         if (mode == 0) {
             done();
         } else if (mode == 1) {

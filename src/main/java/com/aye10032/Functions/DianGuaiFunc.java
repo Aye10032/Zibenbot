@@ -21,7 +21,7 @@ public class DianGuaiFunc extends BaseFunc {
     public void run(CQMsg cqmsg) {
         if (cqmsg.msg.contains("点怪")) {
             String aim = mhwUtil.getAim();
-            CQ.sendGroupMsg(cqmsg.fromGroup, aim);
+            zibenbot.replyGroupMsg(cqmsg, aim);
         }
     }
 }

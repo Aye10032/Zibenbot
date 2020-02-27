@@ -1,8 +1,5 @@
 package com.aye10032.Utils;
 
-import org.meowy.cqp.jcq.entity.CoolQ;
-import org.meowy.cqp.jcq.message.CQCode;
-
 import java.io.File;
 import java.util.Random;
 

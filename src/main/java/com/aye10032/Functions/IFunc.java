@@ -1,7 +1,5 @@
 package com.aye10032.Functions;
 
-import com.aye10032.Zibenbot;
-
 /**
  * @author Dazo66
  */
@@ -20,7 +18,6 @@ public interface IFunc {
     void setdisable();
 
     boolean isEnable();
-
 
 
 }

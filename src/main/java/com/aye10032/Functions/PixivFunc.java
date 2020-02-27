@@ -18,7 +18,7 @@ public class PixivFunc extends BaseFunc {
     public void run(CQMsg CQmsg) {
         if (CQmsg.msg.equals(".p站") || CQmsg.msg.equals(".pixiv") || CQmsg.msg.equals(".P站")) {
             try {
-                CQ.sendGroupMsg(CQmsg.fromGroup, CC.image(new SetuUtil(zibenbot.appDirectory).getImage()));
+                zibenbot.replyGroupMsg(CQmsg, zibenbot.getCQCode().image(new SetuUtil(zibenbot.appDirectory).getImage()));
             } catch (IOException e) {
                 e.printStackTrace();
             }

@@ -19,7 +19,7 @@ public class TimeTaskPool {
     //时间流对象 主要是包装了时间任务的线程
     TimeFlow flow;
 
-    public TimeTaskPool(){
+    public TimeTaskPool() {
         flow = new TimeFlow(this);
     }
 
@@ -41,7 +41,6 @@ public class TimeTaskPool {
      * 同时运行的会放在一起
      * 只会比较时间先后 总是把先运行的拿出来
      *
-     *
      * @return
      */
     public List<TimedTask> getNextTasks() {
@@ -61,8 +60,6 @@ public class TimeTaskPool {
         }
         return nextTasks;
     }
-
-
 
 
 }

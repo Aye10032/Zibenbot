@@ -9,21 +9,24 @@ import java.io.IOException;
  * @author Dazo66
  */
 public class FangZhouDiaoluoFunc extends BaseFunc {
+
+
+
     public FangZhouDiaoluoFunc(Zibenbot zibenbot) {
         super(zibenbot);
     }
 
     public void setUp() {
-
     }
 
     public void run(CQMsg CQmsg) {
-        if (CQmsg.msg.equals("方舟素材")) {
+        if (CQmsg.msg.startsWith(".方舟素材")) {
             try {
-                CQ.sendGroupMsg(CQmsg.fromGroup, CC.image(new File(zibenbot.appDirectory + "\\image\\素材掉落.png")));
+                zibenbot.replyGroupMsg(CQmsg, zibenbot.getCQCode().image(new File(zibenbot.appDirectory + "\\image\\素材掉落.png")));
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
     }
+
 }

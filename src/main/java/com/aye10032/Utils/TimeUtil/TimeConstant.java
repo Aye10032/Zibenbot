@@ -9,11 +9,11 @@ import java.util.Date;
 public class TimeConstant {
 
     public static int SEC = 1000;
-    public static int MIN = 60*SEC;
-    public static int HOUR = 60* MIN;
-    public static int DAY = 24* HOUR;
-    public static int WEEK = 7* DAY;
-    public static int YEAR = 365* DAY;
+    public static int MIN = 60 * SEC;
+    public static int HOUR = 60 * MIN;
+    public static int DAY = 24 * HOUR;
+    public static int WEEK = 7 * DAY;
+    public static int YEAR = 365 * DAY;
 
     public static TaskCycle PER_YEAR = new PreYear();
     public static TaskCycle PER_MONTH = new PreMonth();
@@ -22,7 +22,7 @@ public class TimeConstant {
     public static TaskCycle PER_HOUR = new PreHour();
     public static TaskCycle PER_MIN = new PreMin();
 
-    public static class PreYear implements TaskCycle{
+    public static class PreYear implements TaskCycle {
 
         public Date getNextTime(Date date) {
             Date now = new Date();
@@ -34,7 +34,7 @@ public class TimeConstant {
 
     }
 
-    public static class PreMonth implements TaskCycle{
+    public static class PreMonth implements TaskCycle {
 
         public Date getNextTime(Date date) {
             Date now = new Date();
@@ -49,7 +49,7 @@ public class TimeConstant {
 
     }
 
-    public static class PreWeek implements TaskCycle{
+    public static class PreWeek implements TaskCycle {
 
         public Date getNextTime(Date date) {
             Date now = new Date();
@@ -61,7 +61,7 @@ public class TimeConstant {
 
     }
 
-    public static class PreDay implements TaskCycle{
+    public static class PreDay implements TaskCycle {
 
         public Date getNextTime(Date date) {
             Date now = new Date();
@@ -73,7 +73,7 @@ public class TimeConstant {
 
     }
 
-    public static class PreHour implements TaskCycle{
+    public static class PreHour implements TaskCycle {
 
         public Date getNextTime(Date date) {
             Date now = new Date();
@@ -85,7 +85,7 @@ public class TimeConstant {
 
     }
 
-    public static class PreMin implements TaskCycle{
+    public static class PreMin implements TaskCycle {
 
         public Date getNextTime(Date date) {
             Date now = new Date();
@@ -96,9 +96,6 @@ public class TimeConstant {
         }
 
     }
-
-
-
 
 
 }

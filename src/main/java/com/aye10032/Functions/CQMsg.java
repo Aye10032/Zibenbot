@@ -12,8 +12,7 @@ public class CQMsg {
     public String msg;
     public int font;
 
-    public CQMsg(int subType, int msgId, long fromGroup, long fromQQ, Anonymous fromAnonymous, String msg,
-                 int font){
+    public CQMsg(int subType, int msgId, long fromGroup, long fromQQ, Anonymous fromAnonymous, String msg, int font) {
         this.subType = subType;
         this.msgId = msgId;
         this.fromGroup = fromGroup;
@@ -21,7 +20,14 @@ public class CQMsg {
         this.anonymous = fromAnonymous;
         this.msg = msg;
         this.font = font;
+    }
 
+    public boolean isGroupMsg(){
+        return fromGroup != -1;
+    }
+
+    public boolean isPrivateMsg(){
+        return fromGroup == -1;
     }
 
 
