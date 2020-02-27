@@ -9,7 +9,7 @@ public class MHWUtil {
     private List<String> monsterList = new ArrayList<String>();
     private List<String> armsList = new ArrayList<String>();
 
-    public MHWUtil(){
+    public MHWUtil() {
         monsterList.add("蛮鄂");
         monsterList.add("丝瓜");
         monsterList.add("尸套");
@@ -63,7 +63,7 @@ public class MHWUtil {
         armsList.add("斩斧");
     }
 
-    public String getAim(){
+    public String getAim() {
         Random random = new Random();
         int m = random.nextInt(monsterList.size());
         int n = random.nextInt(armsList.size());

@@ -1,6 +1,7 @@
 package com.aye10032;
 
 import com.aye10032.Functions.*;
+import com.aye10032.Utils.IDNameUtil;
 import com.aye10032.Utils.TimeUtil.TimeTaskPool;
 import com.aye10032.Utils.TimeUtil.TimedTask;
 import org.meowy.cqp.jcq.entity.*;
@@ -30,18 +31,15 @@ import static com.aye10032.Utils.TimeUtil.TimeConstant.PER_DAY;
  */
 public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
 
-/**
- * 关于新版：本版本只是为了测试下新做的插件能不能正常运行，并不包含任何 “新” 内容
- * 新：指代 打包，调试运行
- * 新版改了整体架构，内部改动非常大，使用上 除了包名改动别无区别
- * 关于包名：可以通过批量替换将老程序里的[com.sobte]全部替换成[org.meowy]即可
- */
-
     /**
-     * 老的方式依然支持，也就是不强行定构造方法也行
+     * 关于新版：本版本只是为了测试下新做的插件能不能正常运行，并不包含任何 “新” 内容
+     * 新：指代 打包，调试运行
+     * 新版改了整体架构，内部改动非常大，使用上 除了包名改动别无区别
+     * 关于包名：可以通过批量替换将老程序里的[com.sobte]全部替换成[org.meowy]即可
      */
-    public static Logger logger = Logger.getLogger("zibenbot");
+
     List<IFunc> registerFunc = new ArrayList<IFunc>();
+    CQMsg lastMsg;
 
     //由于不知道这个类的构造函数会用到什么 就用这种方法进行初始化了
     {
@@ -49,8 +47,8 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
         TimeTaskPool pool = new TimeTaskPool();
         List<Long> groupList = new ArrayList<Long>();
         groupList.add(995497677L);
-        SendGroupMSGTask shangong = new SendGroupMSGTask(CQ, CC, groupList, "崽种上工了！");
-        SendGroupMSGTask xiagong = new SendGroupMSGTask(CQ, CC, groupList, "崽种们下班了，快回家！");
+        SendGroupMSGTask shangong = new SendGroupMSGTask(this, groupList, "崽种上工了！");
+        SendGroupMSGTask xiagong = new SendGroupMSGTask(this, groupList, "崽种们下班了，快回家！");
         //创建任务对象
         TimedTask shangongtask = new TimedTask();
         TimedTask xiagongtask = new TimedTask();
@@ -73,9 +71,7 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
         calendar.set(Calendar.HOUR_OF_DAY, 22);
         //重新生成date对象
         date = calendar.getTime();
-        xiagongtask.setRunnable(xiagong)
-                .setCycle(PER_DAY)
-                .setTimes(-1)
+        xiagongtask.setRunnable(xiagong).setCycle(PER_DAY).setTimes(-1)
                 //避免拿到的是未来的8点
                 .setTiggerTime(PER_DAY.getNextTime(date));
         Zibenbot.logger.log(Level.INFO, "registe time task start");
@@ -98,11 +94,10 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
         }
     }
 
-
-
     public Zibenbot() {
 
     }
+
 
     /**
      * 使用新的方式加载CQ （建议使用这种方式）
@@ -113,42 +108,12 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
         super(CQ);
     }
 
-    /**
-     * 用main方法调试可以最大化的加快开发效率，检测和定位错误位置<br/>
-     * 以下就是使用Main方法进行测试的一个简易案例
-     *
-     * @param args 系统参数
-     */
-    public static void main(String[] args) {
-
-        // 要测试主类就先实例化一个主类对象
-        Zibenbot demo = new Zibenbot();
-        // 获取当前酷Q操作对象
-        CoolQ CQ = demo.getCoolQ();
-        CQ.logInfo("[JCQ] TEST Demo", "测试启动");// 现在就可以用CQ变量来执行任何想要的操作了
-        // 下面对主类进行各方法测试,按照JCQ运行过程，模拟实际情况
-        demo.startup();// 程序运行开始 调用应用初始化方法
-        demo.enable();// 程序初始化完成后，启用应用，让应用正常工作
-        // 开始模拟发送消息
-        // 模拟私聊消息
-        // 开始模拟QQ用户发送消息，以下QQ全部编造，请勿添加
-        demo.privateMsg(0, 10001, 2234567819L, "nmsl", 0);
-        demo.privateMsg(0, 10002, 2222222224L, "喵呜喵呜喵呜", 0);
-        demo.privateMsg(0, 10003, 2111111334L, "可以给我你的微信吗", 0);
-        demo.privateMsg(0, 10004, 3111111114L, "今天天气真好", 0);
-        demo.privateMsg(0, 10005, 3333333334L, "你好坏，都不理我QAQ", 0);
-        // 模拟群聊消息
-        // 开始模拟群聊消息
-        demo.groupMsg(1, 10006, 3456789012L, 3333333334L, "", ".禁言 [CQ:at,qq=348802256] 10", 0);
-        demo.groupMsg(1, 10008, 3456789012L, 11111111114L, "", "小喵呢，出来玩玩呀", 0);
-        demo.groupMsg(1, 10009, 427984429L, 3333333334L, "", "[CQ:at,qq=2222222224] 来一起玩游戏，开车开车", 0);
-        demo.groupMsg(1, 10010, 427984429L, 3333333334L, "", "好久不见啦 [CQ:at,qq=11111111114]", 0);
-        demo.groupMsg(1, 10011, 427984429L, 11111111114L, "", "qwq 有没有一起开的\n[CQ:at,qq=3333333334]你玩嘛", 0);
-        // ......
-        // 依次类推，可以根据实际情况修改参数，和方法测试效果
-        // 以下是收尾触发函数
-        // demo.disable();// 实际过程中程序结束不会触发disable，只有用户关闭了此插件才会触发
-        demo.exit();// 最后程序运行结束，调用exit方法
+    public int replyGroupMsg(CQMsg fromMsg, String msg) {
+        Zibenbot.logger.log(Level.INFO, String.format("回复群[%s]成员[%s]消息:%s",
+                IDNameUtil.getGroupNameByID(fromMsg.fromGroup, getCoolQ().getGroupList()),
+                IDNameUtil.getGroupMemberNameByID(fromMsg.fromGroup, fromMsg.fromQQ,  CQ),
+                lastMsg.msg, msg));
+        return CQ.sendGroupMsg(fromMsg.fromGroup, msg);
     }
 
     /**
@@ -237,12 +202,12 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
      */
     public int privateMsg(int subType, int msgId, long fromQQ, String msg, int font) {
         // 这里处理消息
-//        CQ.sendPrivateMsg(fromQQ, "你发送了这样的消息：" + msg + "\n来自Java插件");
-//        try {
-//            CQ.sendPrivateMsg(fromQQ, CC.image(new SetuUtil(appDirectory).getImage()));
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
+        //        CQ.sendPrivateMsg(fromQQ, "你发送了这样的消息：" + msg + "\n来自Java插件");
+        //        try {
+        //            CQ.sendPrivateMsg(fromQQ, CC.image(new SetuUtil(appDirectory).getImage()));
+        //        } catch (IOException e) {
+        //            e.printStackTrace();
+        //        }
         return MSG_IGNORE;
     }
 
@@ -259,8 +224,7 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
      * @param font          字体
      * @return 关于返回值说明, 见 {@link #privateMsg 私聊消息} 的方法
      */
-    public int groupMsg(int subType, int msgId, long fromGroup, long fromQQ, String fromAnonymous, String msg,
-                        int font) {
+    public int groupMsg(int subType, int msgId, long fromGroup, long fromQQ, String fromAnonymous, String msg, int font) {
         // 如果消息来自匿名者
         Anonymous anonymous = null;
         if (fromQQ == 80000000L && !fromAnonymous.equals("")) {
@@ -268,7 +232,7 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
             anonymous = CQ.getAnonymous(fromAnonymous);
         }
         CQMsg cqMsg = new CQMsg(subType, msgId, fromGroup, fromQQ, anonymous, msg, font);
-
+        lastMsg = cqMsg;
         if (fromGroup == 995497677L || fromGroup == 792666782L || fromGroup == 517709950L || fromGroup == 295904863) { // 这里的 0L 可以换成您的测试群
 
             for (IFunc func : registerFunc) {
@@ -370,24 +334,6 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
     }
 
     /**
-     * 群事件-群禁言 (Type=104)<br>
-     * 本方法会在酷Q【线程】中被调用。<br>
-     *
-     * @param subType        子类型，1/被解禁 2/被禁言
-     * @param sendTime       发送时间(时间戳)
-     * @param fromGroup      来源群号
-     * @param fromQQ         操作者QQ
-     * @param beingOperateQQ 被操作QQ(若为全群禁言/解禁，则本参数为 0)
-     * @param duration       禁言时长(单位 秒，仅子类型为2时可用)
-     * @return 关于返回值说明, 见 {@link #privateMsg 私聊消息} 的方法
-     */
-    public int groupBan(int subType, int sendTime, long fromGroup, long fromQQ, long beingOperateQQ, long duration) {
-        // 这里处理消息
-
-        return 0;
-    }
-
-    /**
      * 好友事件-好友已添加 (Type=201)<br>
      * 本方法会在酷Q【线程】中被调用。<br>
      *
@@ -437,8 +383,7 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
      * @param responseFlag 反馈标识(处理请求用)
      * @return 关于返回值说明, 见 {@link #privateMsg 私聊消息} 的方法
      */
-    public int requestAddGroup(int subtype, int sendTime, long fromGroup, long fromQQ, String msg,
-                               String responseFlag) {
+    public int requestAddGroup(int subtype, int sendTime, long fromGroup, long fromQQ, String msg, String responseFlag) {
         // 这里处理消息
 
         /**
@@ -454,6 +399,24 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
 			CQ.setGroupAddRequest(responseFlag, REQUEST_GROUP_INVITE, REQUEST_ADOPT, null);// 同意进受邀群
 		}*/
         return MSG_IGNORE;
+    }
+
+    /**
+     * 群事件-群禁言 (Type=104)<br>
+     * 本方法会在酷Q【线程】中被调用。<br>
+     *
+     * @param subType        子类型，1/被解禁 2/被禁言
+     * @param sendTime       发送时间(时间戳)
+     * @param fromGroup      来源群号
+     * @param fromQQ         操作者QQ
+     * @param beingOperateQQ 被操作QQ(若为全群禁言/解禁，则本参数为 0)
+     * @param duration       禁言时长(单位 秒，仅子类型为2时可用)
+     * @return 关于返回值说明, 见 {@link #privateMsg 私聊消息} 的方法
+     */
+    public int groupBan(int subType, int sendTime, long fromGroup, long fromQQ, long beingOperateQQ, long duration) {
+        // 这里处理消息
+
+        return 0;
     }
 
     /**
@@ -474,6 +437,48 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
     public int menuB() {
         JOptionPane.showMessageDialog(null, "这是测试菜单B，可以在这里加载窗口");
         return 0;
+    }
+    /**
+     * 老的方式依然支持，也就是不强行定构造方法也行
+     */
+    public static Logger logger = Logger.getLogger("zibenbot");
+
+    /**
+     * 用main方法调试可以最大化的加快开发效率，检测和定位错误位置<br/>
+     * 以下就是使用Main方法进行测试的一个简易案例
+     *
+     * @param args 系统参数
+     */
+    public static void main(String[] args) {
+
+        // 要测试主类就先实例化一个主类对象
+        Zibenbot demo = new Zibenbot();
+        // 获取当前酷Q操作对象
+        CoolQ CQ = demo.getCoolQ();
+        CQ.logInfo("[JCQ] TEST Demo", "测试启动");// 现在就可以用CQ变量来执行任何想要的操作了
+        // 下面对主类进行各方法测试,按照JCQ运行过程，模拟实际情况
+        demo.startup();// 程序运行开始 调用应用初始化方法
+        demo.enable();// 程序初始化完成后，启用应用，让应用正常工作
+        // 开始模拟发送消息
+        // 模拟私聊消息
+        // 开始模拟QQ用户发送消息，以下QQ全部编造，请勿添加
+        demo.privateMsg(0, 10001, 2234567819L, "nmsl", 0);
+        demo.privateMsg(0, 10002, 2222222224L, "喵呜喵呜喵呜", 0);
+        demo.privateMsg(0, 10003, 2111111334L, "可以给我你的微信吗", 0);
+        demo.privateMsg(0, 10004, 3111111114L, "今天天气真好", 0);
+        demo.privateMsg(0, 10005, 3333333334L, "你好坏，都不理我QAQ", 0);
+        // 模拟群聊消息
+        // 开始模拟群聊消息
+        demo.groupMsg(1, 10006, 3456789012L, 3333333334L, "", ".禁言 [CQ:at,qq=348802256] 10", 0);
+        demo.groupMsg(1, 10008, 3456789012L, 11111111114L, "", "小喵呢，出来玩玩呀", 0);
+        demo.groupMsg(1, 10009, 427984429L, 3333333334L, "", "[CQ:at,qq=2222222224] 来一起玩游戏，开车开车", 0);
+        demo.groupMsg(1, 10010, 427984429L, 3333333334L, "", "好久不见啦 [CQ:at,qq=11111111114]", 0);
+        demo.groupMsg(1, 10011, 427984429L, 11111111114L, "", "qwq 有没有一起开的\n[CQ:at,qq=3333333334]你玩嘛", 0);
+        // ......
+        // 依次类推，可以根据实际情况修改参数，和方法测试效果
+        // 以下是收尾触发函数
+        // demo.disable();// 实际过程中程序结束不会触发disable，只有用户关闭了此插件才会触发
+        demo.exit();// 最后程序运行结束，调用exit方法
     }
 
 }

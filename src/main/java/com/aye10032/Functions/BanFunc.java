@@ -3,15 +3,21 @@ package com.aye10032.Functions;
 import com.aye10032.Utils.AmnestyClass;
 import com.aye10032.Utils.BanUtil.BanRecord;
 import com.aye10032.Zibenbot;
+import org.meowy.cqp.jcq.entity.CoolQ;
+import org.meowy.cqp.jcq.message.CQCode;
 
 import java.util.List;
 
 public class BanFunc extends BaseFunc {
 
     BanRecord banRecord;
+    CoolQ CQ;
+    CQCode CC;
 
     public BanFunc(Zibenbot zibenbot) {
         super(zibenbot);
+        CQ = zibenbot.getCoolQ();
+        CC = zibenbot.getCQCode();
     }
 
     public void setUp() {
@@ -29,7 +35,7 @@ public class BanFunc extends BaseFunc {
                 if (strlist.length == 3) {
                     try {
                         if (CC.getAt(CQmsg.msg) == 2375985957L) {
-                            CQ.sendGroupMsg(CQmsg.fromGroup, "对不起，做不到。");
+                            zibenbot.replyGroupMsg(CQmsg, "对不起，做不到。");
                             if (CQmsg.fromQQ != 2375985957L) {
                                 CQ.setGroupBan(CQmsg.fromGroup, CQmsg.fromQQ, Long.parseLong(strlist[2]));
                                 zibenbot.groupBan(2, 00000001, CQmsg.fromGroup, CQmsg.fromQQ, CQmsg.fromQQ, Long.parseLong(strlist[2]));
@@ -58,7 +64,7 @@ public class BanFunc extends BaseFunc {
                         msgs.append(temp);
                     }
                 }
-                CQ.sendGroupMsg(CQmsg.fromGroup, msgs.toString());
+                zibenbot.replyGroupMsg(CQmsg, msgs.toString());
             }
         }
     }

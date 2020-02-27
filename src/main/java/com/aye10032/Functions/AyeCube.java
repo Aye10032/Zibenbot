@@ -49,12 +49,12 @@ public class AyeCube extends BaseFunc {
         return temp;
     }
 
-    public void setCuberandom(String cuberandom) {
-        this.cuberandom = cuberandom;
-    }
-
     public String getCuberandom() {
         return this.cuberandom;
+    }
+
+    public void setCuberandom(String cuberandom) {
+        this.cuberandom = cuberandom;
     }
 
     public void setUp() {
@@ -63,7 +63,8 @@ public class AyeCube extends BaseFunc {
 
     public void run(CQMsg CQmsg) {
         if (CQmsg.msg.equals(".3")) {
-            CQ.sendGroupMsg(CQmsg.fromGroup, getCuberandom());
+
+            zibenbot.replyGroupMsg(CQmsg, getCuberandom());
         }
     }
 }

@@ -15,11 +15,7 @@ public class TimedTask implements Runnable {
 
     Runnable runnable = null;
 
-    public TimedTask(){}
-
-    public TimedTask setTiggerTime(Date tiggerTime) {
-        this.tiggerTime = tiggerTime;
-        return this;
+    public TimedTask() {
     }
 
     public TimedTask setCycle(TaskCycle cycle) {
@@ -27,11 +23,16 @@ public class TimedTask implements Runnable {
         return this;
     }
 
-    public Date getTiggerTime(){
+    public Date getTiggerTime() {
         return tiggerTime;
     }
 
-    private Date getNextTiggerTime(){
+    public TimedTask setTiggerTime(Date tiggerTime) {
+        this.tiggerTime = tiggerTime;
+        return this;
+    }
+
+    private Date getNextTiggerTime() {
         return cycle.getNextTime(tiggerTime);
     }
 
@@ -47,7 +48,9 @@ public class TimedTask implements Runnable {
 
     public void run() {
         if (runnable != null && (times > 0 || times == -1)) {
-            if (times > 0) times--;
+            if (times > 0) {
+                times--;
+            }
             runnable.run();
             tiggerTime = getNextTiggerTime();
         }

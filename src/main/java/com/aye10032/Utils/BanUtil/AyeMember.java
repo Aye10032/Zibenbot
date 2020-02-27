@@ -6,7 +6,7 @@ public class AyeMember {
     private int BanedTime = 0;
     private int BanOtherTime = 0;
 
-    public AyeMember(long qq){
+    public AyeMember(long qq) {
         this.QQ = qq;
     }
 
@@ -14,23 +14,23 @@ public class AyeMember {
         return BanedTime;
     }
 
-    public void addBanedTime(){
-        this.BanedTime ++;
-    }
-
     public void setBanedTime(int banedTime) {
         BanedTime = banedTime;
+    }
+
+    public void addBanedTime() {
+        this.BanedTime++;
     }
 
     public int getBanOtherTime() {
         return BanOtherTime;
     }
 
-    public void addBanOtherTime(){
-        this.BanOtherTime ++;
-    }
-
     public void setBanOtherTime(int banOtherTime) {
         BanOtherTime = banOtherTime;
+    }
+
+    public void addBanOtherTime() {
+        this.BanOtherTime++;
     }
 }
