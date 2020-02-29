@@ -1,5 +1,7 @@
 package com.dazo66.test;
 
+import java.util.List;
+
 /**
  * @author Dazo66
  */
@@ -36,6 +38,17 @@ public class DiaoluoType {
     public class Drop {
         public String name;
         public int id;
+    }
+
+    public static class HeChenType {
+        int id;
+        String[] names;
+        String[] calls;
+        public HeChenType(int id, String[] names, String[] calls){
+            this.id = id;
+            this.calls = calls;
+            this.names = names;
+        }
     }
 
 }
