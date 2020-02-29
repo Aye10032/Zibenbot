@@ -43,6 +43,20 @@ public class Module {
         return modules;
     }
 
+    public static List<String> getVers(String rawVers) {
+        List<String> vers = new ArrayList<>();
+        while (rawVers.contains("}")) {
+            int index = rawVers.indexOf("}");
+            if (index > -1) {
+                vers.add(rawVers.substring(0, index + 1).replace("{", "").replace("}", ""));
+                rawVers = rawVers.substring(index + 1);
+            } else {
+                vers.add(rawVers);
+            }
+        }
+        return vers;
+    }
+
     public static int getSecIndexof(String s, String cher){
         String[] arr = s.split(cher);
         if (arr.length > 1) {
