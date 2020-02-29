@@ -2,16 +2,17 @@ package com.aye10032.Functions;
 
 import com.aye10032.Zibenbot;
 import com.dazo66.test.DiaoluoType;
+import com.dazo66.test.Module;
 import com.google.gson.Gson;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 
-import java.io.File;
-import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,31 +26,40 @@ import static com.dazo66.test.Module.getVers;
 public class FangZhouDiaoluoFunc extends BaseFunc {
 
     private DiaoluoType type;
+    private Module module;
 
     public FangZhouDiaoluoFunc(Zibenbot zibenbot) {
         super(zibenbot);
     }
 
+    @Override
     public void setUp() {
+        update();
+    }
 
+    public void update(){
+        Zibenbot.logger.info("fangzhoudiaoluo update start");
         Gson gson = new Gson();
-        HttpClient client = HttpClients.createDefault();
+        CloseableHttpClient client = HttpClients.createDefault();
         DiaoluoType diaoluoType = null;
         try {
             for (int i = 1; i <= 5; i++) {
-                HttpGet httpGet = new HttpGet("https://arkonegraph.herokuapp.com/materials/tier/" + String.valueOf(i));
-                CloseableHttpResponse response1 = (CloseableHttpResponse) client.execute(httpGet);
+                InputStream stream = getInputStreamFromNet(
+                        "https://arkonegraph.herokuapp.com/materials/tier/" + String.valueOf(i);
                 if (diaoluoType == null) {
-                    diaoluoType = gson.fromJson(new InputStreamReader(response1.getEntity().getContent()), DiaoluoType.class);
+                    diaoluoType = gson.fromJson(new InputStreamReader(stream), DiaoluoType.class);
                 } else {
-                    diaoluoType.material = ArrayUtils.addAll(diaoluoType.material, gson.fromJson(new InputStreamReader(response1.getEntity().getContent()), DiaoluoType.class).material);
+                    diaoluoType.material = ArrayUtils.addAll(diaoluoType.material, gson.fromJson(
+                            new InputStreamReader(stream), DiaoluoType.class).material);
                 }
+                stream.close();
 
             }
             this.type = diaoluoType;
-
-            File file = new File("res/name-id.txt");
-            List<String> strings = IOUtils.readLines(new FileInputStream(file));
+            InputStream stream = getInputStreamFromNet(
+                    "https://github.com/Aye10032/Zibenbot/raw/master/res/%E6%96%B9%E8%88%9F%E6%8E%89%E8%90%BD/name-id.txt"
+                    , client);
+            List<String> strings = IOUtils.readLines(new InputStreamReader(stream));
             List<DiaoluoType.HeChenType> list = new ArrayList<>();
             for (String s : strings) {
                 if ("".equals(s.trim()) || s.startsWith("//")) {
@@ -63,9 +73,16 @@ public class FangZhouDiaoluoFunc extends BaseFunc {
                     list.add(new DiaoluoType.HeChenType(integer, getVers(modules.get(1)).toArray(new String[]{}), getVers(modules.get(2)).toArray(new String[]{})));
                 }
             }
+            stream.close();
+            client.close();
         } catch (Exception e) {
             Zibenbot.logger.warning(e.getMessage());
         }
+        Zibenbot.logger.info("fangzhoudiaoluo update end");
+    }
+
+    public static InputStream getInputStreamFromNet(String web, HttpClient client) throws IOException {
+        return client.execute(new HttpGet(web)).getEntity().getContent();
 
     }
 
