@@ -27,6 +27,7 @@ public class FangZhouDiaoluoFunc extends BaseFunc {
 
     private DiaoluoType type;
     private Module module;
+    private List<DiaoluoType.HeChenType> name_idList;
 
     public FangZhouDiaoluoFunc(Zibenbot zibenbot) {
         super(zibenbot);
@@ -45,7 +46,7 @@ public class FangZhouDiaoluoFunc extends BaseFunc {
         try {
             for (int i = 1; i <= 5; i++) {
                 InputStream stream = getInputStreamFromNet(
-                        "https://arkonegraph.herokuapp.com/materials/tier/" + String.valueOf(i);
+                        "https://arkonegraph.herokuapp.com/materials/tier/" + String.valueOf(i), client);
                 if (diaoluoType == null) {
                     diaoluoType = gson.fromJson(new InputStreamReader(stream), DiaoluoType.class);
                 } else {
@@ -64,17 +65,18 @@ public class FangZhouDiaoluoFunc extends BaseFunc {
             for (String s : strings) {
                 if ("".equals(s.trim()) || s.startsWith("//")) {
                     //忽略注释和空行
-                    continue;
                 } else {
                     List<String> modules = getModules(s);
                     String s1 = modules.get(0);
-                    Integer integer = Integer.parseInt(s1.trim());
+                    int integer = Integer.parseInt(s1.trim());
                     System.out.println(integer);
                     list.add(new DiaoluoType.HeChenType(integer, getVers(modules.get(1)).toArray(new String[]{}), getVers(modules.get(2)).toArray(new String[]{})));
                 }
             }
+            name_idList = list;
             stream.close();
             client.close();
+            module.update();
         } catch (Exception e) {
             Zibenbot.logger.warning(e.getMessage());
         }
