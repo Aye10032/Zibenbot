@@ -1,25 +1,26 @@
 package com.aye10032.Functions;
 
 import com.aye10032.Utils.HttpUtils;
+import com.aye10032.Utils.TimeUtil.TimedTask;
 import com.aye10032.Zibenbot;
 import com.dazo66.test.DiaoluoType;
 import com.dazo66.test.Module;
 import com.google.gson.Gson;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.http.HttpHost;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
+import static com.aye10032.Utils.TimeUtil.TimeConstant.PER_DAY;
 import static com.dazo66.test.Module.getModules;
 import static com.dazo66.test.Module.getVers;
 
@@ -31,15 +32,32 @@ public class FangZhouDiaoluoFunc extends BaseFunc {
     private DiaoluoType type;
     private Module module;
     private List<DiaoluoType.HeChenType> name_idList;
-    private String arkonegraphFile = zibenbot.appDirectory+"/Arkonegraph.png";
+    private String arkonegraphFile;
 
     public FangZhouDiaoluoFunc(Zibenbot zibenbot) {
         super(zibenbot);
+        if (zibenbot != null) {
+            arkonegraphFile = zibenbot.appDirectory + "/Arkonegraph.png";
+        } else {
+            arkonegraphFile = "/Arkonegraph.png";
+        }
+    }
+
+    public FangZhouDiaoluoFunc() {
+        this(null);
     }
 
     @Override
     public void setUp() {
         update();
+        TimedTask task = new TimedTask();
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY, 20);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        Date date = calendar.getTime();
+        task.setTiggerTime(date).setCycle(PER_DAY).setRunnable(this::update);
+        zibenbot.pool.add(task);
     }
 
     public void update(){
@@ -50,7 +68,7 @@ public class FangZhouDiaoluoFunc extends BaseFunc {
         DiaoluoType diaoluoType = null;
         try {
             for (int i = 1; i <= 5; i++) {
-                InputStream stream = getInputStreamFromNet(
+                InputStream stream = HttpUtils.getInputStreamFromNet(
                         "https://arkonegraph.herokuapp.com/materials/tier/" + String.valueOf(i), client);
                 if (diaoluoType == null) {
                     diaoluoType = gson.fromJson(new InputStreamReader(stream), DiaoluoType.class);
@@ -62,7 +80,7 @@ public class FangZhouDiaoluoFunc extends BaseFunc {
 
             }
             this.type = diaoluoType;
-            InputStream stream = getInputStreamFromNet(
+            InputStream stream = HttpUtils.getInputStreamFromNet(
                     "https://github.com/Aye10032/Zibenbot/raw/master/res/%E6%96%B9%E8%88%9F%E6%8E%89%E8%90%BD/name-id.txt"
                     , client);
             List<String> strings = IOUtils.readLines(new InputStreamReader(stream));
@@ -78,30 +96,38 @@ public class FangZhouDiaoluoFunc extends BaseFunc {
             }
             name_idList = list;
             stream.close();
-            client.close();
             Module.update();
             module = Module.module;
 
             //更新图片
-            HttpUtils.download("https://github.com/Aye10032/Zibenbot/raw/master/res/%E6%96%B9%E8%88%9F%E6%8E%89%E8%90%BD/Arkonegraph.png"
-                    , arkonegraphFile);
+            HttpUtils.download("https://github.com/Aye10032/Zibenbot/blob/master/res/%E6%96%B9%E8%88%9F%E6%8E%89%E8%90%BD/Arkonegraph.png?raw=true"
+                    , arkonegraphFile, client);
+            client.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
         Zibenbot.logger.info("fangzhoudiaoluo update end");
     }
 
-    public static InputStream getInputStreamFromNet(String web, HttpClient client) throws IOException {
-        //设置代理IP、端口、协议（请分别替换）
-        HttpHost proxy = new HttpHost("127.0.0.1", 1080, "http");
-
-        RequestConfig config = RequestConfig.custom()
-                .setProxy(proxy)
-                .build();
-        HttpGet get = new HttpGet(web);
-        get.setConfig(config);
-        return client.execute(get).getEntity().getContent();
-
+    public List<String> getCalls(List<DiaoluoType.HeChenType> all, DiaoluoType.HeChenType type) {
+        List<String> strings = new ArrayList<>();
+        if (type.calls.length == 0) {
+            strings.add(type.id);
+            return strings;
+        } else {
+            for (String c : type.calls) {
+                for (DiaoluoType.HeChenType type1 : all) {
+                    if (type1.id.equals(c)) {
+                        for (String s : getCalls(all, type1)) {
+                            if (!strings.contains(s)) {
+                                strings.add(s);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return strings;
     }
 
     @Override
@@ -115,15 +141,42 @@ public class FangZhouDiaoluoFunc extends BaseFunc {
                 for (int i = 1; i < len; i++) {
                     for (DiaoluoType.HeChenType type : name_idList) {
                         if (type.isThis(strings[i])) {
-                            for (String id : type.calls) {
-                                zibenbot.replyGroupMsg(CQmsg, module.getString(this.type.getMaterialFromID(id)));
+                            if (type.calls.length == 0) {
+                                if (zibenbot != null) {
+                                    zibenbot.replyGroupMsg(CQmsg, module.getString(this.type.getMaterialFromID(type.id)));
+                                } else {
+                                    System.out.println(module.getString(this.type.getMaterialFromID(type.id)));
+                                }
+                            } else {
+                                StringBuilder s = new StringBuilder();
+                                List<String> strings1 = getCalls(name_idList, type);
+                                for (int i1 = 0; i1 < strings1.size(); i1++) {
+                                    s.append(module.getString(this.type.getMaterialFromID(strings1.get(i1))));
+                                    if (i1 != strings1.size() - 1) {
+                                        s.append("\n\n");
+                                    }
+                                }
+                                if (zibenbot != null) {
+                                    zibenbot.replyGroupMsg(CQmsg, s.toString());
+                                } else {
+                                    System.out.println(s.toString());
+                                }
+                                break loop;
                             }
-                            break loop;
                         }
                     }
                 }
             } else {
-                zibenbot.replyGroupMsg(CQmsg, zibenbot.getCoolQ().getImage(arkonegraphFile));
+                try {
+                    if (zibenbot != null) {
+                        zibenbot.replyGroupMsg(CQmsg, zibenbot.getCQCode().image(new File(arkonegraphFile)));
+                    } else {
+                        System.out.println(arkonegraphFile);
+                    }
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }

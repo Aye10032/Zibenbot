@@ -56,7 +56,7 @@ public class TimeFlow implements Runnable {
                         pool.remove(task);
                     }
                 } catch (Exception e) {
-                    Zibenbot.logger.log(Level.WARNING, String.format("运行方法：[%s]时出现异常[%s]", task.getClass().getName(), e.getMessage()));
+                    Zibenbot.logger.log(Level.WARNING, String.format("运行任务：[%s]时出现异常[%s]", task.getClass().getName(), e.getMessage()));
                 }
             }
         }
