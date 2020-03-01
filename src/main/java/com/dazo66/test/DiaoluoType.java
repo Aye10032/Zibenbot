@@ -1,13 +1,22 @@
 package com.dazo66.test;
 
-import java.util.List;
-
 /**
  * @author Dazo66
  */
 public class DiaoluoType {
 
     public Material[] material;
+
+    public Material getMaterialFromID(String id) {
+        if (material != null) {
+            for (Material material : this.material) {
+                if (material.id.equals(id)) {
+                    return material;
+                }
+            }
+        }
+        return null;
+    }
 
     public class Material {
         public String _id;
@@ -41,13 +50,23 @@ public class DiaoluoType {
     }
 
     public static class HeChenType {
-        int id;
+        public String id;
         String[] names;
         String[] calls;
-        public HeChenType(int id, String[] names, String[] calls){
+
+        public HeChenType(String id, String[] names, String[] calls){
             this.id = id;
             this.calls = calls;
             this.names = names;
+        }
+
+        public boolean isThis(String name) {
+            for (String s : names) {
+                if (s.equals(name)) {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 
