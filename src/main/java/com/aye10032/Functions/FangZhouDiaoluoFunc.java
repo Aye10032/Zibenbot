@@ -31,7 +31,7 @@ public class FangZhouDiaoluoFunc extends BaseFunc {
     private DiaoluoType type;
     private Module module;
     private List<DiaoluoType.HeChenType> name_idList;
-    private String arkonegraphFile = zibenbot.appDirectory+"\\Arkonegraph.jpg";
+    private String arkonegraphFile = zibenbot.appDirectory+"\\Arkonegraph.png";
 
     public FangZhouDiaoluoFunc(Zibenbot zibenbot) {
         super(zibenbot);
