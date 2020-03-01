@@ -41,58 +41,7 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
     List<IFunc> registerFunc = new ArrayList<IFunc>();
     CQMsg lastMsg;
 
-    //由于不知道这个类的构造函数会用到什么 就用这种方法进行初始化了
-    {
-        //建立时间任务池 这里就两个任务 如果任务多的话 可以新建类进行注册
-        TimeTaskPool pool = new TimeTaskPool();
-        List<Long> groupList = new ArrayList<Long>();
-        groupList.add(995497677L);
-        SendGroupMSGTask shangong = new SendGroupMSGTask(this, groupList, "崽种上工了！");
-        SendGroupMSGTask xiagong = new SendGroupMSGTask(this, groupList, "崽种们下班了，快回家！");
-        //创建任务对象
-        TimedTask shangongtask = new TimedTask();
-        TimedTask xiagongtask = new TimedTask();
-        //设置时间
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR_OF_DAY, 8);
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.SECOND, 0);
-        Date date = calendar.getTime();
-        //设置任务
-        shangongtask.setRunnable(shangong)
-                //设置周期
-                .setCycle(PER_DAY)
-                //设置次数 -1 表示无限
-                .setTimes(-1)
-                //避免拿到的是未来的8点
-                .setTiggerTime(PER_DAY.getNextTime(date));
 
-        //换成晚上10点
-        calendar.set(Calendar.HOUR_OF_DAY, 22);
-        //重新生成date对象
-        date = calendar.getTime();
-        xiagongtask.setRunnable(xiagong).setCycle(PER_DAY).setTimes(-1)
-                //避免拿到的是未来的8点
-                .setTiggerTime(PER_DAY.getNextTime(date));
-        Zibenbot.logger.log(Level.INFO, "registe time task start");
-        pool.add(shangongtask);
-        pool.add(xiagongtask);
-        //改成了手动注册
-        Zibenbot.logger.log(Level.INFO, "registe func start");
-        registerFunc.add(new AyeCube(this));
-        registerFunc.add(new BanFunc(this));
-        registerFunc.add(new DianGuaiFunc(this));
-        registerFunc.add(new EatFunc(this));
-        registerFunc.add(new FangZhouDiaoluoFunc(this));
-        registerFunc.add(new liantongFunc(this));
-        registerFunc.add(new nmslFunc(this));
-        registerFunc.add(new PixivFunc(this));
-        registerFunc.add(new BiliFunc(this));
-        //对功能进行初始化
-        for (IFunc func : registerFunc) {
-            func.setUp();
-        }
-    }
 
     public Zibenbot() {
 
@@ -145,6 +94,57 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
         // 返回如：D:\CoolQ\data\app\org.meowy.cqp.jcq\data\app\com.example.demo\
         // 应用的所有数据、配置【必须】存放于此目录，避免给用户带来困扰。
 
+        //建立时间任务池 这里就两个任务 如果任务多的话 可以新建类进行注册
+        TimeTaskPool pool = new TimeTaskPool();
+        List<Long> groupList = new ArrayList<Long>();
+        groupList.add(995497677L);
+        SendGroupMSGTask shangong = new SendGroupMSGTask(this, groupList, "崽种上工了！");
+        SendGroupMSGTask xiagong = new SendGroupMSGTask(this, groupList, "崽种们下班了，快回家！");
+        //创建任务对象
+        TimedTask shangongtask = new TimedTask();
+        TimedTask xiagongtask = new TimedTask();
+        //设置时间
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY, 8);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        Date date = calendar.getTime();
+        //设置任务
+        shangongtask.setRunnable(shangong)
+                //设置周期
+                .setCycle(PER_DAY)
+                //设置次数 -1 表示无限
+                .setTimes(-1)
+                //避免拿到的是未来的8点
+                .setTiggerTime(PER_DAY.getNextTime(date));
+
+        //换成晚上10点
+        calendar.set(Calendar.HOUR_OF_DAY, 22);
+        //重新生成date对象
+        date = calendar.getTime();
+        xiagongtask.setRunnable(xiagong).setCycle(PER_DAY).setTimes(-1)
+                //避免拿到的是未来的8点
+                .setTiggerTime(PER_DAY.getNextTime(date));
+        Zibenbot.logger.log(Level.INFO, "registe time task start");
+        pool.add(shangongtask);
+        pool.add(xiagongtask);
+        Zibenbot.logger.log(Level.INFO, "registe time task end");
+        //改成了手动注册
+        Zibenbot.logger.log(Level.INFO, "registe func start");
+        registerFunc.add(new AyeCube(this));
+        registerFunc.add(new BanFunc(this));
+        registerFunc.add(new DianGuaiFunc(this));
+        registerFunc.add(new EatFunc(this));
+        registerFunc.add(new FangZhouDiaoluoFunc(this));
+        registerFunc.add(new liantongFunc(this));
+        registerFunc.add(new nmslFunc(this));
+        registerFunc.add(new PixivFunc(this));
+        registerFunc.add(new BiliFunc(this));
+        //对功能进行初始化
+        for (IFunc func : registerFunc) {
+            func.setUp();
+        }
+        Zibenbot.logger.log(Level.INFO, "registe func end");
 
         return 0;
     }

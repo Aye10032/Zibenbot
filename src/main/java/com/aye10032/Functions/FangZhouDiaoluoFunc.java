@@ -1,22 +1,22 @@
 package com.aye10032.Functions;
 
+import com.aye10032.Utils.HttpUtils;
 import com.aye10032.Zibenbot;
 import com.dazo66.test.DiaoluoType;
 import com.dazo66.test.Module;
 import com.google.gson.Gson;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.http.HttpHost;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,7 +31,7 @@ public class FangZhouDiaoluoFunc extends BaseFunc {
     private DiaoluoType type;
     private Module module;
     private List<DiaoluoType.HeChenType> name_idList;
-    private String arkonegraphFile = zibenbot.appDirectory+"\\Arkonegraph.png";
+    private String arkonegraphFile = zibenbot.appDirectory+"/Arkonegraph.png";
 
     public FangZhouDiaoluoFunc(Zibenbot zibenbot) {
         super(zibenbot);
@@ -43,6 +43,7 @@ public class FangZhouDiaoluoFunc extends BaseFunc {
     }
 
     public void update(){
+        System.out.println(arkonegraphFile);
         Zibenbot.logger.info("fangzhoudiaoluo update start");
         Gson gson = new Gson();
         CloseableHttpClient client = HttpClients.createDefault();
@@ -78,20 +79,28 @@ public class FangZhouDiaoluoFunc extends BaseFunc {
             name_idList = list;
             stream.close();
             client.close();
-            module.update();
+            Module.update();
+            module = Module.module;
 
             //更新图片
-            FileUtils.copyURLToFile(
-                    new URL("https://github.com/Aye10032/Zibenbot/raw/master/res/%E6%96%B9%E8%88%9F%E6%8E%89%E8%90%BD/Arkonegraph.jpg")
-                    , new File(arkonegraphFile));
+            HttpUtils.download("https://github.com/Aye10032/Zibenbot/raw/master/res/%E6%96%B9%E8%88%9F%E6%8E%89%E8%90%BD/Arkonegraph.png"
+                    , arkonegraphFile);
         } catch (Exception e) {
-            Zibenbot.logger.warning(e.getMessage());
+            e.printStackTrace();
         }
         Zibenbot.logger.info("fangzhoudiaoluo update end");
     }
 
     public static InputStream getInputStreamFromNet(String web, HttpClient client) throws IOException {
-        return client.execute(new HttpGet(web)).getEntity().getContent();
+        //设置代理IP、端口、协议（请分别替换）
+        HttpHost proxy = new HttpHost("127.0.0.1", 1080, "http");
+
+        RequestConfig config = RequestConfig.custom()
+                .setProxy(proxy)
+                .build();
+        HttpGet get = new HttpGet(web);
+        get.setConfig(config);
+        return client.execute(get).getEntity().getContent();
 
     }
 
@@ -106,7 +115,9 @@ public class FangZhouDiaoluoFunc extends BaseFunc {
                 for (int i = 1; i < len; i++) {
                     for (DiaoluoType.HeChenType type : name_idList) {
                         if (type.isThis(strings[i])) {
-                            zibenbot.replyGroupMsg(CQmsg, module.getString(this.type.getMaterialFromID(type.id)));
+                            for (String id : type.calls) {
+                                zibenbot.replyGroupMsg(CQmsg, module.getString(this.type.getMaterialFromID(id)));
+                            }
                             break loop;
                         }
                     }
