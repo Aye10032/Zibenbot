@@ -22,10 +22,10 @@ public class Module {
     String rawModule;
     List<String> rawModules;
 
-    public Module module = new Module("[材料名称：{name}]\n" + "    [{material_module}]");
-    public ModuleMaterial moduleMaterial = new ModuleMaterial("[信用商店值：{credit_store_value}]\n" + "[绿票商店值：{green_ticket_value}]\n" + "[绿票商店值：{golden_ticket_value}]\n" + "\n" + "[效率最优副本：\n" + "    {lowest_ap_stages}]\n" + "[平衡最优副本：\n" + "    {balanced_stages}]\n" + "[掉率最优副本：\n" + "    {drop_rate_first_stage}]\n" + "\n" + "[上次更新时间：{last_update}]\n");
-    public ModuleStage moduleStage = new ModuleStage("[关卡名称：{code}]\n" + "[额外掉落：\n" + "    {extra_drop}]\n" + "[掉率：{drop_rate}]\n" + "[效率：{efficiency}]\n" + "[单件理智：{ap_per_item}]\n");
-    public ModuleDrop moduleDrop = new ModuleDrop("[{extra_drop_items}]");
+    public Module module;
+    public ModuleMaterial moduleMaterial;
+    public ModuleStage moduleStage;
+    public ModuleDrop moduleDrop;
 
     public Module(String rawModule) {
         this.rawModule = rawModule;
@@ -54,6 +54,8 @@ public class Module {
                 "https://github.com/Aye10032/Zibenbot/raw/master/res/%E6%96%B9%E8%88%9F%E6%8E%89%E8%90%BD/exter_drop_module.txt", client);
         moduleDrop = new ModuleDrop(IOUtils.toString(stream));
         stream.close();
+
+        client.close();
 
     }
 
