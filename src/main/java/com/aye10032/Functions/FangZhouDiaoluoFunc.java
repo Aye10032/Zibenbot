@@ -139,8 +139,10 @@ public class FangZhouDiaoluoFunc extends BaseFunc {
             if (len >= 2) {
                 loop:
                 for (int i = 1; i < len; i++) {
+                    boolean flag = false;
                     for (DiaoluoType.HeChenType type : name_idList) {
                         if (type.isThis(strings[i])) {
+                            flag = true;
                             if (type.calls.length == 0) {
                                 if (zibenbot != null) {
                                     zibenbot.replyGroupMsg(CQmsg, module.getString(this.type.getMaterialFromID(type.id)));
@@ -163,6 +165,13 @@ public class FangZhouDiaoluoFunc extends BaseFunc {
                                 }
                                 break loop;
                             }
+                        }
+                    }
+                    if (!flag) {
+                        if (zibenbot != null) {
+                            zibenbot.replyGroupMsg(CQmsg, "找不到素材：【" + strings[i] +"】");
+                        } else {
+                            System.out.println("找不到素材：【" + strings[i] +"】");
                         }
                     }
                 }
