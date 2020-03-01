@@ -22,17 +22,17 @@ public class Module {
     String rawModule;
     List<String> rawModules;
 
-    public Module module;
-    public ModuleMaterial moduleMaterial;
-    public ModuleStage moduleStage;
-    public ModuleDrop moduleDrop;
+    public static Module module;
+    public static ModuleMaterial moduleMaterial;
+    public static ModuleStage moduleStage;
+    public static ModuleDrop moduleDrop;
 
     public Module(String rawModule) {
         this.rawModule = rawModule;
         rawModules = getModules(rawModule);
     }
 
-    public void update() throws IOException {
+    public static void update() throws IOException {
 
         CloseableHttpClient client = HttpClients.createDefault();
         InputStream stream = FangZhouDiaoluoFunc.getInputStreamFromNet(

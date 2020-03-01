@@ -51,8 +51,8 @@ public class DiaoluoType {
 
     public static class HeChenType {
         public String id;
-        String[] names;
-        String[] calls;
+        public String[] names;
+        public String[] calls;
 
         public HeChenType(String id, String[] names, String[] calls){
             this.id = id;
