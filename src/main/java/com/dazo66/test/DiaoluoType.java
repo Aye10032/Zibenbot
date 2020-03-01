@@ -1,5 +1,8 @@
 package com.dazo66.test;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author Dazo66
  */
@@ -56,13 +59,21 @@ public class DiaoluoType {
 
         public HeChenType(String id, String[] names, String[] calls){
             this.id = id;
-            this.calls = calls;
-            this.names = names;
+            List<String> list = new ArrayList<>();
+            for (String c : calls) {
+                list.add(c.trim());
+            }
+            this.calls = list.toArray(new String[]{});
+            list = new ArrayList<>();
+            for (String c : names) {
+                list.add(c.trim());
+            }
+            this.names = list.toArray(new String[]{});;
         }
 
         public boolean isThis(String name) {
             for (String s : names) {
-                if (s.equals(name)) {
+                if (s.trim().equals(name)) {
                     return true;
                 }
             }

@@ -40,7 +40,7 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
 
     List<IFunc> registerFunc = new ArrayList<IFunc>();
     CQMsg lastMsg;
-
+    public TimeTaskPool pool = new TimeTaskPool();
 
 
     public Zibenbot() {
@@ -61,7 +61,7 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
         Zibenbot.logger.log(Level.INFO, String.format("回复群[%s]成员[%s]消息:%s",
                 IDNameUtil.getGroupNameByID(fromMsg.fromGroup, getCoolQ().getGroupList()),
                 IDNameUtil.getGroupMemberNameByID(fromMsg.fromGroup, fromMsg.fromQQ,  CQ),
-                lastMsg.msg, msg));
+                msg));
         return CQ.sendGroupMsg(fromMsg.fromGroup, msg);
     }
 
@@ -95,7 +95,7 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
         // 应用的所有数据、配置【必须】存放于此目录，避免给用户带来困扰。
 
         //建立时间任务池 这里就两个任务 如果任务多的话 可以新建类进行注册
-        TimeTaskPool pool = new TimeTaskPool();
+
         List<Long> groupList = new ArrayList<Long>();
         groupList.add(995497677L);
         SendGroupMSGTask shangong = new SendGroupMSGTask(this, groupList, "崽种上工了！");
@@ -236,7 +236,11 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
         if (fromGroup == 995497677L || fromGroup == 792666782L || fromGroup == 517709950L || fromGroup == 295904863) { // 这里的 0L 可以换成您的测试群
 
             for (IFunc func : registerFunc) {
-                func.run(cqMsg);
+                try {
+                    func.run(cqMsg);
+                } catch (Exception e) {
+                    replyGroupMsg(cqMsg, e.getMessage());
+                }
             }
 
         }

@@ -1,6 +1,6 @@
 package com.dazo66.test;
 
-import com.aye10032.Functions.FangZhouDiaoluoFunc;
+import com.aye10032.Utils.HttpUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -35,23 +35,23 @@ public class Module {
     public static void update() throws IOException {
 
         CloseableHttpClient client = HttpClients.createDefault();
-        InputStream stream = FangZhouDiaoluoFunc.getInputStreamFromNet(
+        InputStream stream = HttpUtils.getInputStreamFromNet(
                 "https://github.com/Aye10032/Zibenbot/raw/master/res/%E6%96%B9%E8%88%9F%E6%8E%89%E8%90%BD/module.txt", client);
         module = new Module(IOUtils.toString(stream));
         stream.close();
 
-        stream = FangZhouDiaoluoFunc.getInputStreamFromNet(
+        stream = HttpUtils.getInputStreamFromNet(
                 "https://github.com/Aye10032/Zibenbot/raw/master/res/%E6%96%B9%E8%88%9F%E6%8E%89%E8%90%BD/material_module.txt", client);
         moduleMaterial = new ModuleMaterial(IOUtils.toString(stream));
         stream.close();
 
-        stream = FangZhouDiaoluoFunc.getInputStreamFromNet(
+        stream = HttpUtils.getInputStreamFromNet(
                 "https://github.com/Aye10032/Zibenbot/raw/master/res/%E6%96%B9%E8%88%9F%E6%8E%89%E8%90%BD/stages_module.txt", client);
         moduleStage = new ModuleStage(IOUtils.toString(stream));
         stream.close();
 
-        stream = FangZhouDiaoluoFunc.getInputStreamFromNet(
-                "https://github.com/Aye10032/Zibenbot/raw/master/res/%E6%96%B9%E8%88%9F%E6%8E%89%E8%90%BD/exter_drop_module.txt", client);
+        stream = HttpUtils.getInputStreamFromNet(
+                "https://github.com/Aye10032/Zibenbot/raw/master/res/%E6%96%B9%E8%88%9F%E6%8E%89%E8%90%BD/extera_drop_module.txt", client);
         moduleDrop = new ModuleDrop(IOUtils.toString(stream));
         stream.close();
 
@@ -145,14 +145,17 @@ public class Module {
             verFuncMaterial.put("{credit_store_value}", material -> String.valueOf(material.credit_store_value));
             verFuncMaterial.put("{green_ticket_value}", material -> String.valueOf(material.green_ticket_value));
             verFuncMaterial.put("{golden_ticket_value}", material -> String.valueOf(material.golden_ticket_value));
-            verFuncMaterial.put("{last_update}", material -> material.last_updated);
+            verFuncMaterial.put("{last_update}", material -> {
+              String[] strings = material.last_updated.split(" ");
+              return strings[0]+ " " + strings[1]+ " " + strings[2]+ " " + strings[3];
+            });
             verFuncMaterial.put("{lowest_ap_stages}", material -> {
                 String string = "";
                 for (DiaoluoType.Stage stage : material.lowest_ap_stages) {
                     string += moduleStage.getString(stage);
                     string += "\n\n";
                 }
-                if (material.balanced_stages.length > 0) {
+                if (material.lowest_ap_stages.length > 0) {
                     return string.substring(0, string.length() - 1);
                 } else {return "";}
             });
@@ -172,7 +175,7 @@ public class Module {
                     string += moduleStage.getString(stage);
                     string += "\n\n";
                 }
-                if (material.balanced_stages.length > 0) {
+                if (material.drop_rate_first_stages.length > 0) {
                     return string.substring(0, string.length() - 1);
                 } else {return "";}
             });
@@ -236,7 +239,7 @@ public class Module {
         Map<String, Function<DiaoluoType.Drop[], String>> verFuncDrop = new HashMap<>();
 
         {
-            verFuncDrop.put("{extra_drop_item}", drops -> {
+            verFuncDrop.put("{extra_drop_items}", drops -> {
                 StringBuilder string = new StringBuilder();
                 for (DiaoluoType.Drop drop : drops) {
                     string.append(drop.name);
