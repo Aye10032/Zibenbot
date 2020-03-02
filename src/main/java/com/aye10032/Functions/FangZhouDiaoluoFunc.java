@@ -60,76 +60,6 @@ public class FangZhouDiaoluoFunc extends BaseFunc {
         zibenbot.pool.add(task);
     }
 
-    public void update(){
-        System.out.println(arkonegraphFile);
-        Zibenbot.logger.info("fangzhoudiaoluo update start");
-        Gson gson = new Gson();
-        CloseableHttpClient client = HttpClients.createDefault();
-        DiaoluoType diaoluoType = null;
-        try {
-            for (int i = 1; i <= 5; i++) {
-                InputStream stream = HttpUtils.getInputStreamFromNet(
-                        "https://arkonegraph.herokuapp.com/materials/tier/" + String.valueOf(i), client);
-                if (diaoluoType == null) {
-                    diaoluoType = gson.fromJson(new InputStreamReader(stream), DiaoluoType.class);
-                } else {
-                    diaoluoType.material = ArrayUtils.addAll(diaoluoType.material, gson.fromJson(
-                            new InputStreamReader(stream), DiaoluoType.class).material);
-                }
-                stream.close();
-
-            }
-            this.type = diaoluoType;
-            InputStream stream = HttpUtils.getInputStreamFromNet(
-                    "https://github.com/Aye10032/Zibenbot/raw/master/res/%E6%96%B9%E8%88%9F%E6%8E%89%E8%90%BD/name-id.txt"
-                    , client);
-            List<String> strings = IOUtils.readLines(new InputStreamReader(stream));
-            List<DiaoluoType.HeChenType> list = new ArrayList<>();
-            for (String s : strings) {
-                if ("".equals(s.trim()) || s.startsWith("//")) {
-                    //忽略注释和空行
-                } else {
-                    List<String> modules = getModules(s);
-                    String s1 = modules.get(0);
-                    list.add(new DiaoluoType.HeChenType(s1.trim(), getVers(modules.get(1)).toArray(new String[]{}), getVers(modules.get(2)).toArray(new String[]{})));
-                }
-            }
-            name_idList = list;
-            stream.close();
-            Module.update();
-            module = Module.module;
-
-            //更新图片
-            HttpUtils.download("https://github.com/Aye10032/Zibenbot/blob/master/res/%E6%96%B9%E8%88%9F%E6%8E%89%E8%90%BD/Arkonegraph.png?raw=true"
-                    , arkonegraphFile, client);
-            client.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        Zibenbot.logger.info("fangzhoudiaoluo update end");
-    }
-
-    public List<String> getCalls(List<DiaoluoType.HeChenType> all, DiaoluoType.HeChenType type) {
-        List<String> strings = new ArrayList<>();
-        if (type.calls.length == 0) {
-            strings.add(type.id);
-            return strings;
-        } else {
-            for (String c : type.calls) {
-                for (DiaoluoType.HeChenType type1 : all) {
-                    if (type1.id.equals(c)) {
-                        for (String s : getCalls(all, type1)) {
-                            if (!strings.contains(s)) {
-                                strings.add(s);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return strings;
-    }
-
     @Override
     public void run(CQMsg CQmsg) {
         String msg = CQmsg.msg.trim();
@@ -169,9 +99,9 @@ public class FangZhouDiaoluoFunc extends BaseFunc {
                     }
                     if (!flag) {
                         if (zibenbot != null) {
-                            zibenbot.replyGroupMsg(CQmsg, "找不到素材：【" + strings[i] +"】");
+                            zibenbot.replyGroupMsg(CQmsg, "找不到素材：【" + strings[i] + "】");
                         } else {
-                            System.out.println("找不到素材：【" + strings[i] +"】");
+                            System.out.println("找不到素材：【" + strings[i] + "】");
                         }
                     }
                 }
@@ -188,6 +118,71 @@ public class FangZhouDiaoluoFunc extends BaseFunc {
                 }
             }
         }
+    }
+
+    public void update() {
+        System.out.println(arkonegraphFile);
+        Zibenbot.logger.info("fangzhoudiaoluo update start");
+        Gson gson = new Gson();
+        CloseableHttpClient client = HttpClients.createDefault();
+        DiaoluoType diaoluoType = null;
+        try {
+            for (int i = 1; i <= 5; i++) {
+                InputStream stream = HttpUtils.getInputStreamFromNet("https://arkonegraph.herokuapp.com/materials/tier/" + String.valueOf(i), client);
+                if (diaoluoType == null) {
+                    diaoluoType = gson.fromJson(new InputStreamReader(stream), DiaoluoType.class);
+                } else {
+                    diaoluoType.material = ArrayUtils.addAll(diaoluoType.material, gson.fromJson(new InputStreamReader(stream), DiaoluoType.class).material);
+                }
+                stream.close();
+
+            }
+            this.type = diaoluoType;
+            InputStream stream = HttpUtils.getInputStreamFromNet("https://github.com/Aye10032/Zibenbot/raw/master/res/%E6%96%B9%E8%88%9F%E6%8E%89%E8%90%BD/name-id.txt", client);
+            List<String> strings = IOUtils.readLines(new InputStreamReader(stream));
+            List<DiaoluoType.HeChenType> list = new ArrayList<>();
+            for (String s : strings) {
+                if ("".equals(s.trim()) || s.startsWith("//")) {
+                    //忽略注释和空行
+                } else {
+                    List<String> modules = getModules(s);
+                    String s1 = modules.get(0);
+                    list.add(new DiaoluoType.HeChenType(s1.trim(), getVers(modules.get(1)).toArray(new String[]{}), getVers(modules.get(2)).toArray(new String[]{})));
+                }
+            }
+            name_idList = list;
+            stream.close();
+            Module.update();
+            module = Module.module;
+
+            //更新图片
+            HttpUtils.download("https://github.com/Aye10032/Zibenbot/blob/master/res/%E6%96%B9%E8%88%9F%E6%8E%89%E8%90%BD/Arkonegraph.png?raw=true", arkonegraphFile, client);
+            client.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Zibenbot.logger.info("fangzhoudiaoluo update end");
+    }
+
+    public List<String> getCalls(List<DiaoluoType.HeChenType> all, DiaoluoType.HeChenType type) {
+        List<String> strings = new ArrayList<>();
+        if (type.calls.length == 0) {
+            strings.add(type.id);
+            return strings;
+        } else {
+            for (String c : type.calls) {
+                for (DiaoluoType.HeChenType type1 : all) {
+                    if (type1.id.equals(c)) {
+                        for (String s : getCalls(all, type1)) {
+                            if (!strings.contains(s)) {
+                                strings.add(s);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return strings;
     }
 
 }

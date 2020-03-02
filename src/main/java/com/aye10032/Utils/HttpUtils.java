@@ -43,16 +43,13 @@ public class HttpUtils {
     }
 
     public static InputStream getInputStreamFromNet(String web, HttpClient client) throws IOException {
-        //设置代理IP、端口、协议（请分别替换）
-        HttpHost proxy = new HttpHost("127.0.0.1", 1080, "http");
-
-        RequestConfig config = RequestConfig.custom()
-                .setProxy(proxy)
-                .build();
-        HttpGet get = new HttpGet(web);
-        get.setConfig(config);
-        return client.execute(get).getEntity().getContent();
-
+        try {
+            HttpGet get = new HttpGet(web);
+            return client.execute(get).getEntity().getContent();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     /**
