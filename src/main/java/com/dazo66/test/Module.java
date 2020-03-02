@@ -36,22 +36,22 @@ public class Module {
 
         CloseableHttpClient client = HttpClients.createDefault();
         InputStream stream = HttpUtils.getInputStreamFromNet(
-                "https://github.com/Aye10032/Zibenbot/raw/master/res/%E6%96%B9%E8%88%9F%E6%8E%89%E8%90%BD/module.txt", client);
+                "https://gitee.com/aye10032/Zibenbot/raw/master/res/dangzhoudiaoluo/module.txt", client);
         module = new Module(IOUtils.toString(stream));
         stream.close();
 
         stream = HttpUtils.getInputStreamFromNet(
-                "https://github.com/Aye10032/Zibenbot/raw/master/res/%E6%96%B9%E8%88%9F%E6%8E%89%E8%90%BD/material_module.txt", client);
+                "https://gitee.com/aye10032/Zibenbot/raw/master/res/dangzhoudiaoluo/material_module.txt", client);
         moduleMaterial = new ModuleMaterial(IOUtils.toString(stream));
         stream.close();
 
         stream = HttpUtils.getInputStreamFromNet(
-                "https://github.com/Aye10032/Zibenbot/raw/master/res/%E6%96%B9%E8%88%9F%E6%8E%89%E8%90%BD/stages_module.txt", client);
+                "https://gitee.com/aye10032/Zibenbot/raw/master/res/dangzhoudiaoluo/stages_module.txt", client);
         moduleStage = new ModuleStage(IOUtils.toString(stream));
         stream.close();
 
         stream = HttpUtils.getInputStreamFromNet(
-                "https://github.com/Aye10032/Zibenbot/raw/master/res/%E6%96%B9%E8%88%9F%E6%8E%89%E8%90%BD/extera_drop_module.txt", client);
+                "https://gitee.com/aye10032/Zibenbot/raw/master/res/dangzhoudiaoluo/extera_drop_module.txt", client);
         moduleDrop = new ModuleDrop(IOUtils.toString(stream));
         stream.close();
 
