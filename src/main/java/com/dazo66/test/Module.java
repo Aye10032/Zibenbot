@@ -245,7 +245,7 @@ public class Module {
                     string.append(drop.name);
                     string.append(" ");
                 }
-                return string.toString();
+                return string.toString().trim();
             });
 
 

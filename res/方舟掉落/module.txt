@@ -1,2 +1,2 @@
-[材料名称：{name}]
+[材料名称：【{name}】]
     [{material_module}]
