@@ -37,22 +37,22 @@ public class Module {
                 .build();
 
         InputStream stream = HttpUtils.getInputStreamFromNet(
-                "https://gitee.com/aye10032/Zibenbot/raw/master/res/dangzhoudiaoluo/module.txt", client);
+                "https://gitee.com/aye10032/Zibenbot/raw/master/res/fangzhoudiaoluo/module.txt", client);
         module = new Module(IOUtils.toString(stream));
         stream.close();
 
         stream = HttpUtils.getInputStreamFromNet(
-                "https://gitee.com/aye10032/Zibenbot/raw/master/res/dangzhoudiaoluo/material_module.txt", client);
+                "https://gitee.com/aye10032/Zibenbot/raw/master/res/fangzhoudiaoluo/material_module.txt", client);
         moduleMaterial = new ModuleMaterial(IOUtils.toString(stream));
         stream.close();
 
         stream = HttpUtils.getInputStreamFromNet(
-                "https://gitee.com/aye10032/Zibenbot/raw/master/res/dangzhoudiaoluo/stages_module.txt", client);
+                "https://gitee.com/aye10032/Zibenbot/raw/master/res/fangzhoudiaoluo/stages_module.txt", client);
         moduleStage = new ModuleStage(IOUtils.toString(stream));
         stream.close();
 
         stream = HttpUtils.getInputStreamFromNet(
-                "https://gitee.com/aye10032/Zibenbot/raw/master/res/dangzhoudiaoluo/extera_drop_module.txt", client);
+                "https://gitee.com/aye10032/Zibenbot/raw/master/res/fangzhoudiaoluo/extera_drop_module.txt", client);
         moduleDrop = new ModuleDrop(IOUtils.toString(stream));
         stream.close();
 
