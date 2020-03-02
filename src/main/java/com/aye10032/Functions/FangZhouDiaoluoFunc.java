@@ -3,8 +3,8 @@ package com.aye10032.Functions;
 import com.aye10032.Utils.HttpUtils;
 import com.aye10032.Utils.TimeUtil.TimedTask;
 import com.aye10032.Zibenbot;
-import com.dazo66.test.DiaoluoType;
-import com.dazo66.test.Module;
+import com.aye10032.Utils.fangzhoudiaoluo.DiaoluoType;
+import com.aye10032.Utils.fangzhoudiaoluo.Module;
 import com.google.gson.Gson;
 import okhttp3.*;
 import org.apache.commons.io.IOUtils;
@@ -17,8 +17,8 @@ import java.util.Date;
 import java.util.List;
 
 import static com.aye10032.Utils.TimeUtil.TimeConstant.PER_DAY;
-import static com.dazo66.test.Module.getModules;
-import static com.dazo66.test.Module.getVers;
+import static com.aye10032.Utils.fangzhoudiaoluo.Module.getModules;
+import static com.aye10032.Utils.fangzhoudiaoluo.Module.getVers;
 
 /**
  * @author Dazo66
@@ -62,7 +62,7 @@ public class FangZhouDiaoluoFunc extends BaseFunc {
     @Override
     public void run(CQMsg CQmsg) {
         String msg = CQmsg.msg.trim();
-        if (msg.startsWith(".方舟素材")) {
+        if (msg.startsWith(".方舟素材") || msg.startsWith(".方舟掉落")) {
             String[] strings = msg.split(" ");
             int len = strings.length;
             if (len >= 2) {
