@@ -151,9 +151,15 @@ public class Module {
             });
             verFuncMaterial.put("{lowest_ap_stages}", material -> {
                 String string = "";
+                int i = material.lowest_ap_stages.length;
                 for (DiaoluoType.Stage stage : material.lowest_ap_stages) {
                     string += moduleStage.getString(stage);
-                    string += "\n\n";
+                    i--;
+                    if (i > 0) {
+                        string += "\n------------\n";
+                    } else {
+                        string += "\n\n";
+                    }
                 }
                 if (material.lowest_ap_stages.length > 0) {
                     return string.substring(0, string.length() - 1);
@@ -161,9 +167,15 @@ public class Module {
             });
             verFuncMaterial.put("{balanced_stages}", material -> {
                 String string = "";
+                int i = material.balanced_stages.length;
                 for (DiaoluoType.Stage stage : material.balanced_stages) {
                     string += moduleStage.getString(stage);
-                    string += "\n\n";
+                    i--;
+                    if (i > 0) {
+                        string += "\n------------\n";
+                    } else {
+                        string += "\n\n";
+                    }
                 }
                 if (material.balanced_stages.length > 0) {
                     return string.substring(0, string.length() - 1);
@@ -171,9 +183,15 @@ public class Module {
             });
             verFuncMaterial.put("{drop_rate_first_stages}", material -> {
                 String string = "";
+                int i = material.drop_rate_first_stages.length;
                 for (DiaoluoType.Stage stage : material.drop_rate_first_stages) {
                     string += moduleStage.getString(stage);
-                    string += "\n\n";
+                    i--;
+                    if (i > 0) {
+                        string += "\n------------\n";
+                    } else {
+                        string += "\n\n";
+                    }
                 }
                 if (material.drop_rate_first_stages.length > 0) {
                     return string.substring(0, string.length() - 1);
