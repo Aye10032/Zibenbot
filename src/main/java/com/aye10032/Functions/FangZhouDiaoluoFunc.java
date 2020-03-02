@@ -33,13 +33,16 @@ public class FangZhouDiaoluoFunc extends BaseFunc {
     private Module module;
     private List<DiaoluoType.HeChenType> name_idList;
     private String arkonegraphFile;
+    private String cacheFile;
 
     public FangZhouDiaoluoFunc(Zibenbot zibenbot) {
         super(zibenbot);
         if (zibenbot != null) {
             arkonegraphFile = zibenbot.appDirectory + "/Arkonegraph.png";
+            cacheFile = zibenbot.appDirectory + "/cacheFile.json";
         } else {
             arkonegraphFile = "/Arkonegraph.png";
+            cacheFile = "/cacheFile.json";
         }
     }
 
@@ -123,6 +126,7 @@ public class FangZhouDiaoluoFunc extends BaseFunc {
     public void update() {
         System.out.println(arkonegraphFile);
         Zibenbot.logger.info("fangzhoudiaoluo update start");
+        File file = new File(cacheFile);
         Gson gson = new Gson();
         CloseableHttpClient client = HttpClients.createDefault();
         DiaoluoType diaoluoType = null;
@@ -138,7 +142,7 @@ public class FangZhouDiaoluoFunc extends BaseFunc {
 
             }
             this.type = diaoluoType;
-            InputStream stream = HttpUtils.getInputStreamFromNet("https://github.com/Aye10032/Zibenbot/raw/master/res/%E6%96%B9%E8%88%9F%E6%8E%89%E8%90%BD/name-id.txt", client);
+            InputStream stream = HttpUtils.getInputStreamFromNet("https://gitee.com/aye10032/Zibenbot/raw/master/res/dangzhoudiaoluo/name-id.txt", client);
             List<String> strings = IOUtils.readLines(new InputStreamReader(stream));
             List<DiaoluoType.HeChenType> list = new ArrayList<>();
             for (String s : strings) {
@@ -156,7 +160,7 @@ public class FangZhouDiaoluoFunc extends BaseFunc {
             module = Module.module;
 
             //更新图片
-            HttpUtils.download("https://github.com/Aye10032/Zibenbot/blob/master/res/%E6%96%B9%E8%88%9F%E6%8E%89%E8%90%BD/Arkonegraph.png?raw=true", arkonegraphFile, client);
+            HttpUtils.download("https://gitee.com/aye10032/Zibenbot/raw/master/res/dangzhoudiaoluo/Arkonegraph.png", arkonegraphFile, client);
             client.close();
         } catch (Exception e) {
             e.printStackTrace();
