@@ -1,9 +1,11 @@
 package com.aye10032.Utils;
 
-import org.apache.http.*;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.HttpGet;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import org.apache.http.Header;
+import org.apache.http.HeaderElement;
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -42,10 +44,10 @@ public class HttpUtils {
         }
     }
 
-    public static InputStream getInputStreamFromNet(String web, HttpClient client) throws IOException {
+    public static InputStream getStringFromNet(String url, OkHttpClient client) throws IOException {
         try {
-            HttpGet get = new HttpGet(web);
-            return client.execute(get).getEntity().getContent();
+            Request request = new Request.Builder().url(url).method("GET", null).build();
+            return client.newCall(request).execute().body().byteStream();
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -59,9 +61,9 @@ public class HttpUtils {
      * @param filepath
      * @return
      */
-    public static String download(String url, String filepath, HttpClient client) {
+    public static String download(String url, String filepath, OkHttpClient client) {
         try {
-            InputStream is = getInputStreamFromNet(url, client);
+            InputStream is = getStringFromNet(url, client);
             File file = new File(filepath);
             file.getParentFile().mkdirs();
             FileOutputStream fileout = new FileOutputStream(file);

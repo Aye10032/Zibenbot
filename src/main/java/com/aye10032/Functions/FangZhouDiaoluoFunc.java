@@ -6,10 +6,9 @@ import com.aye10032.Zibenbot;
 import com.dazo66.test.DiaoluoType;
 import com.dazo66.test.Module;
 import com.google.gson.Gson;
+import okhttp3.OkHttpClient;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
 
 import java.io.File;
 import java.io.IOException;
@@ -128,11 +127,12 @@ public class FangZhouDiaoluoFunc extends BaseFunc {
         Zibenbot.logger.info("fangzhoudiaoluo update start");
         File file = new File(cacheFile);
         Gson gson = new Gson();
-        CloseableHttpClient client = HttpClients.createDefault();
+        OkHttpClient client = new OkHttpClient().newBuilder()
+                .build();
         DiaoluoType diaoluoType = null;
         try {
             for (int i = 1; i <= 5; i++) {
-                InputStream stream = HttpUtils.getInputStreamFromNet("https://arkonegraph.herokuapp.com/materials/tier/" + String.valueOf(i), client);
+                InputStream stream = HttpUtils.getStringFromNet("https://arkonegraph.herokuapp.com/materials/tier/" + String.valueOf(i), client);
                 if (diaoluoType == null) {
                     diaoluoType = gson.fromJson(new InputStreamReader(stream), DiaoluoType.class);
                 } else {
@@ -142,7 +142,7 @@ public class FangZhouDiaoluoFunc extends BaseFunc {
 
             }
             this.type = diaoluoType;
-            InputStream stream = HttpUtils.getInputStreamFromNet("https://gitee.com/aye10032/Zibenbot/raw/master/res/dangzhoudiaoluo/name-id.txt", client);
+            InputStream stream = HttpUtils.getStringFromNet("https://gitee.com/aye10032/Zibenbot/raw/master/res/dangzhoudiaoluo/name-id.txt", client);
             List<String> strings = IOUtils.readLines(new InputStreamReader(stream));
             List<DiaoluoType.HeChenType> list = new ArrayList<>();
             for (String s : strings) {
@@ -161,7 +161,6 @@ public class FangZhouDiaoluoFunc extends BaseFunc {
 
             //更新图片
             HttpUtils.download("https://gitee.com/aye10032/Zibenbot/raw/master/res/dangzhoudiaoluo/Arkonegraph.png", arkonegraphFile, client);
-            client.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
