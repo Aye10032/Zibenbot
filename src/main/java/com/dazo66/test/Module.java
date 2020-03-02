@@ -1,9 +1,8 @@
 package com.dazo66.test;
 
 import com.aye10032.Utils.HttpUtils;
+import okhttp3.OkHttpClient;
 import org.apache.commons.io.IOUtils;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,28 +33,29 @@ public class Module {
 
     public static void update() throws IOException {
 
-        CloseableHttpClient client = HttpClients.createDefault();
-        InputStream stream = HttpUtils.getInputStreamFromNet(
+        OkHttpClient client = new OkHttpClient().newBuilder()
+                .build();
+
+        InputStream stream = HttpUtils.getStringFromNet(
                 "https://gitee.com/aye10032/Zibenbot/raw/master/res/dangzhoudiaoluo/module.txt", client);
         module = new Module(IOUtils.toString(stream));
         stream.close();
 
-        stream = HttpUtils.getInputStreamFromNet(
+        stream = HttpUtils.getStringFromNet(
                 "https://gitee.com/aye10032/Zibenbot/raw/master/res/dangzhoudiaoluo/material_module.txt", client);
         moduleMaterial = new ModuleMaterial(IOUtils.toString(stream));
         stream.close();
 
-        stream = HttpUtils.getInputStreamFromNet(
+        stream = HttpUtils.getStringFromNet(
                 "https://gitee.com/aye10032/Zibenbot/raw/master/res/dangzhoudiaoluo/stages_module.txt", client);
         moduleStage = new ModuleStage(IOUtils.toString(stream));
         stream.close();
 
-        stream = HttpUtils.getInputStreamFromNet(
+        stream = HttpUtils.getStringFromNet(
                 "https://gitee.com/aye10032/Zibenbot/raw/master/res/dangzhoudiaoluo/extera_drop_module.txt", client);
         moduleDrop = new ModuleDrop(IOUtils.toString(stream));
         stream.close();
 
-        client.close();
 
     }
 
