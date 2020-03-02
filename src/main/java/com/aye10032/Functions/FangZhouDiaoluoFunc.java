@@ -6,14 +6,11 @@ import com.aye10032.Zibenbot;
 import com.dazo66.test.DiaoluoType;
 import com.dazo66.test.Module;
 import com.google.gson.Gson;
-import okhttp3.OkHttpClient;
+import okhttp3.*;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -40,7 +37,7 @@ public class FangZhouDiaoluoFunc extends BaseFunc {
             arkonegraphFile = zibenbot.appDirectory + "/Arkonegraph.png";
             cacheFile = zibenbot.appDirectory + "/cacheFile.json";
         } else {
-            arkonegraphFile = "/Arkonegraph.png";
+            arkonegraphFile = "res/Arkonegraph.png";
             cacheFile = "/cacheFile.json";
         }
     }
@@ -71,6 +68,14 @@ public class FangZhouDiaoluoFunc extends BaseFunc {
             if (len >= 2) {
                 loop:
                 for (int i = 1; i < len; i++) {
+                    if (name_idList == null) {
+                        if (zibenbot == null) {
+                            System.out.println("方舟掉落：初始化异常");
+                        } else {
+                            zibenbot.replyGroupMsg(CQmsg, "方舟掉落：初始化异常");
+                        }
+                        return;
+                    }
                     boolean flag = false;
                     for (DiaoluoType.HeChenType type : name_idList) {
                         if (type.isThis(strings[i])) {
@@ -132,7 +137,7 @@ public class FangZhouDiaoluoFunc extends BaseFunc {
         DiaoluoType diaoluoType = null;
         try {
             for (int i = 1; i <= 5; i++) {
-                InputStream stream = HttpUtils.getStringFromNet("https://arkonegraph.herokuapp.com/materials/tier/" + String.valueOf(i), client);
+                InputStream stream = HttpUtils.getInputStreamFromNet("https://arkonegraph.herokuapp.com/materials/tier/" + String.valueOf(i), client);
                 if (diaoluoType == null) {
                     diaoluoType = gson.fromJson(new InputStreamReader(stream), DiaoluoType.class);
                 } else {
@@ -142,7 +147,7 @@ public class FangZhouDiaoluoFunc extends BaseFunc {
 
             }
             this.type = diaoluoType;
-            InputStream stream = HttpUtils.getStringFromNet("https://gitee.com/aye10032/Zibenbot/raw/master/res/dangzhoudiaoluo/name-id.txt", client);
+            InputStream stream = HttpUtils.getInputStreamFromNet("https://gitee.com/aye10032/Zibenbot/raw/master/res/dangzhoudiaoluo/name-id.txt", client);
             List<String> strings = IOUtils.readLines(new InputStreamReader(stream));
             List<DiaoluoType.HeChenType> list = new ArrayList<>();
             for (String s : strings) {
@@ -160,7 +165,38 @@ public class FangZhouDiaoluoFunc extends BaseFunc {
             module = Module.module;
 
             //更新图片
-            HttpUtils.download("https://gitee.com/aye10032/Zibenbot/raw/master/res/dangzhoudiaoluo/Arkonegraph.png", arkonegraphFile, client);
+            Request request = new Request.Builder().url("https://github.com/Aye10032/Zibenbot/raw/master/res/dangzhoudiaoluo/Arkonegraph.png").build();
+            client.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    //Handle the error
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    if (response.isSuccessful()) {
+                        InputStream is = response.body().byteStream();
+
+                        BufferedInputStream input = new BufferedInputStream(is);
+                        OutputStream output = new FileOutputStream(arkonegraphFile);
+
+                        byte[] data = new byte[1024];
+
+                        long total = 0;
+                        int count;
+                        while ((count = input.read(data)) != -1) {
+                            total += count;
+                            output.write(data, 0, count);
+                        }
+
+                        output.flush();
+                        output.close();
+                        input.close();
+                    }else {
+                        //Handle the error
+                    }
+                }
+            });
         } catch (Exception e) {
             e.printStackTrace();
         }

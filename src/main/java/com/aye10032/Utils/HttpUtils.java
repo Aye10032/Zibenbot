@@ -44,7 +44,7 @@ public class HttpUtils {
         }
     }
 
-    public static InputStream getStringFromNet(String url, OkHttpClient client) throws IOException {
+    public static InputStream getInputStreamFromNet(String url, OkHttpClient client) throws IOException {
         try {
             Request request = new Request.Builder().url(url).method("GET", null).build();
             return client.newCall(request).execute().body().byteStream();
@@ -63,7 +63,7 @@ public class HttpUtils {
      */
     public static String download(String url, String filepath, OkHttpClient client) {
         try {
-            InputStream is = getStringFromNet(url, client);
+            InputStream is = getInputStreamFromNet(url, client);
             File file = new File(filepath);
             file.getParentFile().mkdirs();
             FileOutputStream fileout = new FileOutputStream(file);

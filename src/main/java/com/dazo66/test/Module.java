@@ -36,22 +36,22 @@ public class Module {
         OkHttpClient client = new OkHttpClient().newBuilder()
                 .build();
 
-        InputStream stream = HttpUtils.getStringFromNet(
+        InputStream stream = HttpUtils.getInputStreamFromNet(
                 "https://gitee.com/aye10032/Zibenbot/raw/master/res/dangzhoudiaoluo/module.txt", client);
         module = new Module(IOUtils.toString(stream));
         stream.close();
 
-        stream = HttpUtils.getStringFromNet(
+        stream = HttpUtils.getInputStreamFromNet(
                 "https://gitee.com/aye10032/Zibenbot/raw/master/res/dangzhoudiaoluo/material_module.txt", client);
         moduleMaterial = new ModuleMaterial(IOUtils.toString(stream));
         stream.close();
 
-        stream = HttpUtils.getStringFromNet(
+        stream = HttpUtils.getInputStreamFromNet(
                 "https://gitee.com/aye10032/Zibenbot/raw/master/res/dangzhoudiaoluo/stages_module.txt", client);
         moduleStage = new ModuleStage(IOUtils.toString(stream));
         stream.close();
 
-        stream = HttpUtils.getStringFromNet(
+        stream = HttpUtils.getInputStreamFromNet(
                 "https://gitee.com/aye10032/Zibenbot/raw/master/res/dangzhoudiaoluo/extera_drop_module.txt", client);
         moduleDrop = new ModuleDrop(IOUtils.toString(stream));
         stream.close();
