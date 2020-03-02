@@ -147,7 +147,7 @@ public class FangZhouDiaoluoFunc extends BaseFunc {
 
             }
             this.type = diaoluoType;
-            InputStream stream = HttpUtils.getInputStreamFromNet("https://gitee.com/aye10032/Zibenbot/raw/master/res/dangzhoudiaoluo/name-id.txt", client);
+            InputStream stream = HttpUtils.getInputStreamFromNet("https://gitee.com/aye10032/Zibenbot/raw/master/res/fangzhoudiaoluo/name-id.txt", client);
             List<String> strings = IOUtils.readLines(new InputStreamReader(stream));
             List<DiaoluoType.HeChenType> list = new ArrayList<>();
             for (String s : strings) {
@@ -165,7 +165,7 @@ public class FangZhouDiaoluoFunc extends BaseFunc {
             module = Module.module;
 
             //更新图片
-            Request request = new Request.Builder().url("https://github.com/Aye10032/Zibenbot/raw/master/res/dangzhoudiaoluo/Arkonegraph.png").build();
+            Request request = new Request.Builder().url("https://github.com/Aye10032/Zibenbot/raw/master/res/fangzhoudiaoluo/Arkonegraph.png").build();
             client.newCall(request).enqueue(new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
