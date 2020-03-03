@@ -2,9 +2,9 @@ package com.aye10032.Functions;
 
 import com.aye10032.Utils.HttpUtils;
 import com.aye10032.Utils.TimeUtil.TimedTask;
-import com.aye10032.Zibenbot;
 import com.aye10032.Utils.fangzhoudiaoluo.DiaoluoType;
 import com.aye10032.Utils.fangzhoudiaoluo.Module;
+import com.aye10032.Zibenbot;
 import com.google.gson.Gson;
 import okhttp3.*;
 import org.apache.commons.io.IOUtils;
@@ -72,7 +72,7 @@ public class FangZhouDiaoluoFunc extends BaseFunc {
                         if (zibenbot == null) {
                             System.out.println("方舟掉落：初始化异常");
                         } else {
-                            zibenbot.replyGroupMsg(CQmsg, "方舟掉落：初始化异常");
+                            zibenbot.replyMsg(CQmsg, "方舟掉落：初始化异常");
                         }
                         return;
                     }
@@ -82,7 +82,7 @@ public class FangZhouDiaoluoFunc extends BaseFunc {
                             flag = true;
                             if (type.calls.length == 0) {
                                 if (zibenbot != null) {
-                                    zibenbot.replyGroupMsg(CQmsg, module.getString(this.type.getMaterialFromID(type.id)));
+                                    zibenbot.replyMsg(CQmsg, module.getString(this.type.getMaterialFromID(type.id)));
                                 } else {
                                     System.out.println(module.getString(this.type.getMaterialFromID(type.id)));
                                 }
@@ -96,7 +96,7 @@ public class FangZhouDiaoluoFunc extends BaseFunc {
                                     }
                                 }
                                 if (zibenbot != null) {
-                                    zibenbot.replyGroupMsg(CQmsg, s.toString());
+                                    zibenbot.replyMsg(CQmsg, s.toString());
                                 } else {
                                     System.out.println(s.toString());
                                 }
@@ -106,7 +106,7 @@ public class FangZhouDiaoluoFunc extends BaseFunc {
                     }
                     if (!flag) {
                         if (zibenbot != null) {
-                            zibenbot.replyGroupMsg(CQmsg, "找不到素材：【" + strings[i] + "】");
+                            zibenbot.replyMsg(CQmsg, "找不到素材：【" + strings[i] + "】");
                         } else {
                             System.out.println("找不到素材：【" + strings[i] + "】");
                         }
@@ -115,7 +115,7 @@ public class FangZhouDiaoluoFunc extends BaseFunc {
             } else {
                 try {
                     if (zibenbot != null) {
-                        zibenbot.replyGroupMsg(CQmsg, zibenbot.getCQCode().image(new File(arkonegraphFile)));
+                        zibenbot.replyMsg(CQmsg, zibenbot.getCQCode().image(new File(arkonegraphFile)));
                     } else {
                         System.out.println(arkonegraphFile);
                     }
@@ -176,22 +176,16 @@ public class FangZhouDiaoluoFunc extends BaseFunc {
                 public void onResponse(Call call, Response response) throws IOException {
                     if (response.isSuccessful()) {
                         InputStream is = response.body().byteStream();
-
-                        BufferedInputStream input = new BufferedInputStream(is);
                         OutputStream output = new FileOutputStream(arkonegraphFile);
 
                         byte[] data = new byte[1024];
-
-                        long total = 0;
                         int count;
-                        while ((count = input.read(data)) != -1) {
-                            total += count;
+                        while ((count = is.read(data)) != -1) {
                             output.write(data, 0, count);
                         }
-
                         output.flush();
                         output.close();
-                        input.close();
+                        is.close();
                     }else {
                         //Handle the error
                     }

@@ -32,9 +32,9 @@ public class BiliFunc extends BanFunc{
                         + " 收藏" + biliInfo.getFavorite()
                         + " 评论：" + biliInfo.getReply();
 
-                CQ.sendGroupMsg(CQmsg.fromGroup, send);
+                zibenbot.replyMsg(CQmsg, send);
             } catch (IOException e) {
-                CQ.sendGroupMsg(CQmsg.fromGroup, e.toString());
+                zibenbot.replyMsg(CQmsg, e.toString());
             }
         }
     }

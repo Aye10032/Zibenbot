@@ -64,7 +64,7 @@ public class AyeCube extends BaseFunc {
     public void run(CQMsg CQmsg) {
         if (CQmsg.msg.equals(".3")) {
 
-            zibenbot.replyGroupMsg(CQmsg, getCuberandom());
+            zibenbot.replyMsg(CQmsg, getCuberandom());
         }
     }
 }

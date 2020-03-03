@@ -7,10 +7,11 @@ import org.apache.http.HeaderElement;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
+import java.net.URL;
 
 /**
  *
@@ -53,6 +54,7 @@ public class HttpUtils {
             return null;
         }
     }
+
 
     /**
      * 根据url下载文件，保存到filepath中
