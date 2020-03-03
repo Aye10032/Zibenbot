@@ -25,6 +25,9 @@ public class BanFunc extends BaseFunc {
     }
 
     public void run(CQMsg CQmsg) {
+        if (CQmsg.isPrivateMsg()) {
+            zibenbot.replyMsg(CQmsg, "对不起，此功能未对私聊开放。");
+        }
         if (CQmsg.msg.equals("肃静")) {
             new AmnestyClass(CQ, CQmsg.fromGroup, 1);
         } else if (CQmsg.msg.equals("大赦")) {
@@ -35,7 +38,7 @@ public class BanFunc extends BaseFunc {
                 if (strlist.length == 3) {
                     try {
                         if (CC.getAt(CQmsg.msg) == 2375985957L) {
-                            zibenbot.replyGroupMsg(CQmsg, "对不起，做不到。");
+                            zibenbot.replyMsg(CQmsg, "对不起，做不到。");
                             if (CQmsg.fromQQ != 2375985957L) {
                                 CQ.setGroupBan(CQmsg.fromGroup, CQmsg.fromQQ, Long.parseLong(strlist[2]));
                                 zibenbot.groupBan(2, 00000001, CQmsg.fromGroup, CQmsg.fromQQ, CQmsg.fromQQ, Long.parseLong(strlist[2]));
@@ -64,7 +67,7 @@ public class BanFunc extends BaseFunc {
                         msgs.append(temp);
                     }
                 }
-                zibenbot.replyGroupMsg(CQmsg, msgs.toString());
+                zibenbot.replyMsg(CQmsg, msgs.toString());
             }
         }
     }

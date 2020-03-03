@@ -25,7 +25,7 @@ public class SendGroupMSGTask implements Runnable {
             // 在这里写你要执行的内容
             for (long fromGroup : groupList) {
                 Zibenbot.logger.log(Level.INFO, String.format("向群[%s]发送消息:%s", getGroupNameByID(fromGroup, zibenbot.getCoolQ().getGroupList()) ,msg));
-                zibenbot.getCoolQ().sendGroupMsg(fromGroup, zibenbot.getCQCode().at(-1) + msg);
+                zibenbot.getCoolQ().sendGroupMsg(fromGroup, msg);
             }
         } catch (Exception e) {
             System.out.println("-------------解析信息发生异常--------------");

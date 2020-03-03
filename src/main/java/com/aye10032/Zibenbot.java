@@ -57,12 +57,21 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
         super(CQ);
     }
 
-    public int replyGroupMsg(CQMsg fromMsg, String msg) {
-        Zibenbot.logger.log(Level.INFO, String.format("回复群[%s]成员[%s]消息:%s",
-                IDNameUtil.getGroupNameByID(fromMsg.fromGroup, getCoolQ().getGroupList()),
-                IDNameUtil.getGroupMemberNameByID(fromMsg.fromGroup, fromMsg.fromQQ,  CQ),
-                msg));
-        return CQ.sendGroupMsg(fromMsg.fromGroup, msg);
+    public int replyMsg(CQMsg fromMsg, String msg) {
+        if (fromMsg.isGroupMsg()) {
+            Zibenbot.logger.log(Level.INFO,
+                    String.format("回复群[%s]成员[%s]消息:%s",
+                            IDNameUtil.getGroupNameByID(fromMsg.fromGroup, getCoolQ().getGroupList()),
+                            IDNameUtil.getGroupMemberNameByID(fromMsg.fromGroup, fromMsg.fromQQ, CQ),
+                            msg));
+            return CQ.sendGroupMsg(fromMsg.fromGroup, msg);
+        } else {
+            Zibenbot.logger.log(Level.INFO,
+                    String.format("回复成员[%s]消息:%s",
+                            fromMsg.fromQQ,
+                            msg));
+            return CQ.sendPrivateMsg(fromMsg.fromQQ, msg);
+        }
     }
 
     /**
@@ -208,6 +217,14 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
         //        } catch (IOException e) {
         //            e.printStackTrace();
         //        }
+        CQMsg cqMsg = new CQMsg(subType, msgId, -1, fromQQ, null, msg, font);
+        for (IFunc func : registerFunc) {
+            try {
+                func.run(cqMsg);
+            } catch (Exception e) {
+                replyMsg(cqMsg, e.getMessage());
+            }
+        }
         return MSG_IGNORE;
     }
 
@@ -232,14 +249,12 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
             anonymous = CQ.getAnonymous(fromAnonymous);
         }
         CQMsg cqMsg = new CQMsg(subType, msgId, fromGroup, fromQQ, anonymous, msg, font);
-        lastMsg = cqMsg;
         if (fromGroup == 995497677L || fromGroup == 792666782L || fromGroup == 517709950L || fromGroup == 295904863) { // 这里的 0L 可以换成您的测试群
-
             for (IFunc func : registerFunc) {
                 try {
                     func.run(cqMsg);
                 } catch (Exception e) {
-                    replyGroupMsg(cqMsg, e.getMessage());
+                    replyMsg(cqMsg, e.getMessage());
                 }
             }
 

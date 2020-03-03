@@ -18,7 +18,7 @@ public class nmslFunc extends BaseFunc {
 
     public void run(CQMsg cqMsg) {
         if (cqMsg.msg.contains("nmsl")) {
-            zibenbot.replyGroupMsg(cqMsg, zibenbot.getCQCode().at(cqMsg.fromQQ) + cqMsg.msg);
+            zibenbot.replyMsg(cqMsg, zibenbot.getCQCode().at(cqMsg.fromQQ) + cqMsg.msg);
         }
     }
 }
