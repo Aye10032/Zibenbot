@@ -40,6 +40,7 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
 
     List<IFunc> registerFunc = new ArrayList<IFunc>();
     CQMsg lastMsg;
+    //时间任务池
     public TimeTaskPool pool = new TimeTaskPool();
 
 
