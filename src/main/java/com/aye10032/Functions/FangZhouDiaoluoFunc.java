@@ -114,10 +114,10 @@ public class FangZhouDiaoluoFunc extends BaseFunc {
                 }
             } else {
                 try {
-                    if (zibenbot != null) {
+                    if (zibenbot != null && !CQmsg.isTeamspealMsg()) {
                         zibenbot.replyMsg(CQmsg, zibenbot.getCQCode().image(new File(arkonegraphFile)));
-                    } else {
-                        System.out.println(arkonegraphFile);
+                    } else if (CQmsg.isTeamspealMsg()){
+                        zibenbot.replyMsg(CQmsg, "ts频道无法发图吗，请从群聊或者私聊查询");
                     }
 
                 } catch (IOException e) {

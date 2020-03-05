@@ -25,15 +25,21 @@ public class BanFunc extends BaseFunc {
     }
 
     public void run(CQMsg CQmsg) {
-        if (CQmsg.isPrivateMsg()) {
-            zibenbot.replyMsg(CQmsg, "对不起，此功能未对私聊开放。");
-        }
         if (CQmsg.msg.equals("肃静")) {
+            if (CQmsg.isPrivateMsg()) {
+                zibenbot.replyMsg(CQmsg, "对不起，此功能未对私聊或teamspeak开放。");
+            }
             new AmnestyClass(CQ, CQmsg.fromGroup, 1);
         } else if (CQmsg.msg.equals("大赦")) {
+            if (CQmsg.isPrivateMsg()) {
+                zibenbot.replyMsg(CQmsg, "对不起，此功能未对私聊或teamspeak开放。");
+            }
             new AmnestyClass(CQ, CQmsg.fromGroup, banRecord).done(banRecord.getGroupObject(CQmsg.fromGroup).getBanList());
         } else if (CQmsg.msg.startsWith(".")) {
             if (CQmsg.msg.contains("禁言")) {
+                if (CQmsg.isPrivateMsg()) {
+                    zibenbot.replyMsg(CQmsg, "对不起，此功能未对私聊或teamspeak开放。");
+                }
                 String[] strlist = CQmsg.msg.split(" ");
                 if (strlist.length == 3) {
                     try {
@@ -56,6 +62,9 @@ public class BanFunc extends BaseFunc {
                     }
                 }
             } else if (CQmsg.msg.equals(".击杀榜")) {
+                if (CQmsg.isPrivateMsg()) {
+                    zibenbot.replyMsg(CQmsg, "对不起，此功能未对私聊或teamspeak开放。");
+                }
                 List<String> list = banRecord.getKillRank(CQmsg.fromGroup);
                 StringBuilder msgs = new StringBuilder();
                 if (list.size() >= 10) {

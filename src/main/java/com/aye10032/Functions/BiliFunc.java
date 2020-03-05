@@ -21,17 +21,29 @@ public class BiliFunc extends BanFunc{
         if (compile.hasAV()) {
             try {
                 BiliInfo biliInfo = new BiliInfo(compile.getAVNum(), zibenbot.appDirectory);
-                String send = biliInfo.getTitle() + "\n"
-                        + biliInfo.getVideourl() + "\n"
-                        + CC.image(new File(zibenbot.appDirectory + "\\image\\img.jpg")) + "\nup主："
-                        + biliInfo.getUp() + CC.image(new File(zibenbot.appDirectory + "\\image\\head.jpg"))
-                        + "\n播放：" + biliInfo.getView()
-                        + " 弹幕" + biliInfo.getDanmaku()
-                        + "\n点赞" + biliInfo.getLike()
-                        + " 投币" + biliInfo.getCoin()
-                        + " 收藏" + biliInfo.getFavorite()
-                        + " 评论：" + biliInfo.getReply();
-
+                String send = "";
+                if (CQmsg.isPrivateMsg() || CQmsg.isGroupMsg()) {
+                    send = biliInfo.getTitle() + "\n"
+                            + biliInfo.getVideourl() + "\n"
+                            + CC.image(new File(zibenbot.appDirectory + "\\image\\img.jpg"))
+                            + "\nup主：" + biliInfo.getUp() + CC.image(new File(zibenbot.appDirectory + "\\image\\head.jpg"))
+                            + "\n播放：" + biliInfo.getView()
+                            + " 弹幕" + biliInfo.getDanmaku()
+                            + "\n点赞" + biliInfo.getLike()
+                            + " 投币" + biliInfo.getCoin()
+                            + " 收藏" + biliInfo.getFavorite()
+                            + " 评论：" + biliInfo.getReply();
+                } else if(CQmsg.isTeamspealMsg()) {
+                    send = biliInfo.getTitle() + "\n"
+                            + biliInfo.getVideourl() + "\n"
+                            + "\nup主：" + biliInfo.getUp()
+                            + "\n播放：" + biliInfo.getView()
+                            + " 弹幕" + biliInfo.getDanmaku()
+                            + "\n点赞" + biliInfo.getLike()
+                            + " 投币" + biliInfo.getCoin()
+                            + " 收藏" + biliInfo.getFavorite()
+                            + " 评论：" + biliInfo.getReply();
+                }
                 zibenbot.replyMsg(CQmsg, send);
             } catch (IOException e) {
                 zibenbot.replyMsg(CQmsg, e.toString());
