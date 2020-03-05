@@ -18,6 +18,10 @@ public class PixivFunc extends BaseFunc {
     public void run(CQMsg CQmsg) {
         if (CQmsg.msg.equals(".p站") || CQmsg.msg.equals(".pixiv") || CQmsg.msg.equals(".P站")) {
             try {
+                if (CQmsg.isTeamspealMsg()){
+                    zibenbot.replyMsg(CQmsg, "ts频道无法发图吗，请从群聊或者私聊获取");
+                    return;
+                }
                 zibenbot.replyMsg(CQmsg, zibenbot.getCQCode().image(new SetuUtil(zibenbot.appDirectory).getImage()));
             } catch (IOException e) {
                 e.printStackTrace();
