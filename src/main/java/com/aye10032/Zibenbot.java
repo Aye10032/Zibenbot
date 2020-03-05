@@ -74,6 +74,10 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
                             msg));
             return CQ.sendPrivateMsg(fromMsg.fromQQ, msg);
         } else if (fromMsg.isTeamspealMsg()) {
+            Zibenbot.logger.log(Level.INFO,
+                    String.format("回复ts频道[%s]消息:%s",
+                            fromMsg.fromGroup,
+                            msg));
             teamspeakBot.api.sendChannelMessage(msg);
             return 1;
         }
@@ -157,9 +161,14 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
         registerFunc.add(new BiliFunc(this));
         //对功能进行初始化
         for (IFunc func : registerFunc) {
-            func.setUp();
+            try {
+                func.setUp();
+            } catch (Exception e) {
+                logger.warning(() -> "初始化：" + func.getClass().getName() + "出现异常");
+            }
         }
         Zibenbot.logger.log(Level.INFO, "registe func end");
+
         //创建teamspeakbot对象
         teamspeakBot = new TeamspeakBot(this);
         teamspeakBot.setup();
