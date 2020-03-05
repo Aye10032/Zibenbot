@@ -28,8 +28,8 @@ public class TeamspeakBot {
         api = query.getApi();
         api.login("serveradmin", "+mj5iqBQ");
         api.selectVirtualServerById(1);
-        api.setNickname("PutPutBot");
-        api.sendChannelMessage(api.getChannelByNameExact("MHW", true).getId(), "PutPutBot is online!");
+        api.setNickname("Bot");
+        api.sendChannelMessage(api.getChannelByNameExact("MHW", true).getId(), "Bot is online!");
 
         // Get our own client ID by running the "whoami" command
         final int clientId = api.whoAmI().getId();

@@ -13,11 +13,11 @@ public class CQMsg {
     public int font;
     public MsgType type;
 
-    public CQMsg(int subType, int msgId, long fromGroup, long fromQQ, Anonymous fromAnonymous, String msg, int font, MsgType type) {
+    public CQMsg(int subType, int msgId, long fromGroup, long fromClient, Anonymous fromAnonymous, String msg, int font, MsgType type) {
         this.subType = subType;
         this.msgId = msgId;
         this.fromGroup = fromGroup;
-        this.fromQQ = fromQQ;
+        this.fromQQ = fromClient;
         this.anonymous = fromAnonymous;
         this.msg = msg;
         this.font = font;
