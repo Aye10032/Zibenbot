@@ -22,7 +22,7 @@ public class liantongFunc extends BaseFunc {
         if (CQmsg.msg.contains("炼铜")) {
             try {
                 if (CQmsg.isTeamspealMsg()){
-                    zibenbot.replyMsg(CQmsg, "ts频道无法发图吗，请从群聊或者私聊获取");
+                    zibenbot.replyMsg(CQmsg, "ts频道无法发图片，请从群聊或者私聊获取");
                     return;
                 }
                 zibenbot.replyMsg(CQmsg, zibenbot.getCQCode().image(new File(zibenbot.appDirectory + "\\image\\liantong.jpg")));

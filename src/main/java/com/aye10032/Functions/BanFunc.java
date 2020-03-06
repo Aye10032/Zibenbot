@@ -26,18 +26,18 @@ public class BanFunc extends BaseFunc {
 
     public void run(CQMsg CQmsg) {
         if (CQmsg.msg.equals("肃静")) {
-            if (CQmsg.isPrivateMsg()) {
+            if (!CQmsg.isGroupMsg()) {
                 zibenbot.replyMsg(CQmsg, "对不起，此功能未对私聊或teamspeak开放。");
             }
             new AmnestyClass(CQ, CQmsg.fromGroup, 1);
-        } else if (CQmsg.msg.equals("大赦")) {
-            if (CQmsg.isPrivateMsg()) {
+        } else if (CQmsg.msg.equals("大赦") || CQmsg.isTeamspealMsg()) {
+            if (!CQmsg.isGroupMsg()) {
                 zibenbot.replyMsg(CQmsg, "对不起，此功能未对私聊或teamspeak开放。");
             }
             new AmnestyClass(CQ, CQmsg.fromGroup, banRecord).done(banRecord.getGroupObject(CQmsg.fromGroup).getBanList());
         } else if (CQmsg.msg.startsWith(".")) {
             if (CQmsg.msg.contains("禁言")) {
-                if (CQmsg.isPrivateMsg()) {
+                if (!CQmsg.isGroupMsg()) {
                     zibenbot.replyMsg(CQmsg, "对不起，此功能未对私聊或teamspeak开放。");
                 }
                 String[] strlist = CQmsg.msg.split(" ");
