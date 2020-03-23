@@ -3,6 +3,7 @@ package com.aye10032.Utils.Video;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 public class VideoClass {
 
@@ -89,6 +90,64 @@ public class VideoClass {
                 iterator.remove();
             }
         }
+    }
+
+    public String getFullList(){
+        StringBuilder returnMSG = new StringBuilder("当前列表中");
+        if (getVideoNum() == 0) {
+            returnMSG.append("无视频");
+        } else {
+            returnMSG.append("有").append(getVideoNum()).append("个视频\n------");
+
+            for (VideoData data : getDataList()) {
+                returnMSG.append("\nNo.").append(data.getNO())
+                        .append("\n  链接: ").append(data.getVideoLink())
+                        .append("\n  描述: ").append(data.getDescription())
+                        .append("\n  状态: ");
+                if (!data.getIsTrans()) {
+                    if (!data.isHasDone()) {
+                        returnMSG.append("未搬运");
+                    } else {
+                        returnMSG.append("已搬运");
+                    }
+                    if (data.getNeedTrans()) {
+                        returnMSG.append(" 要翻译");
+                    }
+                } else {
+                    returnMSG.append("翻译中");
+                }
+            }
+        }
+
+        return new String(returnMSG);
+    }
+
+    public String getTranslateList(){
+        StringBuilder returnMSG = new StringBuilder("");
+        if (getVideoNum() == 0) {
+            returnMSG.append("当前列表中无视频");
+        } else {
+            returnMSG.append("待翻译列表:\n------");
+
+            for (VideoData data : dataList) {
+                if (data.getNeedTrans()) {
+                    returnMSG.append("\nNo.").append(data.getNO())
+                            .append("\n  链接: ").append(data.getVideoLink())
+                            .append("\n  描述: ").append(data.getDescription())
+                            .append("\n  状态: ");
+                    if (!data.getIsTrans()) {
+                        returnMSG.append("待翻译");
+                    } else {
+                        returnMSG.append("翻译中:");
+
+                        for (Map.Entry<Long, String> entry : data.getTransList().entrySet()) {
+                            returnMSG.append("\n    ").append("[CQ:at,qq=").append(entry.getKey()).append("] : ").append(entry.getValue());
+                        }
+                    }
+                }
+            }
+        }
+        return new String(returnMSG);
     }
 
 }
