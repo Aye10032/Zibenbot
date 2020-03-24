@@ -1,6 +1,7 @@
 package com.aye10032.Functions;
 
 import com.aye10032.Utils.ConfigLoader;
+import com.aye10032.Utils.StringUtil;
 import com.aye10032.Utils.Video.VideoClass;
 import com.aye10032.Utils.Video.VideoData;
 import com.aye10032.Zibenbot;
@@ -23,7 +24,7 @@ public class RedStoneFunc extends BaseFunc {
         VideoClass videoClass = ConfigLoader.load(zibenbot.appDirectory + "/videoData.json", VideoClass.class);
 
         StringBuilder returnMSG = new StringBuilder();
-        String[] strlist = cqMsg.msg.split(" ");
+        String[] strlist = new StringUtil().split(cqMsg.msg);
         if (cqMsg.msg.equals("搬运")) {
             zibenbot.replyMsg(cqMsg, "关键词列表:\n" +
                     "搬运 <油管链接> [描述]-----添加搬运需求\n" +
@@ -42,7 +43,7 @@ public class RedStoneFunc extends BaseFunc {
                 videoClass.addVideo(new VideoData(videoClass.getVideoSum(), strlist[1], "", cqMsg.fromQQ));
             }
             videoClass.updateList();
-            zibenbot.replyMsg(cqMsg, videoClass.getFullList());
+            zibenbot.replyMsg(cqMsg, "已添加" + strlist[1] + " " + strlist[2]);
         } else if (cqMsg.msg.startsWith("烤 ")) {
             if (strlist.length == 3) {
                 videoClass.addVideoSum();
@@ -52,7 +53,7 @@ public class RedStoneFunc extends BaseFunc {
                 videoClass.addVideo(new VideoData(videoClass.getVideoSum(), strlist[1], "", true, cqMsg.fromQQ));
             }
             videoClass.updateList();
-            zibenbot.replyMsg(cqMsg, videoClass.getFullList());
+            zibenbot.replyMsg(cqMsg, "已添加" + strlist[1] + " " + strlist[2]);
         } else if (cqMsg.msg.equals("搬运列表")) {
             videoClass.updateList();
             zibenbot.replyMsg(cqMsg, videoClass.getFullList());
