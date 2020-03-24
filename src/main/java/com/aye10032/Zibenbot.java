@@ -67,7 +67,7 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
                             IDNameUtil.getGroupMemberNameByID(fromMsg.fromGroup, fromMsg.fromQQ, CQ),
                             msg));
             return CQ.sendGroupMsg(fromMsg.fromGroup, msg);
-        } else if (fromMsg.isPrivateMsg()){
+        } else if (fromMsg.isPrivateMsg()) {
             Zibenbot.logger.log(Level.INFO,
                     String.format("回复成员[%s]消息:%s",
                             fromMsg.fromQQ,
@@ -267,7 +267,7 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
             anonymous = CQ.getAnonymous(fromAnonymous);
         }
         CQMsg cqMsg = new CQMsg(subType, msgId, fromGroup, fromQQ, anonymous, msg, font, MsgType.GROUP_MSG);
-        if (fromGroup == 995497677L || fromGroup == 792666782L || fromGroup == 517709950L || fromGroup == 295904863 || fromGroup == 947657871 || fromGroup ==456919710L) { // 这里的 0L 可以换成您的测试群
+        if (fromGroup == 995497677L || fromGroup == 792666782L || fromGroup == 517709950L || fromGroup == 295904863 || fromGroup == 947657871 || fromGroup == 456919710L || fromGroup == 792797914L) { // 这里的 0L 可以换成您的测试群
             for (IFunc func : registerFunc) {
                 try {
                     func.run(cqMsg);
@@ -488,6 +488,7 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
         JOptionPane.showMessageDialog(null, "这是测试菜单B，可以在这里加载窗口");
         return 0;
     }
+
     /**
      * 老的方式依然支持，也就是不强行定构造方法也行
      */
