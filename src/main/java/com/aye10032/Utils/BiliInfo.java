@@ -41,7 +41,7 @@ public class BiliInfo {
             this.videourl = videourl_av + avn.substring(2);
             this.apiURL = apiURL1 + "aid=" + avn.substring(2) + apiURL2;
         } else {
-            this.videourl = videourl_av + avn.substring(2);
+            this.videourl = videourl_bv + avn.substring(2);
             this.apiURL = apiURL1 + "bvid=BV" + avn.substring(2) + apiURL2;
         }
         this.appDirectory = appDirectory;
