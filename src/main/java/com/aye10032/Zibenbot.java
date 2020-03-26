@@ -141,7 +141,9 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
         calendar.set(Calendar.HOUR_OF_DAY, 22);
         //重新生成date对象
         date = calendar.getTime();
-        xiagongtask.setRunnable(xiagong).setCycle(PER_DAY).setTimes(-1)
+        xiagongtask.setRunnable(xiagong)
+                .setCycle(PER_DAY)
+                .setTimes(-1)
                 //避免拿到的是未来的8点
                 .setTiggerTime(PER_DAY.getNextTime(date));
         Zibenbot.logger.log(Level.INFO, "registe time task start");
@@ -260,21 +262,21 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
      */
     public int groupMsg(int subType, int msgId, long fromGroup, long fromQQ, String fromAnonymous, String msg, int font) {
         // 如果消息来自匿名者
-        Anonymous anonymous = null;
-        if (fromQQ == 80000000L && !fromAnonymous.equals("")) {
-            // 将匿名用户信息放到 anonymous 变量中
-            anonymous = CQ.getAnonymous(fromAnonymous);
-        }
-        CQMsg cqMsg = new CQMsg(subType, msgId, fromGroup, fromQQ, anonymous, msg, font, MsgType.GROUP_MSG);
-        if (fromGroup == 995497677L || fromGroup == 792666782L || fromGroup == 517709950L || fromGroup == 295904863) { // 这里的 0L 可以换成您的测试群
-            for (IFunc func : registerFunc) {
-                try {
-                    func.run(cqMsg);
-                } catch (Exception e) {
-                    replyMsg(cqMsg, e.getMessage());
-                }
-            }
 
+            Anonymous anonymous = null;
+            if (fromQQ == 80000000L && !fromAnonymous.equals("")) {
+                // 将匿名用户信息放到 anonymous 变量中
+                anonymous = CQ.getAnonymous(fromAnonymous);
+            }
+            CQMsg cqMsg = new CQMsg(subType, msgId, fromGroup, fromQQ, anonymous, msg, font, MsgType.GROUP_MSG);
+            if (fromGroup == 995497677L || fromGroup == 792666782L || fromGroup == 517709950L || fromGroup == 295904863) { // 这里的 0L 可以换成您的测试群
+                for (IFunc func : registerFunc) {
+                    try {
+                        func.run(cqMsg);
+                    } catch (Exception e) {
+                        replyMsg(cqMsg, e.getMessage());
+                    }
+                }
         }
         return MSG_IGNORE;
     }

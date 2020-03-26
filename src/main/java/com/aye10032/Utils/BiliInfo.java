@@ -15,13 +15,16 @@ import java.net.URL;
 
 public class BiliInfo {
 
-    protected String apiURL1 = "https://api.bilibili.com/x/web-interface/view?aid=";
+    protected String apiURL1 = "https://api.bilibili.com/x/web-interface/view?";
     protected String apiURL2 = "&type=jsonp";
+    protected String apiURL;
     private String appDirectory = "";
 
     private String title = "";
     private String imgurl = "";
-    private String videourl = "https://www.bilibili.com/video/av";
+    private String videourl_av = "https://www.bilibili.com/video/av";
+    private String videourl_bv = "https://www.bilibili.com/video/BV";
+    private String videourl;
 
     private String headurl = "";
     private String up = "";
@@ -34,17 +37,22 @@ public class BiliInfo {
     private int reply = 0;
 
     public BiliInfo(String avn, String appDirectory) {
-        this.videourl += avn;
+        if (avn.startsWith("a") || avn.startsWith("A")) {
+            this.videourl = videourl_av + avn.substring(2);
+            this.apiURL = apiURL1 + "aid=" + avn.substring(2) + apiURL2;
+        } else {
+            this.videourl = videourl_av + avn.substring(2);
+            this.apiURL = apiURL1 + "bvid=BV" + avn.substring(2) + apiURL2;
+        }
         this.appDirectory = appDirectory;
 
         String body = null;
         try {
-            String url = apiURL1 + avn + apiURL2;
 
             OkHttpClient client = new OkHttpClient().newBuilder()
                     .build();
             Request request = new Request.Builder()
-                    .url(url)
+                    .url(apiURL)
                     .method("GET", null)
                     .build();
 
