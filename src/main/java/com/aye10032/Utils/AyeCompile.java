@@ -8,25 +8,38 @@ public class AyeCompile {
     private String msg = "";
     private boolean hasCode = false;
 
-    private Pattern pattern = null;
-    private Matcher matcher = null;
+    private static Pattern av_pattern = Pattern.compile("([aA])([vV])\\d+");
+    private Matcher av_matcher;
+
+    private static Pattern bv_pattern = Pattern.compile("([bB])([vV])[(0-9)|(A-Z)|(a-z)]{10}");
+    private Matcher bv_matcher;
 
     public AyeCompile(String msg) {
         this.msg = msg;
-        pattern = Pattern.compile("(av|AV)\\d+");
-        matcher = pattern.matcher(this.msg);
+        av_matcher = av_pattern.matcher(this.msg);
+        bv_matcher = bv_pattern.matcher(this.msg);
+
     }
 
     public boolean hasAV() {
-        this.hasCode = matcher.find();
+        this.hasCode = av_matcher.find();
         return hasCode;
     }
 
-    public String getAVNum() {
-        String avn = "";
-        avn = matcher.group();
-        avn = avn.substring(2);
+    public boolean hasBV() {
+        this.hasCode = bv_matcher.find();
+        return hasCode;
+    }
 
+    public String getAVString() {
+        String avn = "";
+        avn = av_matcher.group();
+        return avn;
+    }
+
+    public String getBVString() {
+        String avn = "";
+        avn = bv_matcher.group();
         return avn;
     }
 

@@ -18,9 +18,14 @@ public class BiliFunc extends BanFunc{
 
     public void run(CQMsg CQmsg) {
         AyeCompile compile = new AyeCompile(CQmsg.msg);
-        if (compile.hasAV()) {
+        if (compile.hasAV() | compile.hasBV()) {
             try {
-                BiliInfo biliInfo = new BiliInfo(compile.getAVNum(), zibenbot.appDirectory);
+                BiliInfo biliInfo;
+                if (compile.hasAV()) {
+                    biliInfo = new BiliInfo(compile.getAVString(), zibenbot.appDirectory);
+                } else {
+                    biliInfo = new BiliInfo(compile.getBVString(), zibenbot.appDirectory);
+                }
                 String send = "";
                 if (CQmsg.isPrivateMsg() || CQmsg.isGroupMsg()) {
                     send = biliInfo.getTitle() + "\n"
