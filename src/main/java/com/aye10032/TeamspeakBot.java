@@ -26,7 +26,11 @@ public class TeamspeakBot {
         query.connect();
 
         api = query.getApi();
-        api.login("serveradmin", "+mj5iqBQ");
+        try {
+            api.login("serveradmin", "+mj5iqBQ");
+        }catch (Exception e){
+            System.out.println(e);
+        }
         api.selectVirtualServerById(1);
         api.setNickname("Bot");
         api.sendChannelMessage(api.getChannelByNameExact("MHW", true).getId(), "Bot is online!");
