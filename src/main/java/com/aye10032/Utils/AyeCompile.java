@@ -22,12 +22,12 @@ public class AyeCompile {
     }
 
     public boolean hasAV() {
-        this.hasCode = av_matcher.find();
+        this.hasCode = av_matcher.matches();
         return hasCode;
     }
 
     public boolean hasBV() {
-        this.hasCode = bv_matcher.find();
+        this.hasCode = bv_matcher.matches();
         return hasCode;
     }
 
