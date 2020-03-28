@@ -22,24 +22,30 @@ public class AyeCompile {
     }
 
     public boolean hasAV() {
-        this.hasCode = av_matcher.matches();
+        this.hasCode = av_matcher.find();
+        av_matcher.reset();
         return hasCode;
     }
 
     public boolean hasBV() {
-        this.hasCode = bv_matcher.matches();
+        this.hasCode = bv_matcher.find();
+        bv_matcher.reset();
         return hasCode;
     }
 
     public String getAVString() {
         String avn = "";
+        av_matcher.find();
         avn = av_matcher.group();
+        av_matcher.reset();
         return avn;
     }
 
     public String getBVString() {
         String avn = "";
+        bv_matcher.find();
         avn = bv_matcher.group();
+        bv_matcher.reset();
         return avn;
     }
 
