@@ -43,6 +43,7 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
     //时间任务池
     public TimeTaskPool pool = new TimeTaskPool();
     public TeamspeakBot teamspeakBot;
+    public BotConfig config;
 
 
     public Zibenbot() {
@@ -150,6 +151,9 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
         Zibenbot.logger.log(Level.INFO, "registe time task end");
         //改成了手动注册
         Zibenbot.logger.log(Level.INFO, "registe func start");
+        config = new BotConfig(this);
+
+        registerFunc.add(config);
         registerFunc.add(new AyeCube(this));
         registerFunc.add(new BanFunc(this));
         registerFunc.add(new DianGuaiFunc(this));
@@ -160,6 +164,7 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
         registerFunc.add(new PixivFunc(this));
         registerFunc.add(new BiliFunc(this));
         registerFunc.add(new RedStoneFunc(this));
+
         //对功能进行初始化
         for (IFunc func : registerFunc) {
             try {
