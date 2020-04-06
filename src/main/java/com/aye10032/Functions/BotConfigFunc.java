@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * @author Dazo66
  */
-public class BotConfig extends BaseFunc {
+public class BotConfigFunc extends BaseFunc {
 
     private String configFile;
     private Gson gson;
@@ -24,7 +24,7 @@ public class BotConfig extends BaseFunc {
         return this.config.getWithDafault(key, dafule);
     }
 
-    public BotConfig(Zibenbot zibenbot) {
+    public BotConfigFunc(Zibenbot zibenbot) {
         super(zibenbot);
         if (zibenbot == null) {
             configFile = "/bot_config.json";
@@ -65,13 +65,28 @@ public class BotConfig extends BaseFunc {
                 zibenbot.replyMsg(CQmsg, "设置参数不足!");
             }
         }
-        if (CQmsg.msg.startsWith(".gtconfig") || CQmsg.msg.startsWith(".getConfig")) {
+        if (CQmsg.msg.startsWith(".getconfig") || CQmsg.msg.startsWith(".getConfig")) {
             String[] strings = CQmsg.msg.split(" ", 2);
             if (strings.length == 2) {
-                String s = config.get(strings[1]);
-                zibenbot.replyMsg(CQmsg, "[" + strings[1] + "]=" + (s == null ? "null" : s));
-            } else {
-                zibenbot.replyMsg(CQmsg, "设置参数不足!");
+                if ("all".equals(strings[1])) {
+                    StringBuilder builder = new StringBuilder();
+                    builder.append("configs：\n");
+                    loop1:
+                    for (String key : config.map.keySet()) {
+                        builder.append("    ").append(key).append(" : ").append(config.map.get(key));
+                        for (ConfigListener listener : listeners) {
+                            if (listener.getKey().equals(key)) {
+                                builder.append(" (has listener)");
+                                break loop1;
+                            }
+                        }
+                        builder.append("\n");
+                    }
+                    zibenbot.replyMsg(CQmsg, builder.toString());
+                }else {
+                    String s = config.get(strings[1]);
+                    zibenbot.replyMsg(CQmsg, "[" + strings[1] + "]=" + (s == null ? "null" : s));
+                }
             }
         }
     }

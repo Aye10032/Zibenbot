@@ -21,21 +21,19 @@ public class DiaoluoType {
         return null;
     }
 
-    public class Material {
-        public String _id;
-        public String id;
+    public static class Material {
+        public String id = "";
         public int tier;
-        public String name;
-        public float credit_store_value;
-        public float green_ticket_value;
-        public float golden_ticket_value;
-        public String type;
-        public int Order_id;
-        public String Notes;
-        public Stage[] lowest_ap_stages;
-        public Stage[] balanced_stages;
-        public Stage[] drop_rate_first_stages;
-        public String last_updated;
+        public String name = "";
+        public String credit_store_value = "";
+        public String green_ticket_value = "";
+        public String golden_ticket_value= "";
+        public String type = "";
+        public Stage[] lowest_ap_stages = null;
+        public Stage[] balanced_stages = null;
+        public Stage[] drop_rate_first_stages = null;
+
+        public Material(){}
 
     }
 
@@ -57,7 +55,7 @@ public class DiaoluoType {
         public String[] names;
         public String[] calls;
 
-        public HeChenType(String id, String[] names, String[] calls){
+        public HeChenType(String id, String[] names, String[] calls) {
             this.id = id;
             List<String> list = new ArrayList<>();
             for (String c : calls) {
@@ -68,7 +66,8 @@ public class DiaoluoType {
             for (String c : names) {
                 list.add(c.trim());
             }
-            this.names = list.toArray(new String[]{});;
+            this.names = list.toArray(new String[]{});
+            ;
         }
 
         public boolean isThis(String name) {
@@ -78,6 +77,20 @@ public class DiaoluoType {
                 }
             }
             return false;
+        }
+    }
+
+    public static class Node<E, N> {
+
+        E event;
+        N normal;
+
+        public E getEvent() {
+            return event;
+        }
+
+        public N getNormal() {
+            return normal;
         }
     }
 
