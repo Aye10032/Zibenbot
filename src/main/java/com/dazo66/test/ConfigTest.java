@@ -3,6 +3,8 @@ package com.dazo66.test;
 import com.aye10032.Utils.ConfigLoader;
 import org.apache.commons.lang3.ObjectUtils;
 
+import java.util.HashMap;
+
 public class ConfigTest {
     public static void main(String[] args) {
         //直接加载 如果不存在则加载json:"{}" 会被序列化成空的对象
@@ -19,6 +21,7 @@ class user{
     //以私有形式 防止获得null
     private String name;
     private Integer id;
+    private HashMap map;
 
     user(String s, int i) {
         name = s;

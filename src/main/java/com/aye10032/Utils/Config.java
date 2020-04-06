@@ -4,23 +4,30 @@ import java.util.HashMap;
 
 public class Config {
 
-    HashMap<String, String> map = new HashMap<>();
+    public HashMap<String, String> map;
 
     public String getWithDafault(String key, String defualt) {
-        if (map.containsKey(key)) {
-            return map.get(key);
+        if (map != null) {
+            if (map.containsKey(key)) {
+                return map.get(key);
+            } else {
+                map.put(key, defualt);
+                return defualt;
+            }
         } else {
-            map.put(key, defualt);
-            return defualt;
+            return null;
         }
     }
 
     public String get(String key) {
-        return map.get(key);
+        return map == null ? null : map.get(key);
     }
 
-    public String set(String key, String value) {
-        return map.get(key);
+    public void set(String key, String value) {
+        if (map == null) {
+            map = new HashMap<>();
+        }
+        map.put(key, value);
     }
 
 

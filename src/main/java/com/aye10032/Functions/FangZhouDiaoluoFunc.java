@@ -1,11 +1,14 @@
 package com.aye10032.Functions;
 
+import com.aye10032.Utils.ConfigListener;
 import com.aye10032.Utils.HttpUtils;
 import com.aye10032.Utils.TimeUtil.TimedTask;
 import com.aye10032.Utils.fangzhoudiaoluo.DiaoluoType;
+import com.aye10032.Utils.fangzhoudiaoluo.DiaoluoTypeDeserializer;
 import com.aye10032.Utils.fangzhoudiaoluo.Module;
 import com.aye10032.Zibenbot;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import okhttp3.*;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
@@ -131,7 +134,7 @@ public class FangZhouDiaoluoFunc extends BaseFunc {
         System.out.println(arkonegraphFile);
         Zibenbot.logger.info("fangzhoudiaoluo update start");
         File file = new File(cacheFile);
-        Gson gson = new Gson();
+        Gson gson = new GsonBuilder().registerTypeAdapter(DiaoluoType.class, new DiaoluoTypeDeserializer()).create();
         OkHttpClient client = new OkHttpClient().newBuilder()
                 .build();
         DiaoluoType diaoluoType = null;
@@ -164,37 +167,50 @@ public class FangZhouDiaoluoFunc extends BaseFunc {
             Module.update();
             module = Module.module;
 
-            //更新图片
-            Request request = new Request.Builder().url("https://github.com/Aye10032/Zibenbot/raw/master/res/fangzhoudiaoluo/Arkonegraph.png").build();
-            client.newCall(request).enqueue(new Callback() {
-                @Override
-                public void onFailure(Call call, IOException e) {
-                    //Handle the error
-                }
-
-                @Override
-                public void onResponse(Call call, Response response) throws IOException {
-                    if (response.isSuccessful()) {
-                        InputStream is = response.body().byteStream();
-                        OutputStream output = new FileOutputStream(arkonegraphFile);
-
-                        byte[] data = new byte[1024];
-                        int count;
-                        while ((count = is.read(data)) != -1) {
-                            output.write(data, 0, count);
-                        }
-                        output.flush();
-                        output.close();
-                        is.close();
-                    }else {
-                        //Handle the error
-                    }
-                }
-            });
+            String img_url = "https://img.nga.178.com/attachments/mon_202004/05/-klbw3Q5-2mbmXeZ3rT3cS2io-1bf.png";
+            if (zibenbot != null) {
+                img_url = zibenbot.config.getConfig("fzdl_img", img_url);
+                String finalimgUrl = img_url;
+                zibenbot.config.addListener(new ConfigListener("fzdl_img", () -> update_img(client, finalimgUrl)));
+            }
+            if (!new File(arkonegraphFile).exists()) {
+                update_img(client, img_url);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
         Zibenbot.logger.info("fangzhoudiaoluo update end");
+    }
+
+    public void update_img(OkHttpClient client, String img_url){
+        //更新图片
+        Request request = new Request.Builder().url(img_url).build();
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                //Handle the error
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    InputStream is = response.body().byteStream();
+                    OutputStream output = new FileOutputStream(arkonegraphFile);
+
+                    byte[] data = new byte[1024];
+                    int count;
+                    while ((count = is.read(data)) != -1) {
+                        output.write(data, 0, count);
+                    }
+                    output.flush();
+                    output.close();
+                    is.close();
+                } else {
+                    //Handle the error
+                }
+            }
+        });
+
     }
 
     public List<String> getCalls(List<DiaoluoType.HeChenType> all, DiaoluoType.HeChenType type) {

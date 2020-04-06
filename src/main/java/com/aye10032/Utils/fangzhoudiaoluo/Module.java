@@ -145,10 +145,6 @@ public class Module {
             verFuncMaterial.put("{credit_store_value}", material -> String.valueOf(material.credit_store_value));
             verFuncMaterial.put("{green_ticket_value}", material -> String.valueOf(material.green_ticket_value));
             verFuncMaterial.put("{golden_ticket_value}", material -> String.valueOf(material.golden_ticket_value));
-            verFuncMaterial.put("{last_update}", material -> {
-              String[] strings = material.last_updated.split(" ");
-              return strings[0]+ " " + strings[1]+ " " + strings[2]+ " " + strings[3];
-            });
             verFuncMaterial.put("{lowest_ap_stages}", material -> {
                 String string = "";
                 int i = material.lowest_ap_stages.length;

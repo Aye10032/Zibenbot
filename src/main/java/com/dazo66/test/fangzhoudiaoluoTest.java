@@ -1,32 +1,21 @@
 package com.dazo66.test;
 
+import com.aye10032.Functions.CQMsg;
+import com.aye10032.Functions.FangZhouDiaoluoFunc;
 import org.apache.http.Header;
-import org.apache.http.HttpEntity;
 import org.apache.http.client.CookieStore;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.BasicCookieStore;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.cookie.BasicClientCookie;
 import org.apache.http.message.BasicHeader;
-import org.apache.http.util.EntityUtils;
 
 import java.io.IOException;
 
 public class fangzhoudiaoluoTest {
     public static void main(String[] args) throws IOException, InterruptedException {
-        CloseableHttpClient httpClient = HttpClients.createDefault();
-
-        HttpGet httpGet = new HttpGet("https://ngabbs.com/read.php?tid=19069337");
-        httpGet.setHeaders(getHeaders());
-
-        CloseableHttpResponse httpResponse = httpClient.execute(httpGet);
-        HttpEntity httpEntity = httpResponse.getEntity();
-        String en = EntityUtils.toString(httpEntity, "GBK");
-        System.out.println(en);
+        FangZhouDiaoluoFunc func = new FangZhouDiaoluoFunc();
+        func.update();
+        func.run(new CQMsg(-1,-1, -1, -1, null, ".方舟掉落 糖", -1, null));
     }
 
     public static Header[] getHeaders() {
