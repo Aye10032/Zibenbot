@@ -73,7 +73,7 @@ public class BotConfigFunc extends BaseFunc {
                     builder.append("configs：\n");
                     loop1:
                     for (String key : config.map.keySet()) {
-                        builder.append("    ").append(key).append(" : ").append(config.map.get(key));
+                        builder.append("    [").append(key).append("]=").append(config.get(key));
                         for (ConfigListener listener : listeners) {
                             if (listener.getKey().equals(key)) {
                                 builder.append(" (has listener)");
