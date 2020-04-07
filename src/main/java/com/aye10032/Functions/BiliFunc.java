@@ -28,9 +28,14 @@ public class BiliFunc extends BanFunc{
                 }
                 String send = "";
                 if (CQmsg.isPrivateMsg() || CQmsg.isGroupMsg()) {
+                    String pvideo = "\n预览：" + "视频太短，不提供预览。";
+                    if (biliInfo.getDuration() >= 5) {
+                        pvideo = "\n预览："+ CC.image(new File(zibenbot.appDirectory + "\\image\\pvideo.gif"));
+                    }
                     send = biliInfo.getTitle() + "\n"
                             + biliInfo.getVideourl() + "\n"
-                            + CC.image(new File(zibenbot.appDirectory + "\\image\\img.jpg"))
+                            +"封面："+ CC.image(new File(zibenbot.appDirectory + "\\image\\img.jpg"))
+                            + pvideo
                             + "\nup主：" + biliInfo.getUp() + CC.image(new File(zibenbot.appDirectory + "\\image\\head.jpg"))
                             + "\n播放：" + biliInfo.getView()
                             + " 弹幕" + biliInfo.getDanmaku()

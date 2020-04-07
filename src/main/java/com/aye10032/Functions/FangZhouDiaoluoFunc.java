@@ -37,7 +37,7 @@ public class FangZhouDiaoluoFunc extends BaseFunc {
     public FangZhouDiaoluoFunc(Zibenbot zibenbot) {
         super(zibenbot);
         if (zibenbot != null) {
-            arkonegraphFile = zibenbot.appDirectory + "/Arkonegraph.png";
+            arkonegraphFile = zibenbot.appDirectory + "/fangzhoudiaoluo/Arkonegraph.png";
             cacheFile = zibenbot.appDirectory + "/cacheFile.json";
         } else {
             arkonegraphFile = "res/Arkonegraph.png";

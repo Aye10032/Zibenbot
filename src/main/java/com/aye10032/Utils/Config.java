@@ -15,7 +15,8 @@ public class Config {
                 return defualt;
             }
         } else {
-            return null;
+            set(key, defualt);
+            return defualt;
         }
     }
 

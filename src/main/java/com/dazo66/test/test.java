@@ -3,10 +3,26 @@ package com.dazo66.test;
 import com.aye10032.Utils.AyeCompile;
 import com.aye10032.Utils.BiliInfo;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+
 public class test {
 
     public static void main(String[] args) {
-        AyeCompile compile = new AyeCompile("https://b23.tv/BV19t4y1m7zL");
+
+        System.out.println((int)(3 % 2.5f));
+
+        try {
+            BufferedImage image = ImageIO.read(new File("res\\Arkonegraph.png"));
+            ImageIO.write(image.getSubimage(0, 0 ,100, 200), "PNG", new File("res/test.png"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+        AyeCompile compile = new AyeCompile("https://b23.tv/av81006001");
         if (compile.hasAV() | compile.hasBV()) {
                 BiliInfo biliInfo;
                 if (compile.hasAV()) {
