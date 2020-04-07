@@ -15,7 +15,6 @@ import java.util.List;
 public class BotConfigFunc extends BaseFunc {
 
     private String configFile;
-    private Gson gson;
     private Config config;
     private ConfigLoader<Config> loader;
     private List<ConfigListener> listeners = new ArrayList<>();
@@ -68,7 +67,7 @@ public class BotConfigFunc extends BaseFunc {
         if (CQmsg.msg.startsWith(".getconfig") || CQmsg.msg.startsWith(".getConfig")) {
             String[] strings = CQmsg.msg.split(" ", 2);
             if (strings.length == 2) {
-                if ("all".equals(strings[1])) {
+                if ("*".equals(strings[1])) {
                     StringBuilder builder = new StringBuilder();
                     builder.append("configs：\n");
                     loop1:
