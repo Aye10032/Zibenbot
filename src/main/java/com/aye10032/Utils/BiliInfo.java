@@ -63,7 +63,11 @@ public class BiliInfo {
             this.apiURL = apiURL1 + "bvid=BV" + avn.substring(2) + apiURL2;
         }
         this.appDirectory = appDirectory;
-        pvideodir = appDirectory + "/image/pvideo.gif";
+        if (appDirectory == null || appDirectory.isEmpty()) {
+            pvideodir = "/image/pvideo.gif";
+        } else {
+            pvideodir = appDirectory + "/image/pvideo.gif";
+        }
 
         String body = null;
         try {
@@ -137,7 +141,16 @@ public class BiliInfo {
             conn.setConnectTimeout(5 * 1000);
             InputStream inStream = conn.getInputStream();
             byte[] data = readInputStream(inStream);
-            File imageFile = new File(appDirectory + "\\image\\" + filename + ".jpg");
+            File imageFile;
+            if (appDirectory == null || appDirectory.isEmpty()) {
+                imageFile = new File("image\\" + filename + ".jpg");
+            } else {
+                imageFile = new File(appDirectory + "\\image\\" + filename + ".jpg");
+            }
+            if (!imageFile.exists()) {
+                imageFile.getParentFile().mkdirs();
+                imageFile.createNewFile();
+            }
             FileOutputStream outStream = new FileOutputStream(imageFile);
             outStream.write(data);
             outStream.close();
@@ -166,13 +179,8 @@ public class BiliInfo {
     }
 
     private void creatPvideo_6min() {
-        List<BufferedImage> raw_images = new ArrayList<>();
         for (String url : p_video.data.image) {
-            try {
-                raw_images.add(ImageIO.read(new URL("https:" + url)));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+
         }
         List<BufferedImage> images = new ArrayList<>();
 
@@ -183,7 +191,13 @@ public class BiliInfo {
             }
         }
 
-        for (BufferedImage image : raw_images) {
+        for (String url : p_video.data.image) {
+            BufferedImage image = null;
+            try {
+                image = ImageIO.read(new URL("https:" + url));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             for (int y = 0; y < p_video.data.img_y_len; y++) {
                 for (int x = 0; x < p_video.data.img_x_len; x++) {
                     if (count > images.size()) {
