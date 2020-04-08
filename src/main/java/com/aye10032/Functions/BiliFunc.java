@@ -21,10 +21,10 @@ public class BiliFunc extends BanFunc{
         if (compile.hasAV() | compile.hasBV()) {
             try {
                 BiliInfo biliInfo;
-                if (compile.hasAV()) {
-                    biliInfo = new BiliInfo(compile.getAVString(), zibenbot.appDirectory);
-                } else {
+                if (compile.hasBV()) {
                     biliInfo = new BiliInfo(compile.getBVString(), zibenbot.appDirectory);
+                } else {
+                    biliInfo = new BiliInfo(compile.getAVString(), zibenbot.appDirectory);
                 }
                 String send = "";
                 if (CQmsg.isPrivateMsg() || CQmsg.isGroupMsg()) {
