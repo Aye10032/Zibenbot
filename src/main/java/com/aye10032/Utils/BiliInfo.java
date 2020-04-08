@@ -65,7 +65,7 @@ public class BiliInfo {
         }
         this.appDirectory = appDirectory;
         if (appDirectory == null || appDirectory.isEmpty()) {
-            pvideodir = "/image/pvideo.gif";
+            pvideodir = "image/pvideo.gif";
         } else {
             pvideodir = appDirectory + "/image/pvideo.gif";
         }
@@ -231,7 +231,7 @@ public class BiliInfo {
             AtomicInteger i = new AtomicInteger(0);
             images.forEach(img -> {
                 int last = i.get() == 0 ? 0 : p_video.data.index[i.get()-1];
-                encoder.setDelay((p_video.data.index[i.getAndIncrement()] - last) * 1000 / 30 );
+                encoder.setDelay((p_video.data.index[i.getAndIncrement()] - last) * 1000 / 15);
                 int height = img.getHeight();
                 int width = img.getWidth();
                 BufferedImage zoomImage = new BufferedImage(width, height, 3);
