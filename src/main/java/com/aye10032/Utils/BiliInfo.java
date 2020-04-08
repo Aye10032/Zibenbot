@@ -52,6 +52,7 @@ public class BiliInfo {
     private int duration = 0;
     private P_Video p_video;
     private int pv_time = 360;
+    public boolean hasPvdeo = true;
 
 
     public BiliInfo(String avn, String appDirectory) {
@@ -122,8 +123,16 @@ public class BiliInfo {
                 }
                 Gson gson = new Gson();
                 this.p_video = gson.fromJson(body, P_Video.class);
+                this.hasPvdeo = p_video.code == 10008 ? false : true;
             }
-            creatPvideo_6min();
+            if (hasPvdeo) {
+                try {
+                    creatPvideo_6min();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    hasPvdeo = false;
+                }
+            }
             downloadImg(headurl, "head");
             downloadImg(imgurl, "img");
 

@@ -22,7 +22,7 @@ public class test {
         }
 
 
-        AyeCompile compile = new AyeCompile("https://b23.tv/av81006001");
+        AyeCompile compile = new AyeCompile("https://b23.tv/av114514");
         if (compile.hasAV() | compile.hasBV()) {
                 BiliInfo biliInfo;
                 if (compile.hasAV()) {

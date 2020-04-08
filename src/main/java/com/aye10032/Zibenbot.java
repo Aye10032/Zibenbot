@@ -8,10 +8,7 @@ import org.meowy.cqp.jcq.entity.*;
 import org.meowy.cqp.jcq.event.JcqAppAbstract;
 
 import javax.swing.*;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -277,7 +274,9 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
                 try {
                     func.run(cqMsg);
                 } catch (Exception e) {
-                    replyMsg(cqMsg, e.getMessage());
+                    StringBuilder builder = new StringBuilder();
+                    Arrays.stream(e.getStackTrace()).forEach(builder::append);
+                    replyMsg(cqMsg, "运行出错：" + builder.toString());
                 }
             }
 
