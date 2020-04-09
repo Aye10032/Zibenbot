@@ -30,7 +30,7 @@ public class BanFunc extends BaseFunc {
                 zibenbot.replyMsg(CQmsg, "对不起，此功能未对私聊或teamspeak开放。");
             }
             new AmnestyClass(CQ, CQmsg.fromGroup, 1);
-        } else if (CQmsg.msg.equals("大赦") || CQmsg.isTeamspealMsg()) {
+        } else if (CQmsg.msg.equals("大赦")) {
             if (!CQmsg.isGroupMsg()) {
                 zibenbot.replyMsg(CQmsg, "对不起，此功能未对私聊或teamspeak开放。");
             }
@@ -62,7 +62,7 @@ public class BanFunc extends BaseFunc {
                     }
                 }
             } else if (CQmsg.msg.equals(".击杀榜")) {
-                if (CQmsg.isPrivateMsg()) {
+                if (!CQmsg.isGroupMsg()) {
                     zibenbot.replyMsg(CQmsg, "对不起，此功能未对私聊或teamspeak开放。");
                 }
                 List<String> list = banRecord.getKillRank(CQmsg.fromGroup);

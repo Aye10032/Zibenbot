@@ -15,7 +15,9 @@ public class fangzhoudiaoluoTest {
     public static void main(String[] args) throws IOException, InterruptedException {
         FangZhouDiaoluoFunc func = new FangZhouDiaoluoFunc();
         func.update();
-        func.run(new CQMsg(-1,-1, -1, -1, null, ".方舟掉落 糖", -1, null));
+        func.run(new CQMsg(-1,-1, -1, -1, null, ".方舟掉落 t yt", -1, null));
+        //func.run(new CQMsg(-1,-1, -1, -1, null, ".方舟掉落 双击纳米片", -1, null));
+        //func.run(new CQMsg(-1,-1, -1, -1, null, "是", -1, null));
     }
 
     public static Header[] getHeaders() {
