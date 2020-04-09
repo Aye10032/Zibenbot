@@ -123,7 +123,7 @@ public class BiliInfo {
                 }
                 Gson gson = new Gson();
                 this.p_video = gson.fromJson(body, P_Video.class);
-                this.hasPvdeo = p_video.code == 10008 ? false : true;
+                this.hasPvdeo = p_video.code == 0 ? true : false;
             }
             if (hasPvdeo) {
                 try {

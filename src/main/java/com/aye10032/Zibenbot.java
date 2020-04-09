@@ -42,6 +42,24 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
     public TeamspeakBot teamspeakBot;
     public BotConfigFunc config;
 
+    public List<Long> enableGroup = new ArrayList<>();
+    {
+        //fromGroup == 995497677L
+        // || fromGroup == 792666782L
+        // || fromGroup == 517709950L
+        // || fromGroup == 295904863
+        // || fromGroup == 947657871
+        // || fromGroup == 456919710L
+        // || fromGroup == 792797914L
+        enableGroup.add(995497677L);
+        enableGroup.add(792666782L);
+        enableGroup.add(517709950L);
+        enableGroup.add(295904863L);
+        enableGroup.add(947657871L);
+        enableGroup.add(456919710L);
+        enableGroup.add(792797914L);
+    }
+
 
     public Zibenbot() {
 
@@ -269,7 +287,7 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
             anonymous = CQ.getAnonymous(fromAnonymous);
         }
         CQMsg cqMsg = new CQMsg(subType, msgId, fromGroup, fromQQ, anonymous, msg, font, MsgType.GROUP_MSG);
-        if (fromGroup == 995497677L || fromGroup == 792666782L || fromGroup == 517709950L || fromGroup == 295904863 || fromGroup == 947657871 || fromGroup == 456919710L || fromGroup == 792797914L) { // 这里的 0L 可以换成您的测试群
+        if (enableGroup.contains(fromGroup)) { // 这里的 0L 可以换成您的测试群
             for (IFunc func : registerFunc) {
                 try {
                     func.run(cqMsg);

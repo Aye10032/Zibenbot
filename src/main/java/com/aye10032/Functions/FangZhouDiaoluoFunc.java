@@ -12,6 +12,7 @@ import com.google.gson.GsonBuilder;
 import okhttp3.*;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -33,6 +34,7 @@ public class FangZhouDiaoluoFunc extends BaseFunc {
     private List<DiaoluoType.HeChenType> name_idList;
     private String arkonegraphFile;
     private String cacheFile;
+    private Pair<Long, DiaoluoType.HeChenType> last = null;
 
     public FangZhouDiaoluoFunc(Zibenbot zibenbot) {
         super(zibenbot);
@@ -63,69 +65,92 @@ public class FangZhouDiaoluoFunc extends BaseFunc {
     }
 
     @Override
-    public void run(CQMsg CQmsg) {
-        String msg = CQmsg.msg.trim();
+    public void run(CQMsg cqmsg) {
+        String msg = cqmsg.msg.trim();
+        if (last !=null) {
+            if (cqmsg.fromQQ == last.getKey()) {
+                if (("是".equals(msg) || "yes".equals(msg) || "Yes".equals(msg) || "Y".equals(msg) || "y".equals(msg) || "确实".equals(msg) || "对".equals(msg))) {
+                    retMsg(last.getValue(), cqmsg);
+                } else {
+                    last = null;
+                }
+            }
+        }
         if (msg.startsWith(".方舟素材") || msg.startsWith(".方舟掉落")) {
+            last = null;
             String[] strings = msg.split(" ");
             int len = strings.length;
             if (len >= 2) {
-                loop:
                 for (int i = 1; i < len; i++) {
                     if (name_idList == null) {
                         if (zibenbot == null) {
                             System.out.println("方舟掉落：初始化异常");
                         } else {
-                            zibenbot.replyMsg(CQmsg, "方舟掉落：初始化异常");
+                            zibenbot.replyMsg(cqmsg, "方舟掉落：初始化异常");
                         }
                         return;
                     }
-                    boolean flag = false;
                     for (DiaoluoType.HeChenType type : name_idList) {
                         if (type.isThis(strings[i])) {
-                            flag = true;
-                            if (type.calls.length == 0) {
-                                if (zibenbot != null) {
-                                    zibenbot.replyMsg(CQmsg, module.getString(this.type.getMaterialFromID(type.id)));
-                                } else {
-                                    System.out.println(module.getString(this.type.getMaterialFromID(type.id)));
-                                }
-                            } else {
-                                StringBuilder s = new StringBuilder();
-                                List<String> strings1 = getCalls(name_idList, type);
-                                for (int i1 = 0; i1 < strings1.size(); i1++) {
-                                    s.append(module.getString(this.type.getMaterialFromID(strings1.get(i1))));
-                                    if (i1 != strings1.size() - 1) {
-                                        s.append("\n\n");
-                                    }
-                                }
-                                if (zibenbot != null) {
-                                    zibenbot.replyMsg(CQmsg, s.toString());
-                                } else {
-                                    System.out.println(s.toString());
-                                }
-                                break loop;
-                            }
+                            retMsg(type, cqmsg);
+                            break;
                         }
                     }
-                    if (!flag) {
+                    Pair<DiaoluoType.HeChenType, Float> max = Pair.of(null, 0f);
+                    for (DiaoluoType.HeChenType type : name_idList) {
+                        float f = type.maxSimilarity(strings[i]);
+                        max = f > max.getValue() ? Pair.of(type, f) : max;
+                    }
+                    if (max.getValue() < 0.5f) {
                         if (zibenbot != null) {
-                            zibenbot.replyMsg(CQmsg, "找不到素材：【" + strings[i] + "】");
-                        } else {
+                            zibenbot.replyMsg(cqmsg, "找不到素材：【" + strings[i] + "】");
+                        } else if (zibenbot == null) {
                             System.out.println("找不到素材：【" + strings[i] + "】");
+                        }
+                    } else {
+                        last = Pair.of(cqmsg.fromQQ, max.getKey());
+                        if (zibenbot != null) {
+                            zibenbot.replyMsg(cqmsg, "你要找的是不是：【" + max.getKey().names[0] + "】");
+                        } else if (zibenbot == null) {
+                            System.out.println("你要找的是不是：【" + max.getKey().names[0] + "】");
                         }
                     }
                 }
             } else {
                 try {
-                    if (zibenbot != null && !CQmsg.isTeamspealMsg()) {
-                        zibenbot.replyMsg(CQmsg, zibenbot.getCQCode().image(new File(arkonegraphFile)));
-                    } else if (CQmsg.isTeamspealMsg()){
-                        zibenbot.replyMsg(CQmsg, "ts频道无法发图片，请从群聊或者私聊查询");
+                    if (zibenbot != null && !cqmsg.isTeamspealMsg()) {
+                        zibenbot.replyMsg(cqmsg, zibenbot.getCQCode().image(new File(arkonegraphFile)));
+                    } else if (cqmsg.isTeamspealMsg()){
+                        zibenbot.replyMsg(cqmsg, "ts频道无法发图片，请从群聊或者私聊查询");
                     }
 
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+            }
+        }
+    }
+
+    private void retMsg(DiaoluoType.HeChenType type, CQMsg msg){
+        if (type.calls.length == 0) {
+            if (zibenbot != null) {
+                zibenbot.replyMsg(msg, module.getString(this.type.getMaterialFromID(type.id)));
+            } else {
+                System.out.println(module.getString(this.type.getMaterialFromID(type.id)));
+            }
+        } else {
+            StringBuilder s = new StringBuilder();
+            List<String> strings1 = getCalls(name_idList, type);
+            for (int i1 = 0; i1 < strings1.size(); i1++) {
+                s.append(module.getString(this.type.getMaterialFromID(strings1.get(i1))));
+                if (i1 != strings1.size() - 1) {
+                    s.append("\n\n");
+                }
+            }
+            if (zibenbot != null) {
+                zibenbot.replyMsg(msg, s.toString());
+            } else {
+                System.out.println(s.toString());
             }
         }
     }
