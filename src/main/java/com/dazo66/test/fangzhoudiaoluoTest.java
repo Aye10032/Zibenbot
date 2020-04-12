@@ -1,7 +1,9 @@
 package com.dazo66.test;
 
+import com.aye10032.Functions.BotConfigFunc;
 import com.aye10032.Functions.CQMsg;
 import com.aye10032.Functions.FangZhouDiaoluoFunc;
+import com.aye10032.Utils.ConfigListener;
 import org.apache.http.Header;
 import org.apache.http.client.CookieStore;
 import org.apache.http.cookie.Cookie;
@@ -18,6 +20,21 @@ public class fangzhoudiaoluoTest {
         func.run(new CQMsg(-1,-1, -1, -1, null, ".方舟掉落 t yt", -1, null));
         //func.run(new CQMsg(-1,-1, -1, -1, null, ".方舟掉落 双击纳米片", -1, null));
         //func.run(new CQMsg(-1,-1, -1, -1, null, "是", -1, null));
+        BotConfigFunc configFunc = new BotConfigFunc(null);
+        configFunc.setUp();
+        String img_url = "https://img.nga.178.com/attachments/mon_202004/05/-klbw3Q5-2mbmXeZ3rT3cS2io-1bf.png";
+        img_url = configFunc.getConfig("fzdl_img", img_url);
+        String finalimgUrl = img_url;
+        configFunc.addListener(new ConfigListener("fzdl_img", () -> {
+            String url = configFunc.getConfig("fzdl_img", finalimgUrl);
+            try {
+                func.update_img(url);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }));
+
+        configFunc.run(new CQMsg(-1,-1, -1, -1, null, ".setconfig fzdl_img https://dragalialost.akamaized.net/attached/cartoon/images/15ab5fb800afb870a44f17f09c4455e2.png", -1, null));
     }
 
     public static Header[] getHeaders() {
