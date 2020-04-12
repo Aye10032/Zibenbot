@@ -25,4 +25,13 @@ public abstract class BaseFunc implements IFunc {
     public boolean isEnable() {
         return isEnable;
     }
+
+    public void replyMsg(CQMsg fromMsg, String msg) {
+        if (zibenbot!= null) {
+            zibenbot.replyMsg(fromMsg, msg);
+        } else {
+            System.out.println(msg);
+        }
+
+    }
 }
