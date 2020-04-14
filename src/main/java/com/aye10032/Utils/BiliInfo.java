@@ -53,6 +53,8 @@ public class BiliInfo {
     private P_Video p_video;
     private int pv_time = 360;
     public boolean hasPvdeo = true;
+    public boolean hasVideo = false;
+    public int code = 0;
 
 
     public BiliInfo(String avn, String appDirectory) {
@@ -91,6 +93,13 @@ public class BiliInfo {
             if (element.isJsonObject()) {
                 System.out.println(element);
                 JsonObject jsonObject = element.getAsJsonObject();
+
+                code = jsonObject.get("code").getAsInt();
+                if (code != 0) {
+                    hasPvdeo = false;
+                    hasVideo = false;
+                    return;
+                }
 
                 JsonObject dataJson = jsonObject.get("data").getAsJsonObject();
                 this.title = dataJson.get("title").getAsString();

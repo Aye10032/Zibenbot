@@ -293,8 +293,8 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
                     func.run(cqMsg);
                 } catch (Exception e) {
                     StringBuilder builder = new StringBuilder();
-                    Arrays.stream(e.getStackTrace()).forEach(builder::append);
-                    replyMsg(cqMsg, "运行出错：" + builder.toString());
+                    Arrays.stream(e.getStackTrace()).forEach(element -> builder.append("\n").append(element));
+                    replyMsg(cqMsg, "运行出错：" + e + "\n" + builder.toString());
                 }
             }
 
