@@ -7,11 +7,24 @@ import com.aye10032.Zibenbot;
 import java.io.File;
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.util.HashMap;
+import java.util.Map;
 
 public class BiliFunc extends BanFunc{
+    Map<Integer, String> code_msg = new HashMap<>();
+
     public BiliFunc(Zibenbot zibenbot) {
         super(zibenbot);
+        code_msg.put(-200, "视频撞车了，请访问源视频。");
+        code_msg.put(-400, "视频找不到。");
+        code_msg.put(62002, "视频找不到。");
+        code_msg.put(62003, "视频审核已通过，正在发布中。");
+        code_msg.put(62004, "视频正在审核中，请耐心等待。");
+        code_msg.put(62005, "视频需要登陆后查看。");
+        code_msg.put(-403, "视频需要登陆后查看。");
     }
+
+
 
     public void setUp() {
 
@@ -29,6 +42,14 @@ public class BiliFunc extends BanFunc{
                 }
                 String send = "";
                 if (CQmsg.isPrivateMsg() || CQmsg.isGroupMsg()) {
+                    if (!biliInfo.hasVideo) {
+                        send += "错误代码：";
+                        send += biliInfo.code;
+                        send += " ";
+                        send += code_msg.get(biliInfo.code);
+                        zibenbot.replyMsg(CQmsg, send);
+                        return;
+                    }
                     String pvideo = "\n预览：" + "视频太短，不提供预览。";
                     if (biliInfo.hasPvdeo && biliInfo.getDuration() >= 12) {
                         pvideo = "\n预览："+ CC.image(new File(zibenbot.appDirectory + "\\image\\pvideo.gif"));
