@@ -53,7 +53,7 @@ public class BiliInfo {
     private P_Video p_video;
     private int pv_time = 360;
     public boolean hasPvdeo = true;
-    public boolean hasVideo = false;
+    public boolean hasVideo = true;
     public int code = 0;
 
 
