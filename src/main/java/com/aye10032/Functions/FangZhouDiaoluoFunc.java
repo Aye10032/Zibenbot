@@ -82,6 +82,7 @@ public class FangZhouDiaoluoFunc extends BaseFunc {
             int len = strings.length;
             if (len >= 2) {
                 for (int i = 1; i < len; i++) {
+                    boolean flag = true;
                     if (name_idList == null) {
                         if (zibenbot == null) {
                             System.out.println("方舟掉落：初始化异常");
@@ -93,26 +94,29 @@ public class FangZhouDiaoluoFunc extends BaseFunc {
                     for (DiaoluoType.HeChenType type : name_idList) {
                         if (type.isThis(strings[i])) {
                             retMsg(type, cqmsg);
+                            flag = false;
                             break;
                         }
                     }
-                    Pair<DiaoluoType.HeChenType, Float> max = Pair.of(null, 0f);
-                    for (DiaoluoType.HeChenType type : name_idList) {
-                        float f = type.maxSimilarity(strings[i]);
-                        max = f > max.getValue() ? Pair.of(type, f) : max;
-                    }
-                    if (max.getValue() < 0.5f) {
-                        if (zibenbot != null) {
-                            zibenbot.replyMsg(cqmsg, "找不到素材：【" + strings[i] + "】");
-                        } else if (zibenbot == null) {
-                            System.out.println("找不到素材：【" + strings[i] + "】");
+                    if (flag) {
+                        Pair<DiaoluoType.HeChenType, Float> max = Pair.of(null, 0f);
+                        for (DiaoluoType.HeChenType type : name_idList) {
+                            float f = type.maxSimilarity(strings[i]);
+                            max = f > max.getValue() ? Pair.of(type, f) : max;
                         }
-                    } else {
-                        last = Pair.of(cqmsg.fromQQ, max.getKey());
-                        if (zibenbot != null) {
-                            zibenbot.replyMsg(cqmsg, "你要找的是不是：【" + max.getKey().names[0] + "】");
-                        } else if (zibenbot == null) {
-                            System.out.println("你要找的是不是：【" + max.getKey().names[0] + "】");
+                        if (max.getValue() < 0.5f) {
+                            if (zibenbot != null) {
+                                zibenbot.replyMsg(cqmsg, "找不到素材：【" + strings[i] + "】");
+                            } else if (zibenbot == null) {
+                                System.out.println("找不到素材：【" + strings[i] + "】");
+                            }
+                        } else {
+                            last = Pair.of(cqmsg.fromQQ, max.getKey());
+                            if (zibenbot != null) {
+                                zibenbot.replyMsg(cqmsg, "你要找的是不是：【" + max.getKey().names[0] + "】");
+                            } else if (zibenbot == null) {
+                                System.out.println("你要找的是不是：【" + max.getKey().names[0] + "】");
+                            }
                         }
                     }
                 }
