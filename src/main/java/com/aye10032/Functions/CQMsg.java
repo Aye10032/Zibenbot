@@ -35,4 +35,8 @@ public class CQMsg {
     public boolean isTeamspealMsg(){
         return type == MsgType.TEAMSPEAK_MSG;
     }
+
+    public static CQMsg getTempMsg(String testMsg){
+        return new CQMsg(-1, -1, -1, -1, null, testMsg, -1, MsgType.TEAMSPEAK_MSG);
+    }
 }
