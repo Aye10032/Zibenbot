@@ -24,6 +24,7 @@ public class TimeFlow implements Runnable {
         thread.start();
     }
 
+    @Override
     public void run() {
         Zibenbot.logger.log(Level.INFO, "Time Thread Start");
         while (!Thread.currentThread().isInterrupted()) {
