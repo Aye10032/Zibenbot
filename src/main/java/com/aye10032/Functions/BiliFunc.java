@@ -10,7 +10,7 @@ import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
 
-public class BiliFunc extends BanFunc{
+public class BiliFunc extends BaseFunc{
     Map<Integer, String> code_msg = new HashMap<>();
 
     public BiliFunc(Zibenbot zibenbot) {
@@ -26,19 +26,21 @@ public class BiliFunc extends BanFunc{
 
 
 
+    @Override
     public void setUp() {
 
     }
 
+    @Override
     public void run(CQMsg CQmsg) {
         AyeCompile compile = new AyeCompile(CQmsg.msg);
         if (compile.hasAV() | compile.hasBV()) {
             try {
                 BiliInfo biliInfo;
                 if (compile.hasBV()) {
-                    biliInfo = new BiliInfo(compile.getBVString(), zibenbot.appDirectory);
+                    biliInfo = new BiliInfo(compile.getBVString(), appDirectory);
                 } else {
-                    biliInfo = new BiliInfo(compile.getAVString(), zibenbot.appDirectory);
+                    biliInfo = new BiliInfo(compile.getAVString(), appDirectory);
                 }
                 String send = "";
                 if (CQmsg.isPrivateMsg() || CQmsg.isGroupMsg()) {
@@ -47,20 +49,20 @@ public class BiliFunc extends BanFunc{
                         send += biliInfo.code;
                         send += " ";
                         send += code_msg.get(biliInfo.code);
-                        zibenbot.replyMsg(CQmsg, send);
+                        replyMsg(CQmsg, send);
                         return;
                     }
                     String pvideo = "\n预览：" + "视频太短，不提供预览。";
                     if (biliInfo.hasPvdeo && biliInfo.getDuration() >= 12) {
-                        pvideo = "\n预览："+ CC.image(new File(zibenbot.appDirectory + "\\image\\pvideo.gif"));
+                        pvideo = "\n预览："+ CC.image(new File(appDirectory + "\\image\\pvideo.gif"));
                     } else if (!biliInfo.hasPvdeo){
                         pvideo = "";
                     }
                     send = biliInfo.getTitle() + "\n"
                             + biliInfo.getVideourl() + "\n"
-                            +"封面："+ CC.image(new File(zibenbot.appDirectory + "\\image\\img.jpg"))
+                            +"封面："+ CC.image(new File(appDirectory + "\\image\\img.jpg"))
                             + pvideo
-                            + "\nup主：" + biliInfo.getUp() + CC.image(new File(zibenbot.appDirectory + "\\image\\head.jpg"))
+                            + "\nup主：" + biliInfo.getUp() + CC.image(new File(appDirectory + "\\image\\head.jpg"))
                             + "\n播放：" + formatToW(biliInfo.getView())
                             + " 弹幕：" + formatToW(biliInfo.getDanmaku())
                             + "\n点赞：" + formatToW(biliInfo.getLike())
@@ -78,9 +80,9 @@ public class BiliFunc extends BanFunc{
                             + " 收藏：" + formatToW(biliInfo.getFavorite())
                             + " 评论：" + formatToW(biliInfo.getReply());
                 }
-                zibenbot.replyMsg(CQmsg, send);
+                replyMsg(CQmsg, send);
             } catch (IOException e) {
-                zibenbot.replyMsg(CQmsg, e.toString());
+                replyMsg(CQmsg, e.toString());
             }
         }
     }

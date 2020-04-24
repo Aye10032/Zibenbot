@@ -1,5 +1,12 @@
 package com.aye10032.Utils;
 
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+
+import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -12,13 +19,25 @@ public class AyeCompile {
     private Matcher av_matcher;
 
     private static Pattern bv_pattern = Pattern.compile("([bB])([vV])[(0-9)|(A-Z)|(a-z)]{10}");
+    private static Pattern short_site_pattern = Pattern.compile("https://b23.tv/[(0-9)|(A-Z)|(a-z)]{6}");
     private Matcher bv_matcher;
 
     public AyeCompile(String msg) {
         this.msg = msg;
+        if (short_site_pattern.matcher(msg).matches()) {
+            RequestConfig config = RequestConfig.custom().setConnectTimeout(50000).setConnectionRequestTimeout(10000).setSocketTimeout(50000).setRedirectsEnabled(false).build();
+            CloseableHttpClient httpClient = HttpClients.custom().setDefaultRequestConfig(config).build();
+            CloseableHttpResponse conn = null;
+            try {
+                conn = httpClient.execute(new HttpGet(msg));
+                this.msg = conn.getHeaders("Location")[0].getValue();
+            } catch (Exception e) {
+                //ignore
+            }
+
+        }
         av_matcher = av_pattern.matcher(this.msg);
         bv_matcher = bv_pattern.matcher(this.msg);
-
     }
 
     public boolean hasAV() {

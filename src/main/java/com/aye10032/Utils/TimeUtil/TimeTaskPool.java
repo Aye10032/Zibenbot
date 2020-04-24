@@ -14,8 +14,9 @@ import java.util.logging.Level;
 public class TimeTaskPool {
 
     //创建线程安全的列表
-    List<TimedTask> nextTasks = Collections.synchronizedList(new ArrayList<TimedTask>());
-    List<TimedTask> tasks = Collections.synchronizedList(new ArrayList<TimedTask>());
+    List<TimedTask> nextTasks = Collections.synchronizedList(new ArrayList<>());
+    List<TimedTask> tasks = Collections.synchronizedList(new ArrayList<>());
+
     //时间流对象 主要是包装了时间任务的线程
     TimeFlow flow;
 
@@ -61,5 +62,11 @@ public class TimeTaskPool {
         return nextTasks;
     }
 
-
+    public void timeoutEvent(int millisTimeout, Runnable runnable){
+        add(new TimedTask()
+                .setTimes(1)
+                .setRunnable(runnable)
+                .setTiggerTime(new Date(System.currentTimeMillis() + millisTimeout))
+        );
+    }
 }
