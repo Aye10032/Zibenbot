@@ -142,7 +142,7 @@ public class BiliInfo {
                     hasPvdeo = false;
                 }
             }
-            downloadImg(headurl, "head", 128, 128);
+            downloadImg(headurl, "head", 64, 64);
             downloadImg(imgurl, "img");
 
         } catch (IOException e) {
