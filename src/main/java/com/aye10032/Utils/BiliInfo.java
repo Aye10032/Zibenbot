@@ -5,8 +5,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.madgag.gif.fmsware.AnimatedGifEncoder;
-import com.sun.image.codec.jpeg.JPEGCodec;
-import com.sun.image.codec.jpeg.JPEGImageEncoder;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -207,8 +205,6 @@ public class BiliInfo {
             BufferedImage tag = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
             tag.getGraphics().drawImage(bi, 0, 0, width, height, null);
             BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(imageFile));
-            JPEGImageEncoder encoder = JPEGCodec.createJPEGEncoder(out);
-            encoder.encode(tag);
             ImageIO.write(tag, "jpg", out);
             in.close();
             out.close();
