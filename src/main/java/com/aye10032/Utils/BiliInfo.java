@@ -5,6 +5,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.madgag.gif.fmsware.AnimatedGifEncoder;
+import com.sun.image.codec.jpeg.JPEGCodec;
+import com.sun.image.codec.jpeg.JPEGImageEncoder;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -142,7 +144,7 @@ public class BiliInfo {
                     hasPvdeo = false;
                 }
             }
-            downloadImg(headurl, "head");
+            downloadImg(headurl, "head", 128, 128);
             downloadImg(imgurl, "img");
 
         } catch (IOException e) {
@@ -172,6 +174,44 @@ public class BiliInfo {
             FileOutputStream outStream = new FileOutputStream(imageFile);
             outStream.write(data);
             outStream.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (ProtocolException e) {
+            e.printStackTrace();
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void downloadImg(String imgurl, String filename, int height, int width) {
+        try {
+            URL img = new URL(imgurl);
+            HttpURLConnection conn = (HttpURLConnection) img.openConnection();
+            conn.setRequestMethod("GET");
+            conn.setConnectTimeout(5 * 1000);
+            InputStream inStream = conn.getInputStream();
+            BufferedInputStream in = new BufferedInputStream(inStream);
+            File imageFile;
+            if (appDirectory == null || appDirectory.isEmpty()) {
+                imageFile = new File("image\\" + filename + ".jpg");
+            } else {
+                imageFile = new File(appDirectory + "\\image\\" + filename + ".jpg");
+            }
+            if (!imageFile.exists()) {
+                imageFile.getParentFile().mkdirs();
+                imageFile.createNewFile();
+            }
+            Image bi = ImageIO.read(in);
+            BufferedImage tag = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+            tag.getGraphics().drawImage(bi, 0, 0, width, height, null);
+            BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(imageFile));
+            JPEGImageEncoder encoder = JPEGCodec.createJPEGEncoder(out);
+            encoder.encode(tag);
+            ImageIO.write(tag, "jpg", out);
+            in.close();
+            out.close();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (ProtocolException e) {
@@ -239,7 +279,7 @@ public class BiliInfo {
 
             AtomicInteger i = new AtomicInteger(0);
             images.forEach(img -> {
-                int last = i.get() == 0 ? 0 : p_video.data.index[i.get()-1];
+                int last = i.get() == 0 ? 0 : p_video.data.index[i.get() - 1];
                 encoder.setDelay((p_video.data.index[i.getAndIncrement()] - last) * 1000 / 15);
                 int height = img.getHeight();
                 int width = img.getWidth();
@@ -295,7 +335,7 @@ public class BiliInfo {
             float f = (index.length / 60);
             List<Integer> list = new ArrayList<>();
             for (int i = 0; i < index.length; i++) {
-                if ((int)(i % f) == 0) {
+                if ((int) (i % f) == 0) {
                     list.add(index[i]);
                 }
             }
@@ -328,7 +368,7 @@ public class BiliInfo {
             int[] finalIndex = index;
             images.forEach(img -> {
                 //延迟计划是实际的60秒变成5秒
-                int last = i1.get() == 0 ? 0 : p_video.data.index[i1.get()-1];
+                int last = i1.get() == 0 ? 0 : p_video.data.index[i1.get() - 1];
                 encoder.setDelay(15 * 1000 / finalIndex.length);
                 int height = img.getHeight();
                 int width = img.getWidth();
@@ -349,9 +389,9 @@ public class BiliInfo {
         }
     }
 
-    static int[] toIntArray(List<Integer> list){
+    static int[] toIntArray(List<Integer> list) {
         int[] ret = new int[list.size()];
-        for(int i = 0;i < ret.length;i++)
+        for (int i = 0; i < ret.length; i++)
             ret[i] = list.get(i);
         return ret;
     }
@@ -409,6 +449,7 @@ public class BiliInfo {
         String message = "0";
         int ttl = 1;
         P_Video.data data;
+
         class data {
             String pvdata = null;
             int img_x_len;
