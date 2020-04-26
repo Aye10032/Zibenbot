@@ -6,8 +6,6 @@ import com.aye10032.Utils.Video.VideoClass;
 import com.aye10032.Utils.Video.VideoData;
 import com.aye10032.Zibenbot;
 
-import java.util.Map;
-
 public class RedStoneFunc extends BaseFunc {
 
     public RedStoneFunc(Zibenbot zibenbot) {
@@ -37,20 +35,20 @@ public class RedStoneFunc extends BaseFunc {
         } else if (cqMsg.msg.startsWith("搬运") && cqMsg.msg.contains(" ")) {
             if (strlist.length == 3) {
                 videoClass.addVideoSum();
-                videoClass.addVideo(new VideoData(videoClass.getVideoSum(), strlist[1], strlist[2], cqMsg.fromQQ));
+                videoClass.addVideo(new VideoData(videoClass.getVideoSum(), strlist[1], strlist[2], cqMsg.fromClient));
             } else if (strlist.length == 2) {
                 videoClass.addVideoSum();
-                videoClass.addVideo(new VideoData(videoClass.getVideoSum(), strlist[1], "", cqMsg.fromQQ));
+                videoClass.addVideo(new VideoData(videoClass.getVideoSum(), strlist[1], "", cqMsg.fromClient));
             }
             videoClass.updateList();
             zibenbot.replyMsg(cqMsg, "已添加" + strlist[1] + " " + strlist[2]);
         } else if (cqMsg.msg.startsWith("烤 ")) {
             if (strlist.length == 3) {
                 videoClass.addVideoSum();
-                videoClass.addVideo(new VideoData(videoClass.getVideoSum(), strlist[1], strlist[2], true, cqMsg.fromQQ));
+                videoClass.addVideo(new VideoData(videoClass.getVideoSum(), strlist[1], strlist[2], true, cqMsg.fromClient));
             } else if (strlist.length == 2) {
                 videoClass.addVideoSum();
-                videoClass.addVideo(new VideoData(videoClass.getVideoSum(), strlist[1], "", true, cqMsg.fromQQ));
+                videoClass.addVideo(new VideoData(videoClass.getVideoSum(), strlist[1], "", true, cqMsg.fromClient));
             }
             videoClass.updateList();
             zibenbot.replyMsg(cqMsg, "已添加" + strlist[1] + " " + strlist[2]);
@@ -58,7 +56,7 @@ public class RedStoneFunc extends BaseFunc {
             videoClass.updateList();
             zibenbot.replyMsg(cqMsg, videoClass.getFullList());
         }
-        if (cqMsg.fromGroup==456919710L || cqMsg.fromQQ==2375985957L) {
+        if (cqMsg.fromGroup==456919710L || cqMsg.fromClient ==2375985957L) {
             if (cqMsg.msg.equals("接坑")) {
                 videoClass.updateList();
                 zibenbot.replyMsg(cqMsg, videoClass.getTranslateList());
@@ -73,9 +71,9 @@ public class RedStoneFunc extends BaseFunc {
                     for (VideoData data : videoClass.getDataList()) {
                         if (data.getVideoLink().equals(strlist[1]) || (data.getNO() + "").equals(strlist[1])) {
                             if (strlist.length == 3) {
-                                data.addTrans(cqMsg.fromQQ, strlist[2]);
+                                data.addTrans(cqMsg.fromClient, strlist[2]);
                             } else if (strlist.length == 2) {
-                                data.addTrans(cqMsg.fromQQ, "");
+                                data.addTrans(cqMsg.fromClient, "");
                             }
                         }
                     }

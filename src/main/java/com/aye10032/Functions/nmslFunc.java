@@ -19,9 +19,9 @@ public class nmslFunc extends BaseFunc {
     public void run(CQMsg cqMsg) {
         if (cqMsg.msg.contains("nmsl")) {
             if (cqMsg.isGroupMsg() || cqMsg.isPrivateMsg()) {
-                zibenbot.replyMsg(cqMsg, zibenbot.getCQCode().at(cqMsg.fromQQ) + cqMsg.msg);
+                zibenbot.replyMsg(cqMsg, zibenbot.getCQCode().at(cqMsg.fromClient) + cqMsg.msg);
             } else {
-                zibenbot.replyMsg(cqMsg, "@" + zibenbot.teamspeakBot.api.getClientInfo((int)cqMsg.fromQQ).getLoginName() + cqMsg.msg);
+                zibenbot.replyMsg(cqMsg, "@" + zibenbot.teamspeakBot.api.getClientInfo((int)cqMsg.fromClient).getLoginName() + cqMsg.msg);
             }
         }
     }

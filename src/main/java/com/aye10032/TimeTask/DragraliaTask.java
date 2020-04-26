@@ -15,6 +15,7 @@ import com.google.gson.JsonParser;
 import okhttp3.OkHttpClient;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.meowy.cqp.jcq.entity.CQDebug;
 
 import java.io.File;
 import java.io.IOException;
@@ -155,8 +156,9 @@ public class DragraliaTask extends TimedTask {
                     .append(a.title_name)
                     .append("\n")
                     .append(clearMsg(msg, img_tag_list));
-            if (zibenbot.getCoolQ() != null) {
-                zibenbot.replyMsg(new CQMsg(-1, -1, 814843368L, -1, null, "DragraliaTask Return Msg", -1, MsgType.GROUP_MSG), builder.toString());
+            if (!(zibenbot.getCoolQ() instanceof CQDebug)) {
+                //todo 测试完毕修改这里
+                zibenbot.replyMsg(new CQMsg(-1, -1, 814843368L, 895981998L, null, "DragraliaTask Return Msg", -1, MsgType.PRIVATE_MSG), builder.toString());
             } else {
                 System.out.println(builder.toString());
             }
@@ -166,7 +168,7 @@ public class DragraliaTask extends TimedTask {
 
     private String clearMsg(String msg, List<String> imgs) {
         for (String img : imgs) {
-            if (!"test".equals(zibenbot.appDirectory)) {
+            if (!(zibenbot.getCoolQ() instanceof CQDebug)) {
                 Matcher matcher = src_tag_pattern.matcher(img);
                 if (matcher.find()) {
                     String imgFileName = getFileName(matcher.group());

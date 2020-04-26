@@ -83,15 +83,15 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
             Zibenbot.logger.log(Level.INFO,
                     String.format("回复群[%s]成员[%s]消息:%s",
                             IDNameUtil.getGroupNameByID(fromMsg.fromGroup, getCoolQ().getGroupList()),
-                            IDNameUtil.getGroupMemberNameByID(fromMsg.fromGroup, fromMsg.fromQQ, CQ),
+                            IDNameUtil.getGroupMemberNameByID(fromMsg.fromGroup, fromMsg.fromClient, CQ),
                             msg));
             return CQ.sendGroupMsg(fromMsg.fromGroup, msg);
         } else if (fromMsg.isPrivateMsg()) {
             Zibenbot.logger.log(Level.INFO,
                     String.format("回复成员[%s]消息:%s",
-                            fromMsg.fromQQ,
+                            fromMsg.fromClient,
                             msg));
-            return CQ.sendPrivateMsg(fromMsg.fromQQ, msg);
+            return CQ.sendPrivateMsg(fromMsg.fromClient, msg);
         } else if (fromMsg.isTeamspealMsg()) {
             Zibenbot.logger.log(Level.INFO,
                     String.format("回复ts频道[%s]消息:%s",
@@ -254,9 +254,9 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
      */
     public int privateMsg(int subType, int msgId, long fromQQ, String msg, int font) {
         // 这里处理消息
-        //        CQ.sendPrivateMsg(fromQQ, "你发送了这样的消息：" + msg + "\n来自Java插件");
+        //        CQ.sendPrivateMsg(fromClient, "你发送了这样的消息：" + msg + "\n来自Java插件");
         //        try {
-        //            CQ.sendPrivateMsg(fromQQ, CC.image(new SetuUtil(appDirectory).getImage()));
+        //            CQ.sendPrivateMsg(fromClient, CC.image(new SetuUtil(appDirectory).getImage()));
         //        } catch (IOException e) {
         //            e.printStackTrace();
         //        }
@@ -405,7 +405,7 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
     public int groupMemberIncrease(int subtype, int sendTime, long fromGroup, long fromQQ, long beingOperateQQ) {
         // 这里处理消息
         CQ.logInfo("fromGroup", "" + fromGroup);
-        CQ.logInfo("fromQQ", "" + fromQQ);
+        CQ.logInfo("fromClient", "" + fromQQ);
         CQ.logInfo("beingOperateQQ", "" + beingOperateQQ);
         return MSG_IGNORE;
     }
