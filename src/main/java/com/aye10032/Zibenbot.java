@@ -1,6 +1,7 @@
 package com.aye10032;
 
 import com.aye10032.Functions.*;
+import com.aye10032.TimeTask.DragraliaTask;
 import com.aye10032.Utils.IDNameUtil;
 import com.aye10032.Utils.TimeUtil.TimeTaskPool;
 import com.aye10032.Utils.TimeUtil.TimedTask;
@@ -165,6 +166,8 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
         Zibenbot.logger.log(Level.INFO, "registe time task start");
         pool.add(shangongtask);
         pool.add(xiagongtask);
+
+        pool.add(new DragraliaTask(this));
         Zibenbot.logger.log(Level.INFO, "registe time task end");
         //改成了手动注册
         Zibenbot.logger.log(Level.INFO, "registe func start");

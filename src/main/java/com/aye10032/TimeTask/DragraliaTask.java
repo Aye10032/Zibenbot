@@ -56,7 +56,13 @@ public class DragraliaTask extends TimedTask {
         this.zibenbot = zibenbot;
         loader = new ConfigLoader<>(zibenbot.appDirectory + "/dragralia.json", Config.class);
         config = loader.load();
-        setRunnable(runnable).setTimes(-1).setCycle(TimeConstant.PER_MIN).setTiggerTime(new Date(System.currentTimeMillis() + 10));
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY, 1);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        Date date = calendar.getTime();
+        setRunnable(runnable).setTimes(-1).setCycle(TimeConstant.PER_HOUR)
+                .setTiggerTime(date);
     }
 
     public Article getArticle(ArticleInfo articleInfo){
