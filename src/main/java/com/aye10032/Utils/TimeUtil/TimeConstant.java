@@ -21,6 +21,7 @@ public class TimeConstant {
     public static TaskCycle PER_DAY = new PreDay();
     public static TaskCycle PER_HOUR = new PreHour();
     public static TaskCycle PER_MIN = new PreMin();
+    public static TaskCycle PER_SEC = new PreSec();
 
     public static class PreYear implements TaskCycle {
 
@@ -91,6 +92,18 @@ public class TimeConstant {
             Date now = new Date();
             if (now.compareTo(date) >= 0) {
                 return getNextTime(new Date(date.getTime() + MIN));
+            }
+            return date;
+        }
+
+    }
+
+    public static class PreSec implements TaskCycle {
+
+        public Date getNextTime(Date date) {
+            Date now = new Date();
+            if (now.compareTo(date) >= 0) {
+                return getNextTime(new Date(date.getTime() + SEC));
             }
             return date;
         }
