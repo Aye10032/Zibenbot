@@ -20,8 +20,15 @@ public class TimeTaskPool {
     //时间流对象 主要是包装了时间任务的线程
     TimeFlow flow;
 
+    //异步线程池
+    //使用方法 asynchronousPool(callback, runnables);
+    //当后面所有的任务异步运行完毕后， 执行callback
+    public AsynchronousTaskPool asynchronousPool;
+
     public TimeTaskPool() {
         flow = new TimeFlow(this);
+        asynchronousPool = new AsynchronousTaskPool();
+        add(asynchronousPool);
     }
 
     public void add(TimedTask task) {
@@ -62,7 +69,7 @@ public class TimeTaskPool {
         return nextTasks;
     }
 
-    public void timeoutEvent(int millisTimeout, Runnable runnable){
+    public void timeoutEvent(int millisTimeout, Runnable runnable) {
         add(new TimedTask()
                 .setTimes(1)
                 .setRunnable(runnable)

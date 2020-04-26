@@ -49,7 +49,9 @@ public class TimeFlow implements Runnable {
 
             for (TimedTask task : pool.nextTasks) {
                 try {
-                    Zibenbot.logger.log(Level.INFO, String.format("触发任务", task.runnable.getClass().getSimpleName()));
+                    if (!(task instanceof AsynchronousTaskPool)) {
+                        Zibenbot.logger.log(Level.INFO, String.format("触发任务", task.runnable.getClass().getSimpleName()));
+                    }
                     //依次运行任务
                     task.run();
                     //当执行次数为0时从等待任务中删除
@@ -57,6 +59,7 @@ public class TimeFlow implements Runnable {
                         pool.remove(task);
                     }
                 } catch (Exception e) {
+                    e.printStackTrace();
                     Zibenbot.logger.log(Level.WARNING, String.format("运行任务：[%s]时出现异常[%s]", task.getClass().getName(), e.getMessage()));
                 }
             }

@@ -36,14 +36,15 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
      */
 
     List<IFunc> registerFunc = new ArrayList<IFunc>();
-    CQMsg lastMsg;
     //时间任务池
     public TimeTaskPool pool = new TimeTaskPool();
     public TeamspeakBot teamspeakBot;
     public BotConfigFunc config;
 
+
     public List<Long> enableGroup = new ArrayList<>();
     {
+
         //fromGroup == 995497677L
         // || fromGroup == 792666782L
         // || fromGroup == 517709950L
@@ -63,7 +64,7 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
 
 
     public Zibenbot() {
-
+        appDirectory = "test";
     }
 
 
