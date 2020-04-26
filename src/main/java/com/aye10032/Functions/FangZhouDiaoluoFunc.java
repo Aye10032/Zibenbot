@@ -68,7 +68,7 @@ public class FangZhouDiaoluoFunc extends BaseFunc {
     public void run(CQMsg cqmsg) {
         String msg = cqmsg.msg.trim();
         if (last !=null) {
-            if (cqmsg.fromQQ == last.getKey()) {
+            if (cqmsg.fromClient == last.getKey()) {
                 if (("是".equals(msg) || "yes".equals(msg) || "Yes".equals(msg) || "Y".equals(msg) || "y".equals(msg) || "确实".equals(msg) || "对".equals(msg))) {
                     retMsg(last.getValue(), cqmsg);
                 } else {
@@ -111,7 +111,7 @@ public class FangZhouDiaoluoFunc extends BaseFunc {
                                 System.out.println("找不到素材：【" + strings[i] + "】");
                             }
                         } else {
-                            last = Pair.of(cqmsg.fromQQ, max.getKey());
+                            last = Pair.of(cqmsg.fromClient, max.getKey());
                             if (zibenbot != null) {
                                 zibenbot.replyMsg(cqmsg, "你要找的是不是：【" + max.getKey().names[0] + "】");
                             } else if (zibenbot == null) {

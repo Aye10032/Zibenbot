@@ -45,17 +45,17 @@ public class BanFunc extends BaseFunc {
                     try {
                         if (CC.getAt(CQmsg.msg) == 2375985957L) {
                             zibenbot.replyMsg(CQmsg, "对不起，做不到。");
-                            if (CQmsg.fromQQ != 2375985957L) {
-                                CQ.setGroupBan(CQmsg.fromGroup, CQmsg.fromQQ, Long.parseLong(strlist[2]));
-                                zibenbot.groupBan(2, 00000001, CQmsg.fromGroup, CQmsg.fromQQ, CQmsg.fromQQ, Long.parseLong(strlist[2]));
-                                banRecord.getGroupObject(CQmsg.fromGroup).addBan(CQmsg.fromQQ);
-                                banRecord.getGroupObject(CQmsg.fromGroup).addMemebrBanedTime(CQmsg.fromQQ, CQmsg.fromQQ);
+                            if (CQmsg.fromClient != 2375985957L) {
+                                CQ.setGroupBan(CQmsg.fromGroup, CQmsg.fromClient, Long.parseLong(strlist[2]));
+                                zibenbot.groupBan(2, 00000001, CQmsg.fromGroup, CQmsg.fromClient, CQmsg.fromClient, Long.parseLong(strlist[2]));
+                                banRecord.getGroupObject(CQmsg.fromGroup).addBan(CQmsg.fromClient);
+                                banRecord.getGroupObject(CQmsg.fromGroup).addMemebrBanedTime(CQmsg.fromClient, CQmsg.fromClient);
                             }
                         } else {
                             CQ.setGroupBan(CQmsg.fromGroup, CC.getAt(CQmsg.msg), Long.parseLong(strlist[2]));
-                            zibenbot.groupBan(2, 00000001, CQmsg.fromGroup, CQmsg.fromQQ, CC.getAt(CQmsg.msg), Long.parseLong(strlist[2]));
+                            zibenbot.groupBan(2, 00000001, CQmsg.fromGroup, CQmsg.fromClient, CC.getAt(CQmsg.msg), Long.parseLong(strlist[2]));
                             banRecord.getGroupObject(CQmsg.fromGroup).addBan(CC.getAt(CQmsg.msg));
-                            banRecord.getGroupObject(CQmsg.fromGroup).addMemebrBanedTime(CQmsg.fromQQ, CC.getAt(CQmsg.msg));
+                            banRecord.getGroupObject(CQmsg.fromGroup).addMemebrBanedTime(CQmsg.fromClient, CC.getAt(CQmsg.msg));
                         }
                     } catch (NumberFormatException e) {
                         e.printStackTrace();

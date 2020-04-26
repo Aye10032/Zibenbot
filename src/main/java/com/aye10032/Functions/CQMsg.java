@@ -7,7 +7,7 @@ public class CQMsg {
     public int subType = -1;
     public int msgId = -1;
     public long fromGroup = -1;
-    public long fromQQ = -1;
+    public long fromClient = -1;
     public Anonymous anonymous;
     public String msg;
     public int font;
@@ -17,7 +17,7 @@ public class CQMsg {
         this.subType = subType;
         this.msgId = msgId;
         this.fromGroup = fromGroup;
-        this.fromQQ = fromClient;
+        this.fromClient = fromClient;
         this.anonymous = fromAnonymous;
         this.msg = msg;
         this.font = font;
