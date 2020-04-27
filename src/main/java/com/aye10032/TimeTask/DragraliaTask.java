@@ -155,7 +155,7 @@ public class DragraliaTask extends TimedTask {
                     .append("】 ")
                     .append(a.title_name)
                     .append("\n")
-                    .append(clearMsg(msg, img_tag_list));
+                    .append(clearMsg(msg, img_list));
             if (!(zibenbot.getCoolQ() instanceof CQDebug)) {
                 //todo 测试完毕修改这里
                 zibenbot.replyMsg(new CQMsg(-1, -1, 814843368L, 895981998L, null, "DragraliaTask Return Msg", -1, MsgType.PRIVATE_MSG), builder.toString());
