@@ -86,26 +86,46 @@ public class DragraliaTask extends TimedTask {
             if (index == -1) {
                 articleInfos = getArticleFromNet(-1);
             } else {
-                articleInfos = getArticleFromNet(index + 6);
+                articleInfos = getArticleFromNet(index + 9999);
             }
-            int size = articleInfos.size();
-            if (index != -1) {
-                int max = 0;
+            while (true) {
+                int min = 999999;
+                int size = articleInfos.size();
                 Iterator<ArticleInfo> iterator = articleInfos.iterator();
                 while (iterator.hasNext()) {
                     ArticleInfo a = iterator.next();
-                    if (a.priority > max) {
-                        max = a.priority;
+                    if (a.priority < min) {
+                        min = a.priority;
                     }
                     if (a.priority <= index) {
                         iterator.remove();
                     }
                 }
                 if (size == articleInfos.size()) {
-                    articleInfos.addAll(getNewArticles(max));
-
+                    articleInfos.addAll(getArticleFromNet(min));
+                } else {
+                    break;
                 }
             }
+
+            /*int size = articleInfos.size();
+            if (index != -1) {
+                int min = 999999;
+                Iterator<ArticleInfo> iterator = articleInfos.iterator();
+                while (iterator.hasNext()) {
+                    ArticleInfo a = iterator.next();
+                    if (a.priority < min) {
+                        min = a.priority;
+                    }
+                    if (a.priority <= index) {
+                        iterator.remove();
+                    }
+                }
+                if (size == articleInfos.size()) {
+                    articleInfos.addAll(getNewArticles(min));
+
+                }
+            }*/
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -148,15 +168,16 @@ public class DragraliaTask extends TimedTask {
             StringBuilder builder = new StringBuilder();
             if (!"".equals(a.image_path)) {
                 builder.append(getFileName(a.image_path));
+                builder.append("\n");
             }
-            builder.append("\n")
-                    .append("【")
+
+            builder.append("【")
                     .append(a.category_name)
                     .append("】 ")
                     .append(a.title_name)
-                    .append("\n")
+                    .append("\n\n")
                     .append(clearMsg(msg, img_list));
-            if (!(zibenbot.getCoolQ() instanceof CQDebug)) {
+                    if (!(zibenbot.getCoolQ() instanceof CQDebug)) {
                 //todo 测试完毕修改这里
                 zibenbot.replyMsg(new CQMsg(-1, -1, 814843368L, 895981998L, null, "DragraliaTask Return Msg", -1, MsgType.PRIVATE_MSG), builder.toString());
             } else {
@@ -168,7 +189,7 @@ public class DragraliaTask extends TimedTask {
 
     private String clearMsg(String msg, List<String> imgs) {
         for (String img : imgs) {
-            if (!(zibenbot.getCoolQ() instanceof CQDebug)) {
+            /*if (!(zibenbot.getCoolQ() instanceof CQDebug)) {*/
                 Matcher matcher = src_tag_pattern.matcher(img);
                 if (matcher.find()) {
                     String imgFileName = getFileName(matcher.group());
@@ -178,9 +199,9 @@ public class DragraliaTask extends TimedTask {
                         msg = msg.replace(img, "[图片加载错误]");
                     }
                 }
-            } else {
+            /*} else {
                 msg = msg.replace(img, "[图片]");
-            }
+            }*/
         }
         msg = replaceDate(msg);
         msg = msg.replace("<br>", "\n");
