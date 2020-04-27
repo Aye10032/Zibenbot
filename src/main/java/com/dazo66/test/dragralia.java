@@ -14,7 +14,7 @@ public class dragralia {
         System.out.println(System.currentTimeMillis());
         Zibenbot zibenbot = new Zibenbot();
         DragraliaTask task = new DragraliaTask(zibenbot);
-        task.setTiggerTime(new Date(System.currentTimeMillis() + 10)).setCycle(TimeConstant.PER_MIN);
+        //task.setTiggerTime(new Date(System.currentTimeMillis() + 10)).setCycle(TimeConstant.PER_MIN);
         zibenbot.pool.add(task);
 
 
