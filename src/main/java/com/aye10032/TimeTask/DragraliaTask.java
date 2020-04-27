@@ -89,6 +89,9 @@ public class DragraliaTask extends TimedTask {
                 articleInfos = getArticleFromNet(index + 9999);
             }
             while (true) {
+                if (index == -1) {
+                    break;
+                }
                 int min = 999999;
                 int size = articleInfos.size();
                 Iterator<ArticleInfo> iterator = articleInfos.iterator();
