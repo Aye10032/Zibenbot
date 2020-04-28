@@ -25,8 +25,8 @@ public class AyeCompile {
 
     public AyeCompile(String msg) {
         this.msg = msg;
-        short_site_pattern_list.add(Pattern.compile("https://b23.tv/[(0-9)|(A-Z)|(a-z)]{6}"));
-        short_site_pattern_list.add(Pattern.compile("https://b.acg.tv/[(0-9)|(A-Z)|(a-z)]{6}"));
+        short_site_pattern_list.add(Pattern.compile("https://b23.tv/[(0-9)|(A-Z)|(a-z)]{6}$"));
+        short_site_pattern_list.add(Pattern.compile("https://b.acg.tv/[(0-9)|(A-Z)|(a-z)]{6}$"));
         boolean flag = false;
         for (Pattern p: short_site_pattern_list) {
             Matcher matcher = p.matcher(msg);

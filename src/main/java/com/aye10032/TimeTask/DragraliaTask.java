@@ -9,7 +9,7 @@ import com.aye10032.Utils.TimeUtil.TimeConstant;
 import com.aye10032.Utils.TimeUtil.TimedTask;
 import com.aye10032.Zibenbot;
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import okhttp3.OkHttpClient;
@@ -41,36 +41,38 @@ public class DragraliaTask extends TimedTask {
     private static Pattern img_file_pattern = Pattern.compile("\\w+.(png|jpg)");
     private static Pattern img_tag_pattern = Pattern.compile("<img[^<>]*\">");
     private static Pattern src_tag_pattern = Pattern.compile("http[^<>]*.(png|jpg)");
+
+    private JsonParser jsonParser = new JsonParser();
+    private ArticleUpateDate date = null;
     private Config config;
     private ConfigLoader<Config> loader;
-    OkHttpClient client = new OkHttpClient().newBuilder()
-            .build();
-    public Runnable runnable = new Runnable() {
-        @Override
-        public void run() {
-            Set<ArticleInfo> articleInfos = getNewArticles(Integer.parseInt(config.getWithDafault("last_priority", "-1")));
-            articleInfos.forEach(a -> sendArticle(getArticle(a)));
+    OkHttpClient client = new OkHttpClient().newBuilder().build();
+    public Runnable runnable = () -> {
+        try {
+            date = getUpdateDate();
+            Set<Article> articles = getNewArticles();
+            articles.forEach(this::sendArticle);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+
     };
 
-    public DragraliaTask(Zibenbot zibenbot){
+    public DragraliaTask(Zibenbot zibenbot) {
         this.zibenbot = zibenbot;
-        loader = new ConfigLoader<>(zibenbot.appDirectory + "/dragralia.json", Config.class);
+        loader = new ConfigLoader<>(zibenbot.appDirectory + "/dragralia_2.json", Config.class);
         config = loader.load();
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.HOUR_OF_DAY, 1);
         calendar.set(Calendar.MINUTE, 0);
         calendar.set(Calendar.SECOND, 0);
         Date date = calendar.getTime();
-        setRunnable(runnable).setTimes(-1).setCycle(TimeConstant.PER_HOUR)
-                .setTiggerTime(date);
+        setRunnable(runnable).setTimes(-1).setCycle(TimeConstant.PER_HOUR).setTiggerTime(date);
     }
 
-    public Article getArticle(ArticleInfo articleInfo){
+/*    public Article getArticle(ArticleInfo articleInfo) {
         try {
-            InputStream stream = HttpUtils.getInputStreamFromNet(
-                    "https://dragalialost.com/api/index.php?format=json&type=information&category_id=&priority_lower_than=&action=information_detail&article_id="+ articleInfo.article_id +"&lang=zh_cn&td=%2B08%3A00", client);
-            JsonParser jsonParser = new JsonParser();
+            InputStream stream = HttpUtils.getInputStreamFromNet("https://dragalialost.com/api/index.php?format=json&type=information&category_id=&priority_lower_than=&action=information_detail&article_id=" + articleInfo.article_id + "&lang=zh_cn&td=%2B08%3A00", client);
             JsonObject object = jsonParser.parse(IOUtils.toString(stream)).getAsJsonObject();
             JsonObject data = object.get("data").getAsJsonObject().get("information").getAsJsonObject();
             return gson.fromJson(data, Article.class);
@@ -78,74 +80,64 @@ public class DragraliaTask extends TimedTask {
             e.printStackTrace();
             return null;
         }
-    }
+    }*/
 
-    public Set<ArticleInfo> getNewArticles(int index){
-        Set<ArticleInfo> articleInfos = new HashSet<>();
-        try {
-            if (index == -1) {
-                articleInfos = getArticleFromNet(-1);
-            } else {
-                articleInfos = getArticleFromNet(index + 9999);
-            }
-            while (true) {
-                if (index == -1) {
-                    break;
-                }
-                int min = 999999;
-                int size = articleInfos.size();
-                Iterator<ArticleInfo> iterator = articleInfos.iterator();
-                while (iterator.hasNext()) {
-                    ArticleInfo a = iterator.next();
-                    if (a.priority < min) {
-                        min = a.priority;
-                    }
-                    if (a.priority <= index) {
-                        iterator.remove();
-                    }
-                }
-                if (size == articleInfos.size()) {
-                    articleInfos.addAll(getArticleFromNet(min));
-                } else {
-                    break;
-                }
-            }
-
-            /*int size = articleInfos.size();
-            if (index != -1) {
-                int min = 999999;
-                Iterator<ArticleInfo> iterator = articleInfos.iterator();
-                while (iterator.hasNext()) {
-                    ArticleInfo a = iterator.next();
-                    if (a.priority < min) {
-                        min = a.priority;
-                    }
-                    if (a.priority <= index) {
-                        iterator.remove();
-                    }
-                }
-                if (size == articleInfos.size()) {
-                    articleInfos.addAll(getNewArticles(min));
-
-                }
-            }*/
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        int max1 = index;
-        Iterator<ArticleInfo> iterator = articleInfos.iterator();
-        while (iterator.hasNext()) {
-            ArticleInfo a = iterator.next();
-            if (a.priority > max1) {
-                max1 = a.priority;
+    private Set<Article> getNewArticles() {
+        Set<Article> set = new HashSet<>();
+        ArticleUpateDate last = gson.fromJson(config.getWithDafault("last_update_date", "{}"), ArticleUpateDate.class);
+        long last_data = Long.parseLong(config.getWithDafault("last_data", Long.toString(System.currentTimeMillis()/1000 - 86400)));
+        long current = System.currentTimeMillis()/1000;
+        if (current / 1000 % 86400 > 21600) {
+            if (current /1000 / 86400 > last_data / 86400) {
+                last_data = current / 1000;
+                config.set("last_data", gson.toJson(last_data));
+                last.clear();
             }
         }
-        config.set("last_priority", String.valueOf(max1));
+        date.new_article_list.forEach(i -> {
+            if (!last.new_article_list.contains(i)) {
+                try {
+                    set.add(getArticleFromNet(i, false));
+                    last.new_article_list.add(i);
+                } catch (IOException e) {
+                    Article a = new Article();
+                    a.message = "读取公告异常，公告id：" + i;
+                    a.article_id = -1;
+                    set.add(a);
+                }
+            }
+        });
+        date.update_article_list.forEach(i -> {
+            ArticleUpateDate.UpdateDate d = null;
+            for (ArticleUpateDate.UpdateDate date : last.update_article_list) {
+                if (date.id == i.id) {
+                    d = date;
+                    break;
+                }
+            }
+            if (!(d != null && d.update_time == i.update_time)) {
+                try {
+                    set.add(getArticleFromNet(i.id, true));
+                    last.update_article_list.add(i);
+                } catch (IOException e) {
+                    Article a = new Article();
+                    a.message = "更新公告异常，公告id：" + i.id;
+                    a.article_id = -1;
+                    set.add(a);
+                }
+            }
+
+        });
+        config.set("last_update_date", gson.toJson(last));
+        if (set.size() > 0) {
+            config.set("last_data", gson.toJson(current));
+        }
         loader.save(config);
-        return articleInfos;
+        return set;
+
     }
 
-    private void sendArticle(Article a){
+    private void sendArticle(Article a) {
         List<String> img_list = new ArrayList<>();
         List<String> img_tag_list = new ArrayList<>();
         List<Runnable> runs = new ArrayList<>();
@@ -174,34 +166,28 @@ public class DragraliaTask extends TimedTask {
                 builder.append("\n");
             }
 
-            builder.append("【")
-                    .append(a.category_name)
-                    .append("】 ")
-                    .append(a.title_name)
-                    .append("\n\n")
-                    .append(clearMsg(msg, img_list));
-                    if (!(zibenbot.getCoolQ() instanceof CQDebug)) {
+            builder.append("【").append(a.category_name).append("】 ").append(a.title_name).append("\n\n").append(clearMsg(msg, img_list));
+            if (!(zibenbot.getCoolQ() instanceof CQDebug)) {
                 //todo 测试完毕修改这里
                 zibenbot.replyMsg(new CQMsg(-1, -1, 814843368L, 895981998L, null, "DragraliaTask Return Msg", -1, MsgType.PRIVATE_MSG), builder.toString());
             } else {
                 System.out.println(builder.toString());
             }
-            },
-                runs.toArray(new Runnable[]{}));
+        }, runs.toArray(new Runnable[]{}));
     }
 
     private String clearMsg(String msg, List<String> imgs) {
         for (String img : imgs) {
             /*if (!(zibenbot.getCoolQ() instanceof CQDebug)) {*/
-                Matcher matcher = src_tag_pattern.matcher(img);
-                if (matcher.find()) {
-                    String imgFileName = getFileName(matcher.group());
-                    if (new File(imgFileName).exists()) {
-                        msg = msg.replace(img, zibenbot.getCoolQ().getImage(imgFileName));
-                    } else {
-                        msg = msg.replace(img, "[图片加载错误]");
-                    }
+            Matcher matcher = src_tag_pattern.matcher(img);
+            if (matcher.find()) {
+                String imgFileName = getFileName(matcher.group());
+                if (new File(imgFileName).exists()) {
+                    msg = msg.replace(img, zibenbot.getCoolQ().getImage(imgFileName));
+                } else {
+                    msg = msg.replace(img, "[图片加载错误]");
                 }
+            }
             /*} else {
                 msg = msg.replace(img, "[图片]");
             }*/
@@ -216,7 +202,7 @@ public class DragraliaTask extends TimedTask {
         return msg;
     }
 
-    private String replaceDate(String msg){
+    private String replaceDate(String msg) {
         Matcher matcher = date_tag_pattern.matcher(msg);
         List<String> matchStrs = new ArrayList<>();
         DateFormat format1 = new SimpleDateFormat("yyyy/MM/dd HH:mm");
@@ -233,15 +219,14 @@ public class DragraliaTask extends TimedTask {
         return msg;
     }
 
-    private String getFileName(String url){
-        return zibenbot.appDirectory+ "/dragraliatemp/" +  String.valueOf(url.hashCode()) + ".png";
+    private String getFileName(String url) {
+        return zibenbot.appDirectory + "/dragraliatemp/" + String.valueOf(url.hashCode()) + ".png";
     }
 
-    private File downloadImg(String url){
+    private File downloadImg(String url) {
         File tmpFile = new File(getFileName(url));
 
-        OkHttpClient client = new OkHttpClient().newBuilder().callTimeout(20, TimeUnit.SECONDS)
-                .build();
+        OkHttpClient client = new OkHttpClient().newBuilder().callTimeout(20, TimeUnit.SECONDS).build();
         try {
             if (!tmpFile.exists()) {
                 tmpFile.getParentFile().mkdirs();
@@ -255,57 +240,39 @@ public class DragraliaTask extends TimedTask {
         return tmpFile;
     }
 
-    private Set<ArticleInfo> getArticleFromNet(int index) throws IOException {
-
-        Set<ArticleInfo> articleInfos = new HashSet<>();
-        InputStream stream = HttpUtils.getInputStreamFromNet(
-                "https://dragalialost.com/api/index.php?format=json&type=information&category_id=0&priority_lower_than="+ (index == -1 ? "" : index) +"&action=information_list&article_id=&lang=zh_cn&td=%2B08%3A00"
-                , client);
+    private Article getArticleFromNet(int id, boolean isUpdate) throws IOException {
+        InputStream stream = HttpUtils.getInputStreamFromNet("https://dragalialost.com/api/index.php?format=json&type=information&category_id=&priority_lower_than=&action=information_detail&article_id=" + id + "&lang=zh_cn&td=%2B08%3A00", client);
         JsonParser jsonParser = new JsonParser();
         JsonObject object = jsonParser.parse(IOUtils.toString(stream)).getAsJsonObject();
-        JsonArray array = object.get("data").getAsJsonObject().get("category").getAsJsonObject().get("contents").getAsJsonArray();
-        array.forEach(jsonElement -> {
-            articleInfos.add(gson.fromJson(jsonElement, ArticleInfo.class));
-        });
-        return articleInfos;
+        JsonElement e = object.get("data").getAsJsonObject().get("information");
+        Article a = gson.fromJson(e, Article.class);
+        if (isUpdate) {
+            a.isUpdate = true;
+        }
+        return a;
     }
 
-
-
-    class ArticleInfo {
-        //文章id
-        String article_id;
-        String caption_type;
-        //类型名字
-        String category_name;
-        //日期
-        long date;
-        String image_path;
-        boolean is_new;
-        boolean is_update;
-        String pr_category_id;
-        String pr_thumb_type;
-        int priority;
-        String title_name;
-        String update_time;
-
-        @Override
-        public boolean equals(Object obj) {
-            if (obj instanceof ArticleInfo) {
-                return ((ArticleInfo) obj).article_id.equals(article_id);
-            }
-            return false;
-        }
-
-        @Override
-        public int hashCode() {
-            return priority;
-        }
+    private ArticleUpateDate getUpdateDate() throws IOException {
+        ArticleUpateDate date = new ArticleUpateDate();
+        InputStream stream = HttpUtils.getInputStreamFromNet("https://dragalialost.com/api/index.php?format=json&type=information&category_id=0&priority_lower_than=&action=information_list&article_id=&lang=zh_cn&td=%2B08%3A00", client);
+        JsonParser jsonParser = new JsonParser();
+        JsonObject object = jsonParser.parse(IOUtils.toString(stream)).getAsJsonObject();
+        object.get("data").getAsJsonObject().get("new_article_list").getAsJsonArray().forEach(
+                jsonElement -> date.new_article_list.add(jsonElement.getAsInt())
+        );
+        object.get("data").getAsJsonObject().get("update_article_list").getAsJsonArray().forEach(
+                e -> {
+                    int id = e.getAsJsonObject().get("id").getAsInt();
+                    long update_time = e.getAsJsonObject().get("update_time").getAsLong();
+                    date.update_article_list.add(new ArticleUpateDate.UpdateDate(id, update_time));
+                }
+        );
+        return date;
     }
 
-    class Article{
+    static class Article {
         //文章id
-        String article_id;
+        int article_id;
         //类型名字
         String category_name;
         //日期
@@ -316,20 +283,44 @@ public class DragraliaTask extends TimedTask {
         String prev_article_id;
         long start_time;
         String title_name;
+        boolean isUpdate = false;
         long update_time;
 
         @Override
         public boolean equals(Object obj) {
-            if (obj instanceof ArticleInfo) {
-                return ((ArticleInfo) obj).article_id.equals(article_id);
+            if (obj instanceof Article) {
+                return ((Article) obj).article_id + ((Article) obj).update_time== article_id + update_time;
             }
             return false;
         }
 
         @Override
         public int hashCode() {
-            return article_id.hashCode();
+            return article_id * 11451 + (int) update_time;
         }
     }
 
+
+}
+
+class ArticleUpateDate {
+
+    List<Integer> new_article_list = new ArrayList<>();
+    List<UpdateDate> update_article_list = new ArrayList<>();
+
+    static class UpdateDate {
+        int id;
+        //更新时间，单位秒
+        long update_time;
+
+        UpdateDate(int id, long update_time){
+            this.id = id;
+            this.update_time = update_time;
+        }
+    }
+
+    public void clear(){
+        new_article_list.clear();
+        update_article_list.clear();
+    }
 }

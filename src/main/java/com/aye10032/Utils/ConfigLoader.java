@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import org.apache.commons.io.IOUtils;
 
 import java.io.*;
+import java.lang.reflect.Type;
 
 public  class ConfigLoader<T> {
 
@@ -32,13 +33,13 @@ public  class ConfigLoader<T> {
 
     Gson gson;
     File file;
-    Class<T> type;
+    Type type;
 
-    public ConfigLoader(String file , Class<T> type) {
+    public ConfigLoader(String file , Type type) {
         this(new File(file), type);
     }
 
-    public ConfigLoader(File file , Class<T> type) {
+    public ConfigLoader(File file , Type type) {
         this.gson = new GsonBuilder().setPrettyPrinting().create();
         this.file = file;
         this.type = type;

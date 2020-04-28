@@ -16,7 +16,7 @@ import java.io.IOException;
 public class BilibiliTest {
 
     public static void main(String[] args) throws IOException {
-        String url = "https://b23.tv/sILrAg";
+        String url = "https://b23.tv/BV1j64y1M7qb";
         RequestConfig config = RequestConfig.custom().setConnectTimeout(50000).setConnectionRequestTimeout(10000).setSocketTimeout(50000).setRedirectsEnabled(false).build();
         //2.3调用HttpURLconn方法，用于发送或者接收
         CloseableHttpClient httpClient = HttpClients.custom().setDefaultRequestConfig(config).build();
@@ -27,7 +27,7 @@ public class BilibiliTest {
         CloseableHttpResponse conn1 = httpClient.execute(new HttpGet(conn.getHeaders("Location")[0].getValue()));
 
         BiliFunc func = new BiliFunc(null);
-        func.run(CQMsg.getTempMsg("https://b23.tv/sILrAg"));
+        func.run(CQMsg.getTempMsg("https://b23.tv/BV1j64y1M7qb"));
 
 
     }
