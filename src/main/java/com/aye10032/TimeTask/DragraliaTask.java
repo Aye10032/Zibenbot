@@ -60,7 +60,7 @@ public class DragraliaTask extends TimedTask {
 
     public DragraliaTask(Zibenbot zibenbot) {
         this.zibenbot = zibenbot;
-        loader = new ConfigLoader<>(zibenbot.appDirectory + "/dragralia_2.json", Config.class);
+        loader = new ConfigLoader<>(zibenbot.appDirectory + "/dragralia_3.json", Config.class);
         config = loader.load();
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.HOUR_OF_DAY, 1);
@@ -86,14 +86,11 @@ public class DragraliaTask extends TimedTask {
         Set<Article> set = new HashSet<>();
         ArticleUpateDate last = gson.fromJson(config.getWithDafault("last_update_date", "{}"), ArticleUpateDate.class);
         long last_data = Long.parseLong(config.getWithDafault("last_data", Long.toString(System.currentTimeMillis()/1000 - 86400)));
-        long current = System.currentTimeMillis()/1000;
-        if (current / 1000 % 86400 > 21600) {
-            if (current /1000 / 86400 > last_data / 86400) {
-                last_data = current / 1000;
-                config.set("last_data", gson.toJson(last_data));
-                last.clear();
-            }
+        long current = System.currentTimeMillis() / 1000;
+        if ((current - 25200) / 86400 > (last_data - 25200) / 86400) {
+            last.clear();
         }
+
         date.new_article_list.forEach(i -> {
             if (!last.new_article_list.contains(i)) {
                 try {
@@ -161,12 +158,19 @@ public class DragraliaTask extends TimedTask {
         }
         zibenbot.pool.asynchronousPool.execute(() -> {
             StringBuilder builder = new StringBuilder();
-            if (!"".equals(a.image_path)) {
-                builder.append(getFileName(a.image_path));
-                builder.append("\n");
+            if (a.article_id != -1) {
+                if (!"".equals(a.image_path)) {
+                    builder.append(zibenbot.getCoolQ().getImage(getFileName(a.image_path)));
+                    builder.append("\n");
+                }
+                    builder.append("【").append(a.category_name).append("】 ").append(a.title_name);
+                if (a.isUpdate) {
+                    builder.append("（Update）");
+                }
+                builder.append("\n\n").append(clearMsg(msg, img_list));
+            } else {
+                builder.append(a.message);
             }
-
-            builder.append("【").append(a.category_name).append("】 ").append(a.title_name).append("\n\n").append(clearMsg(msg, img_list));
             if (!(zibenbot.getCoolQ() instanceof CQDebug)) {
                 //todo 测试完毕修改这里
                 zibenbot.replyMsg(new CQMsg(-1, -1, 814843368L, 895981998L, null, "DragraliaTask Return Msg", -1, MsgType.PRIVATE_MSG), builder.toString());
@@ -179,13 +183,13 @@ public class DragraliaTask extends TimedTask {
     private String clearMsg(String msg, List<String> imgs) {
         for (String img : imgs) {
             /*if (!(zibenbot.getCoolQ() instanceof CQDebug)) {*/
-            Matcher matcher = src_tag_pattern.matcher(img);
+            Matcher matcher = img_tag_pattern.matcher(msg);
             if (matcher.find()) {
-                String imgFileName = getFileName(matcher.group());
+                String imgFileName = getFileName(img);
                 if (new File(imgFileName).exists()) {
-                    msg = msg.replace(img, zibenbot.getCoolQ().getImage(imgFileName));
+                    msg = msg.replace(matcher.group(), zibenbot.getCoolQ().getImage(imgFileName));
                 } else {
-                    msg = msg.replace(img, "[图片加载错误]");
+                    msg = msg.replace(matcher.group(), "[图片加载错误]");
                 }
             }
             /*} else {

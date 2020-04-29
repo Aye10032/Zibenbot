@@ -6,6 +6,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+/**
+ * @author Dazo66
+ */
 public class AsynchronousTaskPool extends TimedTask {
 
     ExecutorService pool;
