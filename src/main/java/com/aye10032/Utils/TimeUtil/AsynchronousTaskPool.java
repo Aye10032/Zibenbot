@@ -1,7 +1,11 @@
 package com.aye10032.Utils.TimeUtil;
 
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -12,7 +16,7 @@ import java.util.concurrent.Future;
 public class AsynchronousTaskPool extends TimedTask {
 
     ExecutorService pool;
-    Map<Runnable, List<Future<?>>> runnableMap = new HashMap<>();
+    Map<Runnable, List<Future<?>>> runnableMap = new ConcurrentHashMap<>();
     Runnable thisRun = () -> {
         if (runnableMap.size() != 0) {
             boolean allExecut = true;

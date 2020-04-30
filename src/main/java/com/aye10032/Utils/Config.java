@@ -1,10 +1,11 @@
 package com.aye10032.Utils;
 
-import java.util.HashMap;
+import java.util.Collections;
+import java.util.Map;
 
 public class Config {
 
-    public HashMap<String, String> map;
+    public Map<String, String> map;
 
     public String getWithDafault(String key, String defualt) {
         if (map != null) {
@@ -26,7 +27,7 @@ public class Config {
 
     public void set(String key, String value) {
         if (map == null) {
-            map = new HashMap<>();
+            map = Collections.synchronizedMap(Collections.emptyMap());
         }
         map.put(key, value);
     }
