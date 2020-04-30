@@ -197,7 +197,11 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
 
         //创建teamspeakbot对象
         teamspeakBot = new TeamspeakBot(this);
-        teamspeakBot.setup();
+        try {
+            teamspeakBot.setup();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return 0;
     }
 

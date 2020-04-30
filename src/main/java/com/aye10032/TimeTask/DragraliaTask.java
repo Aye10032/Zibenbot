@@ -15,7 +15,6 @@ import com.google.gson.JsonParser;
 import okhttp3.OkHttpClient;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
-import org.meowy.cqp.jcq.entity.CQDebug;
 
 import java.io.File;
 import java.io.IOException;
@@ -38,15 +37,15 @@ public class DragraliaTask extends TimedTask {
     //<span class="local_date" data-local_date="1587708000">
     private static Pattern date_tag_pattern = Pattern.compile("<span class=\"local_date\" data-local_date=\"\\d{10}\">");
     private static Pattern date_src_pattern = Pattern.compile("\\d{10}");
-    private static Pattern img_file_pattern = Pattern.compile("\\w+.(png|jpg)");
+    private static Pattern img_name_pattern = Pattern.compile("\\w+.(png|jpg)");
     private static Pattern img_tag_pattern = Pattern.compile("<img[^<>]*\">");
-    private static Pattern src_tag_pattern = Pattern.compile("http[^<>]*.(png|jpg)");
+    private static Pattern img_url_pattern = Pattern.compile("http[^<>]*.(png|jpg)");
 
     private JsonParser jsonParser = new JsonParser();
     private ArticleUpateDate date = null;
     private Config config;
     private ConfigLoader<Config> loader;
-    OkHttpClient client = new OkHttpClient().newBuilder().build();
+    OkHttpClient client = new OkHttpClient().newBuilder().callTimeout(30, TimeUnit.SECONDS).build();
     public Runnable runnable = () -> {
         try {
             date = getUpdateDate();
@@ -60,7 +59,7 @@ public class DragraliaTask extends TimedTask {
 
     public DragraliaTask(Zibenbot zibenbot) {
         this.zibenbot = zibenbot;
-        loader = new ConfigLoader<>(zibenbot.appDirectory + "/dragralia_3.json", Config.class);
+        loader = new ConfigLoader<>(zibenbot.appDirectory + "/dragralia_4.json", Config.class);
         config = loader.load();
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.HOUR_OF_DAY, 1);
@@ -96,7 +95,7 @@ public class DragraliaTask extends TimedTask {
                 try {
                     set.add(getArticleFromNet(i, false));
                     last.new_article_list.add(i);
-                } catch (IOException e) {
+                } catch (Exception e) {
                     Article a = new Article();
                     a.message = "读取公告异常，公告id：" + i;
                     a.article_id = -1;
@@ -116,7 +115,7 @@ public class DragraliaTask extends TimedTask {
                 try {
                     set.add(getArticleFromNet(i.id, true));
                     last.update_article_list.add(i);
-                } catch (IOException e) {
+                } catch (Exception e) {
                     Article a = new Article();
                     a.message = "更新公告异常，公告id：" + i.id;
                     a.article_id = -1;
@@ -147,50 +146,60 @@ public class DragraliaTask extends TimedTask {
         }
         for (String s : matchStrs) {
             img_tag_list.add(s);
-            Matcher matcher1 = src_tag_pattern.matcher(s);
+            Matcher matcher1 = img_url_pattern.matcher(s);
             if (matcher1.find()) {
                 img_list.add(matcher1.group());
             }
         }
-        img_list.forEach(img -> runs.add(() -> downloadImg(img)));
+        img_list.forEach(img -> runs.add(() -> {
+            if (!new File(getFileName(img)).exists()) {
+                //downloadImg(img);
+            }
+        }));
         if (!"".equals(a.image_path)) {
             runs.add(() -> downloadImg(a.image_path));
         }
         zibenbot.pool.asynchronousPool.execute(() -> {
             StringBuilder builder = new StringBuilder();
             if (a.article_id != -1) {
+                builder.append("【").append(a.category_name).append("】 ").append(a.title_name).append("\n");
                 if (!"".equals(a.image_path)) {
-                    builder.append(zibenbot.getCoolQ().getImage(getFileName(a.image_path)));
-                    builder.append("\n");
+                    try {
+                        builder.append(zibenbot.getCQCode().image(new File(getFileName(a.image_path))));
+                        builder.append("\n");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
-                    builder.append("【").append(a.category_name).append("】 ").append(a.title_name);
                 if (a.isUpdate) {
-                    builder.append("（Update）");
+                    builder.append("（Update）\n");
                 }
-                builder.append("\n\n").append(clearMsg(msg, img_list));
+                builder.append("公告详情：").append("https://dragalialost.com/chs/news/detail/").append(a.article_id);
+                //builder.append("\n\n").append(clearMsg(msg));
             } else {
                 builder.append(a.message);
             }
-            if (!(zibenbot.getCoolQ() instanceof CQDebug)) {
                 //todo 测试完毕修改这里
-                zibenbot.replyMsg(new CQMsg(-1, -1, 814843368L, 895981998L, null, "DragraliaTask Return Msg", -1, MsgType.PRIVATE_MSG), builder.toString());
-            } else {
-                System.out.println(builder.toString());
-            }
+            zibenbot.replyMsg(new CQMsg(-1, -1, 814843368L, 2155231604L, null, "DragraliaTask Return Msg", -1, MsgType.GROUP_MSG)
+                    , builder.toString());
         }, runs.toArray(new Runnable[]{}));
     }
 
-    private String clearMsg(String msg, List<String> imgs) {
-        for (String img : imgs) {
-            /*if (!(zibenbot.getCoolQ() instanceof CQDebug)) {*/
-            Matcher matcher = img_tag_pattern.matcher(msg);
-            if (matcher.find()) {
-                String imgFileName = getFileName(img);
-                if (new File(imgFileName).exists()) {
-                    msg = msg.replace(matcher.group(), zibenbot.getCoolQ().getImage(imgFileName));
-                } else {
-                    msg = msg.replace(matcher.group(), "[图片加载错误]");
+    private String clearMsg(String msg) {
+        Matcher matcher = img_tag_pattern.matcher(msg);
+        while (matcher.find()) {
+            String tag = matcher.group();
+            Matcher matcher1 = img_url_pattern.matcher(tag);
+            matcher1.find();
+            File file = new File(getFileName(matcher1.group()));
+            if (file.exists()) {
+                try {
+                    msg = msg.replace(tag, zibenbot.getCQCode().image(file));
+                } catch (Exception e) {
+                    msg = msg.replace(tag, "[图片加载错误]");
                 }
+            } else {
+                msg = msg.replace(tag, "[图片加载错误]");
             }
             /*} else {
                 msg = msg.replace(img, "[图片]");
@@ -202,7 +211,7 @@ public class DragraliaTask extends TimedTask {
         msg = msg.replaceAll("<[^<>]*?>", "");
         msg = msg.replaceAll("[\\t]+", "");
         msg = msg.replaceAll(" +", " ");
-        msg = msg.replaceAll("[\n]{3,}", "\n\n");
+        msg = msg.replaceAll("[\n]{3,}", "\n");
         return msg;
     }
 
@@ -224,13 +233,13 @@ public class DragraliaTask extends TimedTask {
     }
 
     private String getFileName(String url) {
-        return zibenbot.appDirectory + "/dragraliatemp/" + String.valueOf(url.hashCode()) + ".png";
+        Matcher matcher = img_name_pattern.matcher(url);
+        matcher.find();
+        return zibenbot.appDirectory + "\\dragraliatemp\\" + matcher.group();
     }
 
     private File downloadImg(String url) {
         File tmpFile = new File(getFileName(url));
-
-        OkHttpClient client = new OkHttpClient().newBuilder().callTimeout(20, TimeUnit.SECONDS).build();
         try {
             if (!tmpFile.exists()) {
                 tmpFile.getParentFile().mkdirs();
