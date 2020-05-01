@@ -29,11 +29,11 @@ public class AsynchronousTaskPool extends TimedTask {
                 }
                 if (allExecut) {
                     list.add(runnable);
-                    runnable.run();
                 }
             }
             for (Runnable r : list) {
                 runnableMap.remove(r);
+                r.run();
             }
 
         }
