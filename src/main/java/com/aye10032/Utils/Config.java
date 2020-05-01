@@ -1,6 +1,7 @@
 package com.aye10032.Utils;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 public class Config {
@@ -27,7 +28,7 @@ public class Config {
 
     public void set(String key, String value) {
         if (map == null) {
-            map = Collections.synchronizedMap(Collections.emptyMap());
+            map = Collections.synchronizedMap(new HashMap<>());
         }
         map.put(key, value);
     }
