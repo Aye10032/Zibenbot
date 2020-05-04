@@ -86,10 +86,10 @@ public class DragraliaTask extends TimedTask {
         ArticleUpateDate last = gson.fromJson(config.getWithDafault("last_update_date", "{}"), ArticleUpateDate.class);
         long last_data = Long.parseLong(config.getWithDafault("last_data", Long.toString(System.currentTimeMillis()/1000 - 86400)));
         long current = System.currentTimeMillis() / 1000;
-        if ((current - 25200) / 86400 > (last_data - 25200) / 86400) {
+        //判断是不是过了一天的14点
+        if ((current - 21600) / 86400 > (last_data - 21600) / 86400) {
             last.clear();
         }
-
         date.new_article_list.forEach(i -> {
             if (!last.new_article_list.contains(i)) {
                 try {
@@ -111,7 +111,7 @@ public class DragraliaTask extends TimedTask {
                     break;
                 }
             }
-            if (!(d != null && d.update_time == i.update_time)) {
+            if (d == null || d.update_time < i.update_time) {
                 try {
                     set.add(getArticleFromNet(i.id, true));
                     last.update_article_list.add(i);
@@ -179,7 +179,7 @@ public class DragraliaTask extends TimedTask {
             } else {
                 builder.append(a.message);
             }
-                //todo 测试完毕修改这里
+            //todo 测试完毕修改这里
             zibenbot.replyMsg(new CQMsg(-1, -1, 814843368L, 2155231604L, null, "DragraliaTask Return Msg", -1, MsgType.GROUP_MSG)
                     , builder.toString());
         }, runs.toArray(new Runnable[]{}));
