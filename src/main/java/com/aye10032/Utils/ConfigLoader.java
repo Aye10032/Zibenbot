@@ -79,6 +79,7 @@ public  class ConfigLoader<T> {
             String s = gson.toJson(config);
             OutputStream stream = new BufferedOutputStream(new FileOutputStream(file));
             IOUtils.write(s, stream);
+            stream.flush();
             IOUtils.closeQuietly(stream);
         } catch (Exception e) {
             e.printStackTrace();
