@@ -67,6 +67,7 @@ public class DragraliaTask extends TimedTask {
         calendar.set(Calendar.SECOND, 1);
         Date date = calendar.getTime();
         setRunnable(runnable).setTimes(-1).setCycle(TimeConstant.PER_HOUR).setTiggerTime(date);
+        cleanImg();
     }
 
 /*    public Article getArticle(ArticleInfo articleInfo) {
@@ -153,7 +154,7 @@ public class DragraliaTask extends TimedTask {
         }
         img_list.forEach(img -> runs.add(() -> {
             if (!new File(getFileName(img)).exists()) {
-                //downloadImg(img);
+                downloadImg(img);
             }
         }));
         if (!"".equals(a.image_path)) {
@@ -174,8 +175,12 @@ public class DragraliaTask extends TimedTask {
                 if (a.isUpdate) {
                     builder.append("（Update）\n");
                 }
-                builder.append("公告详情：").append("https://dragalialost.com/chs/news/detail/").append(a.article_id);
-                //builder.append("\n\n").append(clearMsg(msg));
+                String ret = clearMsg(msg);
+                if (ret.length() > 350) {
+                    builder.append("公告详情：").append("https://dragalialost.com/chs/news/detail/").append(a.article_id);
+                } else {
+                    builder.append("\n\n").append(ret);
+                }
             } else {
                 builder.append(a.message);
             }
@@ -281,6 +286,19 @@ public class DragraliaTask extends TimedTask {
                 }
         );
         return date;
+    }
+
+    private void cleanImg(){
+        File dir = new File(zibenbot.appDirectory + "\\dragraliatemp");
+        long current = System.currentTimeMillis();
+        int i = 0;
+        for (File f: dir.listFiles()) {
+            if (f.isFile() && current - f.lastModified() > 86400 * 3 * 1000) {
+                f.delete();
+                i++;
+            }
+        }
+        Zibenbot.logger.info("清理了三天前的缓存 " + i + " 张。");
     }
 
     static class Article {
