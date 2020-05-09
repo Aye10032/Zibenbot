@@ -19,7 +19,7 @@ public class AyeCompile {
     private static Pattern av_pattern = Pattern.compile("([aA])([vV])\\d+");
     private Matcher av_matcher;
 
-    private static Pattern bv_pattern = Pattern.compile("([bB])([vV])[(0-9)|(A-Z)|(a-z)]{10}");
+    private static Pattern bv_pattern = Pattern.compile("([bB])([vV])[(0-9)|(A-Z)|(a-z)]{10}\\b");
     private static List<Pattern> short_site_pattern_list = new ArrayList<>();
     private Matcher bv_matcher;
 
