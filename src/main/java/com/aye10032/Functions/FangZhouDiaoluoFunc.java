@@ -9,20 +9,16 @@ import com.aye10032.Utils.fangzhoudiaoluo.Module;
 import com.aye10032.Zibenbot;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonParser;
 import okhttp3.*;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.http.Header;
-import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicHeader;
 
 import java.io.*;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static com.aye10032.Utils.TimeUtil.TimeConstant.PER_DAY;
@@ -142,12 +138,9 @@ public class FangZhouDiaoluoFunc extends BaseFunc {
     }
 
     private void retMsg(DiaoluoType.HeChenType type, CQMsg msg){
+        String ret;
         if (type.calls.length == 0) {
-            if (zibenbot != null) {
-                zibenbot.replyMsg(msg, module.getString(this.type.getMaterialFromID(type.id)));
-            } else {
-                System.out.println(module.getString(this.type.getMaterialFromID(type.id)));
-            }
+            ret = module.getString(this.type.getMaterialFromID(type.id));
         } else {
             StringBuilder s = new StringBuilder();
             List<String> strings1 = getCalls(name_idList, type);
@@ -157,11 +150,16 @@ public class FangZhouDiaoluoFunc extends BaseFunc {
                     s.append("\n\n");
                 }
             }
-            if (zibenbot != null) {
-                zibenbot.replyMsg(msg, s.toString());
-            } else {
-                System.out.println(s.toString());
-            }
+            ret = s.toString();
+        }
+        if (!ret.endsWith("\n")) {
+            ret += "\n";
+        }
+        ret += "上次更新：" + Module.lastUpdate;
+        if (zibenbot != null) {
+            zibenbot.replyMsg(msg, ret);
+        } else {
+            System.out.println(ret);
         }
     }
 
