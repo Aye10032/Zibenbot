@@ -1,16 +1,19 @@
 package com.aye10032.Utils.fangzhoudiaoluo;
 
+import com.aye10032.Functions.FangZhouDiaoluoFunc;
 import com.aye10032.Utils.HttpUtils;
+import com.google.gson.JsonParser;
 import okhttp3.OkHttpClient;
 import org.apache.commons.io.IOUtils;
+import org.apache.http.client.HttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.function.Function;
 
 /**
@@ -25,6 +28,7 @@ public class Module {
     public static ModuleMaterial moduleMaterial;
     public static ModuleStage moduleStage;
     public static ModuleDrop moduleDrop;
+    private static String lastUpdate = "";
 
     public Module(String rawModule) {
         this.rawModule = rawModule;
@@ -35,6 +39,8 @@ public class Module {
 
         OkHttpClient client = new OkHttpClient().newBuilder()
                 .build();
+
+        HttpClient client1 = HttpClientBuilder.create().setDefaultHeaders(Arrays.asList(FangZhouDiaoluoFunc.getHeaders())).build();
 
         InputStream stream = HttpUtils.getInputStreamFromNet(
                 "https://gitee.com/aye10032/Zibenbot/raw/master/res/fangzhoudiaoluo/module.txt", client);
@@ -56,6 +62,17 @@ public class Module {
         moduleDrop = new ModuleDrop(IOUtils.toString(stream));
         stream.close();
 
+        JsonParser parser = new JsonParser();
+        stream = HttpUtils.getInputStreamFromNet("https://api.aog.wiki/materials/gacha", client1);
+
+        IOUtils.closeQuietly(stream);
+        String last = parser.parse(IOUtils.toString(stream))
+                .getAsJsonObject().get("material")
+                .getAsJsonArray().get(0)
+                .getAsJsonObject().get("last_updated")
+                .getAsString();
+        DateFormat format1 = new SimpleDateFormat("yyyy/MM/dd HH:mm");
+        lastUpdate = format1.format(new Date(last));
 
     }
 
@@ -141,6 +158,7 @@ public class Module {
         }
 
         {
+            verFuncMaterial.put("{last_update}", material -> lastUpdate);
             verFuncMaterial.put("{name}", material -> material.name);
             verFuncMaterial.put("{credit_store_value}", material -> String.valueOf(material.credit_store_value));
             verFuncMaterial.put("{green_ticket_value}", material -> String.valueOf(material.green_ticket_value));
@@ -290,8 +308,6 @@ public class Module {
             return ret.toString();
         }
     }
-
-
 
 }
 
