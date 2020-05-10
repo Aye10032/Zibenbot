@@ -6,12 +6,13 @@ import org.apache.http.Header;
 import org.apache.http.HeaderElement;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
 
-import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
-import java.net.URL;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  *
@@ -46,13 +47,13 @@ public class HttpUtils {
     }
 
     public static InputStream getInputStreamFromNet(String url, OkHttpClient client) throws IOException {
-        try {
-            Request request = new Request.Builder().url(url).method("GET", null).build();
-            return client.newCall(request).execute().body().byteStream();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+        Request request = new Request.Builder().url(url).method("GET", null).build();
+        return client.newCall(request).execute().body().byteStream();
+    }
+
+    public static InputStream getInputStreamFromNet(String url, HttpClient client) throws IOException {
+        return client.execute(new HttpGet(url)).getEntity().getContent();
+
     }
 
 
