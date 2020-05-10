@@ -28,7 +28,7 @@ public class Module {
     public static ModuleMaterial moduleMaterial;
     public static ModuleStage moduleStage;
     public static ModuleDrop moduleDrop;
-    private static String lastUpdate = "";
+    public static String lastUpdate = "";
 
     public Module(String rawModule) {
         this.rawModule = rawModule;
@@ -65,12 +65,12 @@ public class Module {
         JsonParser parser = new JsonParser();
         stream = HttpUtils.getInputStreamFromNet("https://api.aog.wiki/materials/gacha", client1);
 
-        IOUtils.closeQuietly(stream);
         String last = parser.parse(IOUtils.toString(stream))
                 .getAsJsonObject().get("material")
                 .getAsJsonArray().get(0)
                 .getAsJsonObject().get("last_updated")
                 .getAsString();
+        IOUtils.closeQuietly(stream);
         DateFormat format1 = new SimpleDateFormat("yyyy/MM/dd HH:mm");
         lastUpdate = format1.format(new Date(last));
 
@@ -120,6 +120,7 @@ public class Module {
     {
         verFuncMaterial.put("{name}", material -> material.name);
         verFuncMaterial.put("{material_module}", material -> moduleMaterial.getString(material));
+        verFuncMaterial.put("{last_update}", material -> lastUpdate);
     }
 
     public String getString (DiaoluoType.Material material) {
@@ -158,7 +159,7 @@ public class Module {
         }
 
         {
-            verFuncMaterial.put("{last_update}", material -> lastUpdate);
+
             verFuncMaterial.put("{name}", material -> material.name);
             verFuncMaterial.put("{credit_store_value}", material -> String.valueOf(material.credit_store_value));
             verFuncMaterial.put("{green_ticket_value}", material -> String.valueOf(material.green_ticket_value));

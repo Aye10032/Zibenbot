@@ -1,5 +1,7 @@
 package com.dazo66.test;
 
+import com.aye10032.Functions.CQMsg;
+import com.aye10032.Functions.FangZhouDiaoluoFunc;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
@@ -18,10 +20,9 @@ import java.util.Date;
 
 public class fangzhoudiaoluoTest {
     public static void main(String[] args) throws IOException, InterruptedException {
-        /*FangZhouDiaoluoFunc func = new FangZhouDiaoluoFunc();
+        FangZhouDiaoluoFunc func = new FangZhouDiaoluoFunc();
         func.update();
         func.run(new CQMsg(-1,-1, -1, -1, null, ".方舟掉落 zs", -1, null));
-        */
         HttpClient client = HttpClientBuilder.create().setDefaultHeaders(Arrays.asList(getHeaders())).build();
         HttpResponse httpResponse =client.execute(new HttpGet("https://api.aog.wiki/materials//tier/1"));
         System.out.println(IOUtils.toString(httpResponse.getEntity().getContent()));
