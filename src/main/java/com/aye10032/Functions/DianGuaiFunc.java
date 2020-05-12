@@ -19,7 +19,7 @@ public class DianGuaiFunc extends BaseFunc {
     }
 
     public void run(CQMsg cqmsg) {
-        if (cqmsg.msg.contains("点怪")) {
+        if (cqmsg.msg.equals("点怪")) {
             String aim = mhwUtil.getAim();
             zibenbot.replyMsg(cqmsg, aim);
         }

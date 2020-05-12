@@ -42,6 +42,9 @@ public class RedStoneFunc extends BaseFunc {
             }
             videoClass.updateList();
             zibenbot.replyMsg(cqMsg, "已添加" + strlist[1] + " " + strlist[2]);
+            if (cqMsg.fromGroup != 456919710L){
+                zibenbot.getCoolQ().sendGroupMsg(456919710L, "已添加" + strlist[1] + " " + strlist[2]);
+            }
         } else if (cqMsg.msg.startsWith("烤 ")) {
             if (strlist.length == 3) {
                 videoClass.addVideoSum();
