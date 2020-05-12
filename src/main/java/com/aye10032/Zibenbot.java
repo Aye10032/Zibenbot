@@ -42,6 +42,8 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
     public TeamspeakBot teamspeakBot;
     public BotConfigFunc config;
 
+    public static String BUILD_TIME = "${DATE}";
+
 
     public List<Long> enableGroup = new ArrayList<>();
     {
