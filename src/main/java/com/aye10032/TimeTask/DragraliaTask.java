@@ -2,6 +2,7 @@ package com.aye10032.TimeTask;
 
 import com.aye10032.Functions.CQMsg;
 import com.aye10032.Functions.MsgType;
+import com.aye10032.Functions.ScreenshotFunc;
 import com.aye10032.Utils.Config;
 import com.aye10032.Utils.ConfigLoader;
 import com.aye10032.Utils.HttpUtils;
@@ -23,6 +24,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -43,16 +45,26 @@ public class DragraliaTask extends TimedTask {
 
     private JsonParser jsonParser = new JsonParser();
     private ArticleUpateDate date = null;
-    private Config config;
-    private ConfigLoader<Config> loader;
-    OkHttpClient client = new OkHttpClient().newBuilder().callTimeout(30, TimeUnit.SECONDS).build();
+    public Config config;
+    public CQMsg cqMsg = new CQMsg(-1, -1, 814843368L, 2155231604L, null, "DragraliaTask Return Msg", -1, MsgType.GROUP_MSG);
+    public ConfigLoader<Config> loader;
+    private int exceptionCount = 0;
+
+    OkHttpClient client = new OkHttpClient.Builder().callTimeout(30, TimeUnit.SECONDS).build();
     public Runnable runnable = () -> {
         try {
-            date = getUpdateDate();
+            try {
+                date = getUpdateDate();
+            } catch (Exception e) {
+                e.printStackTrace();
+                zibenbot.replyMsg(cqMsg, "公告获取异常");
+                exceptionCount++;
+            }
             Set<Article> articles = getNewArticles();
             articles.forEach(this::sendArticle);
         } catch (Exception e) {
             e.printStackTrace();
+            exceptionCount++;
         }
 
     };
@@ -66,7 +78,7 @@ public class DragraliaTask extends TimedTask {
         calendar.set(Calendar.MINUTE, 0);
         calendar.set(Calendar.SECOND, 1);
         Date date = calendar.getTime();
-        setRunnable(runnable).setTimes(-1).setCycle(TimeConstant.PER_HOUR).setTiggerTime(date);
+        setRunnable(runnable).setTimes(-1).setCycle(TimeConstant.PER_HALF_HOUR).setTiggerTime(date);
         cleanImg();
     }
 
@@ -90,6 +102,7 @@ public class DragraliaTask extends TimedTask {
         //判断是不是过了一天的14点
         if ((current - 21600) / 86400 > (last_data - 21600) / 86400) {
             last.clear();
+            exceptionCount = 0;
         }
         date.new_article_list.forEach(i -> {
             if (!last.new_article_list.contains(i)) {
@@ -115,12 +128,14 @@ public class DragraliaTask extends TimedTask {
             if (d == null || d.update_time < i.update_time) {
                 try {
                     set.add(getArticleFromNet(i.id, true));
+                    last.update_article_list.remove(d);
                     last.update_article_list.add(i);
                 } catch (Exception e) {
                     Article a = new Article();
                     a.message = "更新公告异常，公告id：" + i.id;
                     a.article_id = -1;
                     set.add(a);
+                    exceptionCount++;
                 }
             }
 
@@ -141,7 +156,9 @@ public class DragraliaTask extends TimedTask {
         String msg = StringEscapeUtils.unescapeHtml4(a.message);
         Matcher matcher = img_tag_pattern.matcher(msg);
         List<String> matchStrs = new ArrayList<>();
+        AtomicReference<File> screenshotFile = new AtomicReference<>();
 
+        int len = Chinese_length(msg);
         while (matcher.find()) { //此处find（）每次被调用后，会偏移到下一个匹配
             matchStrs.add(matcher.group());//获取当前匹配的值
         }
@@ -152,11 +169,17 @@ public class DragraliaTask extends TimedTask {
                 img_list.add(matcher1.group());
             }
         }
-        img_list.forEach(img -> runs.add(() -> {
-            if (!new File(getFileName(img)).exists()) {
-                downloadImg(img);
-            }
-        }));
+        if (len < 400) {
+            img_list.forEach(img -> runs.add(() -> {
+                if (!new File(getFileName(img)).exists()) {
+                    downloadImg(img);
+                }
+            }));
+        } else {
+            runs.add(() -> {
+                screenshotFile.set(getScreenshot(a));
+            });
+        }
         if (!"".equals(a.image_path)) {
             runs.add(() -> downloadImg(a.image_path));
         }
@@ -173,11 +196,15 @@ public class DragraliaTask extends TimedTask {
                     }
                 }
                 if (a.isUpdate) {
-                    builder.append("（Update）\n");
+                    //builder.append("（Update）\n");
                 }
                 String ret = clearMsg(msg);
-                if (ret.length() > 350) {
-                    builder.append("公告详情：").append("https://dragalialost.com/chs/news/detail/").append(a.article_id);
+                if (len > 400 && screenshotFile.get() != null && screenshotFile.get().exists()) {
+                    try {
+                        builder.append("公告详情：").append("\n").append(zibenbot.getCQCode().image(screenshotFile.get()));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 } else {
                     builder.append("\n\n").append(ret);
                 }
@@ -185,9 +212,29 @@ public class DragraliaTask extends TimedTask {
                 builder.append(a.message);
             }
             //todo 测试完毕修改这里
-            zibenbot.replyMsg(new CQMsg(-1, -1, 814843368L, 2155231604L, null, "DragraliaTask Return Msg", -1, MsgType.GROUP_MSG)
-                    , builder.toString());
+            if (exceptionCount <= 3) {
+                zibenbot.replyMsg(cqMsg, builder.toString());
+            }
         }, runs.toArray(new Runnable[]{}));
+    }
+
+    private File getScreenshot(Article a){
+        String dir;
+        if ("test".equals(zibenbot.appDirectory)) {
+             dir = "res";
+        } else {
+            dir = zibenbot.appDirectory;
+        }
+        String url = "https://dragalialost.com/chs/news/detail/" + a.article_id;
+        String exe = dir + "/phantomjs/bin/phantomjs.exe";
+        String js = dir + "/phantomjs/screenshot.js";
+        String outputfile = dir + "/dragraliatemp/" + a.article_id + ".jpg";
+        try {
+            return ScreenshotFunc.getScreenshot(exe, js, url, outputfile, 1000);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     private String clearMsg(String msg) {
@@ -331,6 +378,16 @@ public class DragraliaTask extends TimedTask {
         }
     }
 
+    public static int Chinese_length(String s) {
+        int length = 0;
+        for (int i = 0; i < s.length(); i++) {
+            int ascii = Character.codePointAt(s, i);
+            if (!(ascii >= 0 && ascii <= 255)) {
+                length += 1;
+            }
+        }
+        return length;
+    }
 
 }
 

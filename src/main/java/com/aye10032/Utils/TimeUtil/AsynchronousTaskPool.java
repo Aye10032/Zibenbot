@@ -19,9 +19,9 @@ public class AsynchronousTaskPool extends TimedTask {
     Map<Runnable, List<Future<?>>> runnableMap = new ConcurrentHashMap<>();
     Runnable thisRun = () -> {
         if (runnableMap.size() != 0) {
-            boolean allExecut = true;
             List<Runnable> list = new ArrayList<>();
             for (Runnable runnable : runnableMap.keySet()) {
+                boolean allExecut = true;
                 for (Future<?> future : runnableMap.get(runnable)) {
                     if (!future.isDone() && !future.isCancelled()) {
                         allExecut = false;
