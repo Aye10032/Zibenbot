@@ -42,7 +42,6 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
     public TeamspeakBot teamspeakBot;
     public BotConfigFunc config;
 
-    public static String BUILD_TIME = "${DATE}";
 
 
     public List<Long> enableGroup = new ArrayList<>();
@@ -78,6 +77,19 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
      */
     public Zibenbot(CoolQ CQ) {
         super(CQ);
+    }
+
+    public int toPrivateMsg(long clientId, String msg) {
+        return CQ.sendPrivateMsg(clientId, msg);
+    }
+
+    public int toGroupMsg(long groupId, String msg) {
+        return CQ.sendGroupMsg(groupId, msg);
+    }
+
+    public int toTeamspeakMsg(String msg) {
+        teamspeakBot.api.sendChannelMessage(msg);
+        return 1;
     }
 
     public int replyMsg(CQMsg fromMsg, String msg) {
@@ -186,6 +198,8 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
         registerFunc.add(new PixivFunc(this));
         registerFunc.add(new BiliFunc(this));
         registerFunc.add(new RedStoneFunc(this));
+        registerFunc.add(new ScreenshotFunc(this));
+        registerFunc.add(new DragraliaNewsFunc(this));
 
         //对功能进行初始化
         for (IFunc func : registerFunc) {

@@ -9,10 +9,7 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 
 /**
  *
@@ -64,28 +61,49 @@ public class HttpUtils {
      * @param filepath
      * @return
      */
-    public static String download(String url, String filepath, OkHttpClient client) {
+    public static void download(String url, String filepath, OkHttpClient client) {
         try {
             InputStream is = getInputStreamFromNet(url, client);
             File file = new File(filepath);
             file.getParentFile().mkdirs();
             FileOutputStream fileout = new FileOutputStream(file);
-            /**
-             * 根据实际运行效果 设置缓冲区大小
-             */
-            byte[] buffer = new byte[cache];
-            int ch = 0;
-            while ((ch = is.read(buffer)) != -1) {
-                fileout.write(buffer, 0, ch);
-            }
-            fileout.flush();
-            is.close();
-            fileout.close();
-
+            write(is, fileout);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return null;
+    }
+
+    /**
+     * 根据url下载文件，保存到filepath中
+     *
+     * @param url
+     * @param filepath
+     * @return
+     */
+    public static void download(String url, String filepath, HttpClient client) {
+        try {
+            InputStream is = getInputStreamFromNet(url, client);
+            File file = new File(filepath);
+            file.getParentFile().mkdirs();
+            FileOutputStream fileout = new FileOutputStream(file);
+            write(is, fileout);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void write(InputStream in, OutputStream fileout) throws IOException {
+        /**
+         * 根据实际运行效果 设置缓冲区大小
+         */
+        byte[] buffer = new byte[cache];
+        int ch = 0;
+        while ((ch = in.read(buffer)) != -1) {
+            fileout.write(buffer, 0, ch);
+        }
+        fileout.flush();
+        in.close();
+        fileout.close();
     }
 
     /**
