@@ -1,7 +1,7 @@
 
-[信用商店值：【{credit_store_value}】]
-[绿票商店值：【{green_ticket_value}】]
-[黄票商店值：【{golden_ticket_value}】]
+[信用商店：【{credit_store_value}】]
+[绿票商店：【{green_ticket_value}】]
+[黄票商店：【{golden_ticket_value}】]
 
 [效率最优副本：
     {lowest_ap_stages}]
