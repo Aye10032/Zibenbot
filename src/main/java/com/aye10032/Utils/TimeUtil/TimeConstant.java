@@ -20,6 +20,7 @@ public class TimeConstant {
     public static TaskCycle PER_WEEK = new PerWeek();
     public static TaskCycle PER_DAY = new PerDay();
     public static TaskCycle PER_HOUR = new PerHour();
+    public static TaskCycle PER_HALF_HOUR = new PerHalfHour();
     public static TaskCycle PER_MIN = new PerMin();
     public static TaskCycle PER_SEC = new PerSec();
 
@@ -72,6 +73,19 @@ public class TimeConstant {
             Date now = new Date();
             while (now.compareTo(date) >= 0) {
                 date.setTime(date.getTime() + DAY);
+            }
+            return date;
+        }
+
+    }
+
+    private static class PerHalfHour implements TaskCycle {
+
+        @Override
+        public Date getNextTime(Date date) {
+            Date now = new Date();
+            while (now.compareTo(date) >= 0) {
+                date.setTime(date.getTime() + HOUR / 2);
             }
             return date;
         }

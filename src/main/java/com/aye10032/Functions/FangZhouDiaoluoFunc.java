@@ -78,10 +78,15 @@ public class FangZhouDiaoluoFunc extends BaseFunc {
                 }
             }
         }
-        if (msg.startsWith(".方舟素材") || msg.startsWith(".方舟掉落")) {
+        if (msg.startsWith(".方舟素材") || msg.startsWith(".方舟掉落") || msg.startsWith(".fz")) {
             last = null;
             String[] strings = msg.split(" ");
             int len = strings.length;
+            if (len == 2 && "更新".equals(strings[1])) {
+                update();
+                replyMsg(cqmsg, "数据更新完成，数据时间："+Module.lastUpdate);
+                return;
+            }
             if (len >= 2) {
                 for (int i = 1; i < len; i++) {
                     boolean flag = true;
