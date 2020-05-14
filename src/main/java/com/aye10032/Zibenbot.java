@@ -200,6 +200,7 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
         registerFunc.add(new RedStoneFunc(this));
         registerFunc.add(new ScreenshotFunc(this));
         registerFunc.add(new DragraliaNewsFunc(this));
+        registerFunc.add(new DraSummonSimulatorFunc(this));
 
         //对功能进行初始化
         for (IFunc func : registerFunc) {
@@ -285,7 +286,9 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
             try {
                 func.run(cqMsg);
             } catch (Exception e) {
-                replyMsg(cqMsg, e.getMessage());
+                StringBuilder builder = new StringBuilder();
+                Arrays.stream(e.getStackTrace()).forEach(element -> builder.append("\n").append(element));
+                replyMsg(cqMsg, "运行出错：" + e + "\n" + builder.toString());
             }
         }
         return MSG_IGNORE;

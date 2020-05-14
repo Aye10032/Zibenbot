@@ -37,6 +37,6 @@ public class CQMsg {
     }
 
     public static CQMsg getTempMsg(String testMsg){
-        return new CQMsg(-1, -1, -1, -1, null, testMsg, -1, MsgType.TEAMSPEAK_MSG);
+        return new CQMsg(-1, -1, -1, -1, null, testMsg, -1, MsgType.GROUP_MSG);
     }
 }
