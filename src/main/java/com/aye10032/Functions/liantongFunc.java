@@ -29,7 +29,7 @@ public class liantongFunc extends BaseFunc {
                     zibenbot.replyMsg(CQmsg, "ts频道无法发图片，请从群聊或者私聊获取");
                     return;
                 }
-                if (random.nextDouble() < 0.2) {
+                if (random.nextDouble() < 0.2d) {
                     zibenbot.replyMsg(CQmsg, zibenbot.getCQCode().image(new File(zibenbot.appDirectory + "\\image\\liantong.jpg")));
                 }
             } catch (IOException e) {

@@ -3,6 +3,7 @@ package com.aye10032.TimeTask;
 import com.aye10032.Functions.CQMsg;
 import com.aye10032.Functions.MsgType;
 import com.aye10032.Functions.ScreenshotFunc;
+import com.aye10032.Utils.ArticleUpateDate;
 import com.aye10032.Utils.Config;
 import com.aye10032.Utils.ConfigLoader;
 import com.aye10032.Utils.HttpUtils;
@@ -57,11 +58,11 @@ public class DragraliaTask extends TimedTask {
                 date = getUpdateDate();
             } catch (Exception e) {
                 e.printStackTrace();
-                zibenbot.replyMsg(cqMsg, "公告获取异常");
+                //zibenbot.replyMsg(cqMsg, "公告获取异常");
                 exceptionCount++;
             }
             Set<Article> articles = getNewArticles();
-            articles.forEach(this::sendArticle);
+            articles.forEach(a -> this.sendArticle(a, cqMsg));
         } catch (Exception e) {
             e.printStackTrace();
             exceptionCount++;
@@ -149,7 +150,7 @@ public class DragraliaTask extends TimedTask {
 
     }
 
-    private void sendArticle(Article a) {
+    public void sendArticle(Article a, CQMsg cqMsg) {
         List<String> img_list = new ArrayList<>();
         List<String> img_tag_list = new ArrayList<>();
         List<Runnable> runs = new ArrayList<>();
@@ -169,7 +170,7 @@ public class DragraliaTask extends TimedTask {
                 img_list.add(matcher1.group());
             }
         }
-        if (len < 400) {
+        if (len < 300) {
             img_list.forEach(img -> runs.add(() -> {
                 if (!new File(getFileName(img)).exists()) {
                     downloadImg(img);
@@ -177,7 +178,18 @@ public class DragraliaTask extends TimedTask {
             }));
         } else {
             runs.add(() -> {
-                screenshotFile.set(getScreenshot(a));
+                String dir;
+                if ("test".equals(zibenbot.appDirectory)) {
+                    dir = "res";
+                } else {
+                    dir = zibenbot.appDirectory;
+                }
+                File file = new File(dir + "/dragraliatemp/" + a.article_id + ".jpg");
+                if (!file.exists() || a.isUpdate) {
+                    screenshotFile.set(getScreenshot(a));
+                } else {
+                    screenshotFile.set(file);
+                }
             });
         }
         if (!"".equals(a.image_path)) {
@@ -199,7 +211,7 @@ public class DragraliaTask extends TimedTask {
                     //builder.append("（Update）\n");
                 }
                 String ret = clearMsg(msg);
-                if (len > 400 && screenshotFile.get() != null && screenshotFile.get().exists()) {
+                if (len > 300 && screenshotFile.get() != null && screenshotFile.get().exists()) {
                     try {
                         builder.append("公告详情：").append("\n").append(zibenbot.getCQCode().image(screenshotFile.get()));
                     } catch (IOException e) {
@@ -305,7 +317,7 @@ public class DragraliaTask extends TimedTask {
         return tmpFile;
     }
 
-    private Article getArticleFromNet(int id, boolean isUpdate) throws IOException {
+    public Article getArticleFromNet(int id, boolean isUpdate) throws IOException {
         InputStream stream = HttpUtils.getInputStreamFromNet("https://dragalialost.com/api/index.php?format=json&type=information&category_id=&priority_lower_than=&action=information_detail&article_id=" + id + "&lang=zh_cn&td=%2B08%3A00", client);
         JsonParser jsonParser = new JsonParser();
         JsonObject object = jsonParser.parse(IOUtils.toString(stream)).getAsJsonObject();
@@ -317,7 +329,7 @@ public class DragraliaTask extends TimedTask {
         return a;
     }
 
-    private ArticleUpateDate getUpdateDate() throws IOException {
+    public ArticleUpateDate getUpdateDate() throws IOException {
         ArticleUpateDate date = new ArticleUpateDate();
         InputStream stream = HttpUtils.getInputStreamFromNet("https://dragalialost.com/api/index.php?format=json&type=information&category_id=0&priority_lower_than=&action=information_list&article_id=&lang=zh_cn&td=%2B08%3A00", client);
         JsonParser jsonParser = new JsonParser();
@@ -348,21 +360,21 @@ public class DragraliaTask extends TimedTask {
         Zibenbot.logger.info("清理了三天前的缓存 " + i + " 张。");
     }
 
-    static class Article {
+    public static class Article {
         //文章id
-        int article_id;
+        public int article_id;
         //类型名字
-        String category_name;
+        public String category_name;
         //日期
-        String image_path;
-        String message;
-        String next_article_id;
-        String pr_category_id;
-        String prev_article_id;
-        long start_time;
-        String title_name;
-        boolean isUpdate = false;
-        long update_time;
+        public String image_path;
+        public String message;
+        public String next_article_id;
+        public String pr_category_id;
+        public String prev_article_id;
+        public long start_time;
+        public String title_name;
+        public boolean isUpdate = false;
+        public long update_time;
 
         @Override
         public boolean equals(Object obj) {
@@ -389,26 +401,4 @@ public class DragraliaTask extends TimedTask {
         return length;
     }
 
-}
-
-class ArticleUpateDate {
-
-    List<Integer> new_article_list = new ArrayList<>();
-    List<UpdateDate> update_article_list = new ArrayList<>();
-
-    static class UpdateDate {
-        int id;
-        //更新时间，单位秒
-        long update_time;
-
-        UpdateDate(int id, long update_time){
-            this.id = id;
-            this.update_time = update_time;
-        }
-    }
-
-    public void clear(){
-        new_article_list.clear();
-        update_article_list.clear();
-    }
 }
