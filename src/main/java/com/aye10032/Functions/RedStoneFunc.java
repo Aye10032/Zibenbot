@@ -32,7 +32,7 @@ public class RedStoneFunc extends BaseFunc {
                     "已搬 <序列号|油管链接>-----从搬运列表中去除\n" +
                     "接 <序列号|油管链接|B站链接> [时间段]-----承接翻译\n" +
                     "接坑-----查看当前翻译需求队列");
-        } else if (cqMsg.msg.startsWith("搬运") && cqMsg.msg.contains(" ")) {
+        } else if ((cqMsg.msg.startsWith("搬运")||cqMsg.msg.startsWith("反向")) && cqMsg.msg.contains(" ")) {
             if (strlist.length == 3) {
                 videoClass.addVideoSum();
                 videoClass.addVideo(new VideoData(videoClass.getVideoSum(), strlist[1], strlist[2], cqMsg.fromClient));
