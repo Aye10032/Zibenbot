@@ -498,7 +498,7 @@ public class GifDecoder {
 	}
 
 	/**
-	 * Reads a single byte from the input stream.
+	 * Reads a _single byte from the input stream.
 	 */
 	protected int read() {
 		int curByte = 0;

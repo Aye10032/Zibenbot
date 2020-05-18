@@ -2,6 +2,7 @@ package com.aye10032.Utils;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import org.apache.commons.io.IOUtils;
 import org.apache.http.Header;
 import org.apache.http.HeaderElement;
 import org.apache.http.HttpResponse;
@@ -41,6 +42,14 @@ public class HttpUtils {
             splash = "/";
             root = "/search";
         }
+    }
+
+    public static String getStringFromNet(String url, OkHttpClient client) throws IOException {
+        return IOUtils.toString(getInputStreamFromNet(url, client));
+    }
+
+    public static String getStringFromNet(String url, HttpClient client) throws IOException {
+        return IOUtils.toString(getInputStreamFromNet(url, client));
     }
 
     public static InputStream getInputStreamFromNet(String url, OkHttpClient client) throws IOException {

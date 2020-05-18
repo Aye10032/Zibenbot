@@ -40,18 +40,21 @@ public class ScreenshotFunc extends BaseFunc {
         if (msg.startsWith("网页快照") || msg.startsWith(".网页快照")){
             msg = msg.replaceAll(" +", " ");
             String[] args = msg.split(" ");
-            try {
-                if (args.length == 3) {
-                    replyMsg(CQmsg, zibenbot.getCQCode().image(getScreenshot(args[1], Integer.parseInt(args[2]))));
-                } else if (args.length == 2) {
-                    replyMsg(CQmsg, zibenbot.getCQCode().image(getScreenshot(args[1], 4000)));
-                } else {
-                    replyMsg(CQmsg, "参数异常，Example：网页快照 [url] [timeout]");
+            zibenbot.pool.timeoutEvent(1, () -> {
+                try {
+                    if (args.length == 3) {
+                        replyMsg(CQmsg, zibenbot.getCQCode().image(getScreenshot(addhttp(args[1]), Integer.parseInt(args[2]))));
+                    } else if (args.length == 2) {
+                        replyMsg(CQmsg, zibenbot.getCQCode().image(getScreenshot(addhttp(args[1]), 4000)));
+                    } else {
+                        replyMsg(CQmsg, "参数异常，Example：网页快照 [url] [timeout]");
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    replyMsg(CQmsg, "获取网页快照失败，可能是网页不支持" + e);
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
-                replyMsg(CQmsg, "获取网页快照失败，可能是网页不支持" + e);
-            }
+            });
+
         }
 
     }
@@ -84,6 +87,14 @@ public class ScreenshotFunc extends BaseFunc {
             e.printStackTrace();
         }
         return new File(outFileName);
+    }
+
+    private String addhttp(String url){
+        if (url.startsWith("http")) {
+            return url;
+        } else {
+            return "https://" + url;
+        }
     }
 
     public String getOutFileName(String url){

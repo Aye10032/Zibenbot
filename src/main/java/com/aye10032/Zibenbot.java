@@ -200,6 +200,7 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
         registerFunc.add(new RedStoneFunc(this));
         registerFunc.add(new ScreenshotFunc(this));
         registerFunc.add(new DragraliaNewsFunc(this));
+        registerFunc.add(new DraSummonSimulatorFunc(this));
 
         //对功能进行初始化
         for (IFunc func : registerFunc) {
@@ -280,12 +281,17 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
         //        } catch (IOException e) {
         //            e.printStackTrace();
         //        }
-        CQMsg cqMsg = new CQMsg(subType, msgId, -1, fromQQ, null, msg, font, MsgType.PRIVATE_MSG);
-        for (IFunc func : registerFunc) {
-            try {
-                func.run(cqMsg);
-            } catch (Exception e) {
-                replyMsg(cqMsg, e.getMessage());
+        String[] strings = msg.split("\n");
+        for (String s : strings) {
+            CQMsg cqMsg = new CQMsg(subType, msgId, -1, fromQQ, null, s, font, MsgType.PRIVATE_MSG);
+            for (IFunc func : registerFunc) {
+                try {
+                    func.run(cqMsg);
+                } catch (Exception e) {
+                    StringBuilder builder = new StringBuilder();
+                    Arrays.stream(e.getStackTrace()).forEach(element -> builder.append("\n").append(element));
+                    replyMsg(cqMsg, "运行出错：" + e + "\n" + builder.toString());
+                }
             }
         }
         return MSG_IGNORE;
@@ -311,19 +317,23 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
             // 将匿名用户信息放到 anonymous 变量中
             anonymous = CQ.getAnonymous(fromAnonymous);
         }
-        CQMsg cqMsg = new CQMsg(subType, msgId, fromGroup, fromQQ, anonymous, msg, font, MsgType.GROUP_MSG);
-        if (enableGroup.contains(fromGroup)) { // 这里的 0L 可以换成您的测试群
-            for (IFunc func : registerFunc) {
-                try {
-                    func.run(cqMsg);
-                } catch (Exception e) {
-                    StringBuilder builder = new StringBuilder();
-                    Arrays.stream(e.getStackTrace()).forEach(element -> builder.append("\n").append(element));
-                    replyMsg(cqMsg, "运行出错：" + e + "\n" + builder.toString());
+        String[] strings = msg.split("\n");
+        for (String s : strings) {
+            CQMsg cqMsg = new CQMsg(subType, msgId, fromGroup, fromQQ, anonymous, s, font, MsgType.GROUP_MSG);
+            if (enableGroup.contains(fromGroup)) { // 这里的 0L 可以换成您的测试群
+                for (IFunc func : registerFunc) {
+                    try {
+                        func.run(cqMsg);
+                    } catch (Exception e) {
+                        StringBuilder builder = new StringBuilder();
+                        Arrays.stream(e.getStackTrace()).forEach(element -> builder.append("\n").append(element));
+                        replyMsg(cqMsg, "运行出错：" + e + "\n" + builder.toString());
+                    }
                 }
-            }
 
+            }
         }
+
         return MSG_IGNORE;
     }
 
@@ -352,7 +362,9 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
             try {
                 func.run(cqMsg);
             } catch (Exception e) {
-                replyMsg(cqMsg, e.getMessage());
+                StringBuilder builder = new StringBuilder();
+                Arrays.stream(e.getStackTrace()).forEach(element -> builder.append("\n").append(element));
+                replyMsg(cqMsg, "运行出错：" + e + "\n" + builder.toString());
             }
         }
         return MSG_IGNORE;
