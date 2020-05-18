@@ -4,6 +4,7 @@ import com.aye10032.Utils.ArrayUtils;
 import com.aye10032.Utils.Config;
 import com.aye10032.Utils.ConfigLoader;
 import com.aye10032.Utils.HttpUtils;
+import com.aye10032.Utils.TimeUtil.TimedTask;
 import com.aye10032.Zibenbot;
 import com.google.gson.*;
 import com.google.gson.annotations.Expose;
@@ -14,6 +15,10 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static com.aye10032.Utils.TimeUtil.TimeConstant.PER_DAY;
 
 /**
  * @author Dazo66
@@ -21,10 +26,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class DraSummonSimulatorFunc extends BaseFunc {
 
     public List<SummonEvent> all_summon_event = new ArrayList<>();
-    ConfigLoader<Config> summon_loader = new ConfigLoader<Config>(appDirectory + "/dragralia/summon.json", Config.class);
-    ConfigLoader<Config> i18n_loader = new ConfigLoader<Config>(appDirectory + "/dragralia/i18n.json", Config.class);
+    ConfigLoader<Config> summon_loader = new ConfigLoader<Config>(appDirectory + "/dragralia" +
+            "/summon.json", Config.class);
+    ConfigLoader<Config> i18n_loader = new ConfigLoader<Config>(appDirectory + "/dragralia/i18n" +
+            ".json", Config.class);
     Config i18n = i18n_loader.load();
-    ConfigLoader<Config> user_loader = new ConfigLoader<Config>(appDirectory + "/dragralia/user.json", Config.class);
+    ConfigLoader<Config> user_loader = new ConfigLoader<Config>(appDirectory + "/dragralia/user" +
+            ".json", Config.class);
     Config user_config = user_loader.load();
     Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().serializeNulls().create();
     JsonParser parser = new JsonParser();
@@ -39,16 +47,216 @@ public class DraSummonSimulatorFunc extends BaseFunc {
     @Override
     public void setUp() {
         update();
+        TimedTask task = new TimedTask();
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY, 14);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 1);
+        Date date = calendar.getTime();
+        task.setTiggerTime(date).setCycle(PER_DAY).setRunnable(this::update);
+        zibenbot.pool.add(task);
     }
 
-    public void save(){
+    @Override
+    public void run(CQMsg CQmsg) {
+        String msg = CQmsg.msg;
+        msg = msg.trim().replaceAll(" +", " ");
+        for (Pattern pattern : experHDPatterns) {
+            if (pattern.matcher(msg).find()) {
+                StringBuilder builder = new StringBuilder();
+                Matcher matcher = experHDP.matcher(msg);
+                while (matcher.find()) {
+                    String s = matcher.group();
+                    boolean b = ExperHD[todayWeekOf()].contains(s);
+                    switch (s) {
+                        case "超风":
+                            builder.append("今天").append(b ? "有" : "无").append("超风\n");
+                            builder.append(b ? "" : "超风在一，四，六，日开放\n");
+                            break;
+                        case "超水":
+                            builder.append("今天").append(b ? "有" : "无").append("超水\n");
+                            builder.append(b ? "" : "超水在一，三，六，日开放\n");
+                            break;
+                        case "超火":
+                            builder.append("今天").append(b ? "有" : "无").append("超火\n");
+                            builder.append(b ? "" : "超火在二，五，六，日开放\n");
+                            break;
+                        case "超光":
+                            builder.append("今天").append(b ? "有" : "无").append("超光\n");
+                            builder.append(b ? "" : "超光在三，五，六，日开放\n");
+                            break;
+                        case "超[CQ:emoji,id=128020]":
+                            b = ExperHD[todayWeekOf()].contains("超光");
+                            builder.append("今天").append(b ? "有" : "无").append("超光\n");
+                            builder.append(b ? "" : "超光在三，五，六，日开放\n");
+                            break;
+                        case "超光[CQ:emoji,id=128020]":
+                            b = ExperHD[todayWeekOf()].contains("超光");
+                            builder.append("今天").append(b ? "有" : "无").append("超光\n");
+                            builder.append(b ? "" : "超光在三，五，六，日开放\n");
+                            break;
+                        case "光[CQ:emoji,id=128020]":
+                            b = ExperHD[todayWeekOf()].contains("超光");
+                            builder.append("今天").append(b ? "有" : "无").append("超光\n");
+                            builder.append(b ? "" : "超光在三，五，六，日开放\n");
+                            break;
+                        case "超暗":
+                            builder.append("今天").append(b ? "有" : "无").append("超暗\n");
+                            builder.append(b ? "" : "超暗在二，四，六，日开放\n");
+                            break;
+                    }
+                }
+                String ret = builder.toString();
+                if (ret.endsWith("\n")) {
+                    ret = ret.substring(0, ret.length() - 1);
+                }
+                replyMsg(CQmsg, ret);
+                return;
+            }
+        }
+
+        if (msg.startsWith(".龙约 ")) {
+            msg = msg.replace("&#91;", "[").replace("&#93;", "]");
+            String[] strings = msg.split(" ");
+            if (strings.length == 2) {
+                if ("超龙".equals(strings[1])) {
+                    replyMsg(CQmsg, getExperHD());
+                } else if ("卡池列表".equals(strings[1]) || "卡池".equals(strings[1])) {
+                    replyMsg(CQmsg, "当前可用卡池：\n" + getPoolList());
+                } else if ("十连".equals(strings[1])) {
+                    UserDate date = getUser(CQmsg.fromClient);
+                    if (date.todayCount > 2 && CQmsg.isGroupMsg()) {
+                        replyMsg(CQmsg, zibenbot.getCQCode().at(CQmsg.fromClient) +
+                                "今天的抽卡次数已经用完，请明天或者私聊抽卡。");
+                    } else {
+                        StringBuilder builder = new StringBuilder();
+                        builder.append(zibenbot.getCQCode().at(CQmsg.fromClient)).append("的第");
+                        builder.append(date.total).append("-").append(date.total + 10).append(
+                                "抽:\n").append(getTenString(date));
+                        float f = 100 * (date.currentEvent.o5 + date.current / 10 * 0.005f);
+                        java.text.DecimalFormat df = new java.text.DecimalFormat("##0.0");
+                        builder.append("\n").append("当前概率：").append(df.format(f)).append("%");
+                        builder.append("\n").append("当前卡池：").append(i18n(date.currentEvent.title));
+                        builder.append("\n").append("抽卡结果仅供参考，实际以游戏内为准。");
+                        replyMsg(CQmsg, builder.toString());
+                        if (CQmsg.isGroupMsg()) {
+                            date.todayCount += 1;
+                        }
+                        user_config.set("userdates", gson.toJson(userDates));
+                        user_loader.save(user_config);
+                        i18n_loader.save(i18n);
+
+                    }
+                } else if ("单抽".equals(strings[1])) {
+                    UserDate date = getUser(CQmsg.fromClient);
+                    if (date.todayCount > 2 && CQmsg.isGroupMsg()) {
+                        replyMsg(CQmsg, zibenbot.getCQCode().at(CQmsg.fromClient) +
+                                "今天的抽卡次数已经用完，请明天或者私聊抽卡。");
+                    } else {
+                        StringBuilder builder = new StringBuilder();
+                        builder.append(zibenbot.getCQCode().at(CQmsg.fromClient)).append("的第");
+                        builder.append(date.total);
+                        SummonEle ele = single(date);
+                        builder.append("抽:\n\t").append(getString(ele));
+                        builder.append(date.summerRes.get(ele.title) == 1 ? "(new)" :
+                                "(" + date.summerRes.get(ele.title) + ")");
+                        float f = 100 * (date.currentEvent.o5 + date.current / 10 * 0.005f);
+                        java.text.DecimalFormat df = new java.text.DecimalFormat("##0.0");
+                        builder.append("\n").append("当前概率：").append(df.format(f)).append("%");
+                        builder.append("\n").append("当前卡池：").append(i18n(date.currentEvent.title));
+                        builder.append("\n").append("抽卡结果仅供参考，实际以游戏内为准。");
+                        replyMsg(CQmsg, builder.toString());
+                        if (CQmsg.isGroupMsg()) {
+                            date.todayCount += 1;
+                        }
+                        user_config.set("userdates", gson.toJson(userDates));
+                        user_loader.save(user_config);
+                        i18n_loader.save(i18n);
+                    }
+                } else if ("重置".equals(strings[1]) || "reset".equals(strings[1])) {
+                    UserDate date = getUser(CQmsg.fromClient);
+                    date.reset();
+                    replyMsg(CQmsg, zibenbot.getCQCode().at(CQmsg.fromClient) + "的抽卡数据已重置");
+                    user_config.set("userdates", gson.toJson(userDates));
+                    user_loader.save(user_config);
+                } else if ("抽卡统计".equals(strings[1]) || "统计".equals(strings[1])) {
+                    UserDate date = getUser(CQmsg.fromClient);
+                    StringBuilder builder = new StringBuilder();
+                    builder.append(zibenbot.getCQCode().at(CQmsg.fromClient));
+                    builder.append("的抽卡结果统计：");
+                    builder.append("\n\t").append("一共抽了").append(date.total).append("抽").append(
+                            "\n");
+                    builder.append("\t").append("5星：").append(sumOfRara("5", date.summerRes)).append("\n");
+                    builder.append("\t").append("4星：").append(sumOfRara("4", date.summerRes)).append("\n");
+                    builder.append("\t").append("3星：").append(sumOfRara("3", date.summerRes)).append("\n");
+                    builder.append("\t").append("其中五星如下：").append("\n");
+                    date.summerRes.forEach((k, v) -> {
+                        SummonEle ele = getEleWithName(k);
+                        if (ele.rarity_num.equals("5")) {
+                            builder.append("\t\t").append(getString(ele));
+                            builder.append("(").append(v).append(")").append("\n");
+                        }
+                    });
+                    replyMsg(CQmsg, builder.toString());
+                    i18n_loader.save(i18n);
+                } else {
+                    replyMsg(CQmsg, getUsages());
+                }
+            } else if (strings.length == 3) {
+                if ("卡池切换".equals(strings[1]) || "切换卡池".equals(strings[1]) || "卡池".equals(strings[1])) {
+                    int i = -1;
+                    UserDate date = getUser(CQmsg.fromClient);
+                    try {
+                        i = Integer.valueOf(strings[2]);
+                        if (i == -1) {
+                            date.currentEventId = i;
+                            date.currentEvent = all_summon_event.get(0);
+                            user_config.set("userdates", gson.toJson(userDates));
+                            date.current = 0;
+                            user_loader.save(user_config);
+                            replyMsg(CQmsg, "用户：" + zibenbot.getCQCode().at(CQmsg.fromClient) +
+                                    "的卡池切换到最新卡池并保持最新");
+                            return;
+                        }
+                        date.currentEventId = i;
+                        date.currentEvent = all_summon_event.get(i - 1);
+                        user_config.set("userdates", gson.toJson(userDates));
+                        date.current = 0;
+                        user_loader.save(user_config);
+                        replyMsg(CQmsg, "用户：" + zibenbot.getCQCode().at(CQmsg.fromClient) +
+                                "的卡池切换到 【" + i18n(date.currentEvent.title) + "】");
+                        i18n_loader.save(i18n);
+                    } catch (Exception e) {
+                        replyMsg(CQmsg, "卡池序号有误");
+                    }
+                } else {
+                    replyMsg(CQmsg, getUsages());
+                }
+            } else if (msg.startsWith(".龙约 i18n ")) {
+                String[] strings1 = _split_1(" ", msg);
+                if (strings1.length == 4) {
+                    String en_name = strings1[2];
+                    String zh_name = strings1[3];
+                    i18n.set(en_name, zh_name);
+                    i18n_loader.save(i18n);
+                    replyMsg(CQmsg, "已将[" + en_name + "]设置为[" + zh_name + "]");
+                } else {
+                    replyMsg(CQmsg, "i18n参数异常:" + Arrays.toString(strings1));
+                }
+            } else {
+                replyMsg(CQmsg, getUsages());
+            }
+        }
+    }
+
+    public void save() {
         Config config = summon_loader.load();
         config.set("all_eles", gson.toJson(all_ele));
         config.set("all_summon_events", gson.toJson(all_summon_event));
         summon_loader.save(config);
     }
 
-    public void update(){
+    public void update() {
         long current = System.currentTimeMillis();
         Zibenbot.logger.info("DraSummonSimulator setup start");
         JsonArray object = null;
@@ -58,7 +266,7 @@ public class DraSummonSimulatorFunc extends BaseFunc {
         JsonArray summArray = null;
         try {
             object = parser.parse(HttpUtils.getStringFromNet("https://gamepress.gg/json-list" +
-                        "?_format=json&game_tid=711&" + System.currentTimeMillis(), client)).getAsJsonArray();
+                    "?_format=json&game_tid=711&" + System.currentTimeMillis(), client)).getAsJsonArray();
             String charUrl = null;
             String draUrl = null;
             String wyrmUrl = null;
@@ -86,12 +294,12 @@ public class DraSummonSimulatorFunc extends BaseFunc {
             }
             Zibenbot.logger.info("根数据读取完成：耗时：" + ((float) (current =
                     ((System.currentTimeMillis() - current) / 1000))) + "秒");
-            charArray = parser.parse(cleanMsg(HttpUtils.getStringFromNet(charUrl,
-                    client))).getAsJsonArray();
+            charArray =
+                    parser.parse(cleanMsg(HttpUtils.getStringFromNet(charUrl, client))).getAsJsonArray();
             draArray =
                     parser.parse(cleanMsg(HttpUtils.getStringFromNet(draUrl, client))).getAsJsonArray();
-            wyrmArray = parser.parse(cleanMsg(HttpUtils.getStringFromNet(wyrmUrl,
-                    client))).getAsJsonArray();
+            wyrmArray =
+                    parser.parse(cleanMsg(HttpUtils.getStringFromNet(wyrmUrl, client))).getAsJsonArray();
             summArray =
                     parser.parse(StringEscapeUtils.unescapeHtml4(HttpUtils.getStringFromNet(summonEventUrl, client))).getAsJsonArray();
 
@@ -112,8 +320,10 @@ public class DraSummonSimulatorFunc extends BaseFunc {
                 this.all_summon_event.add(s);
             });
 
-            JsonObject object1 = parser.parse(user_config.getWithDafault("userdates", "{}")).getAsJsonObject();
-            userDates = gson.fromJson(object1, new TypeToken<HashMap<Integer, UserDate>>(){}.getType());
+            JsonObject object1 =
+                    parser.parse(user_config.getWithDafault("userdates", "{}")).getAsJsonObject();
+            userDates = gson.fromJson(object1, new TypeToken<HashMap<Integer, UserDate>>() {
+            }.getType());
             updateUserDate();
             save();
             Zibenbot.logger.info("数据解析完成：耗时：" + ((float) (current =
@@ -125,7 +335,8 @@ public class DraSummonSimulatorFunc extends BaseFunc {
             all_ele.clear();
             all_summon_event.clear();
             Config config = summon_loader.load();
-            JsonArray array = parser.parse(config.getWithDafault("all_eles", "[]")).getAsJsonArray();
+            JsonArray array =
+                    parser.parse(config.getWithDafault("all_eles", "[]")).getAsJsonArray();
             array.forEach(ele -> {
                 String s = ele.getAsJsonObject().get("type").getAsString();
                 if (s.equals("c")) {
@@ -138,135 +349,32 @@ public class DraSummonSimulatorFunc extends BaseFunc {
             });
 
             array = parser.parse(config.getWithDafault("all_summon_events", "[]")).getAsJsonArray();
-            all_summon_event = gson.fromJson(array, new TypeToken<List<SummonEvent>>(){}.getType());
+            all_summon_event = gson.fromJson(array, new TypeToken<List<SummonEvent>>() {
+            }.getType());
             all_summon_event.forEach(event -> event.setup(all_ele));
             updateUserDate();
 
             Zibenbot.logger.info("本地缓存读取完成。");
         }
+        all_ele.forEach(ele -> {
+            i18n(ele.title);
+        });
+        i18n_loader.save(i18n);
     }
 
-    private void updateUserDate(){
+    private void updateUserDate() {
         userDates.clear();
-        JsonObject object1 = parser.parse(user_loader.load().getWithDafault("userdates", "{}")).getAsJsonObject();
-        userDates = gson.fromJson(object1, new TypeToken<HashMap<Long, UserDate>>(){}.getType());
-        userDates.forEach((k, v) ->{
+        JsonObject object1 =
+                parser.parse(user_loader.load().getWithDafault("userdates", "{}")).getAsJsonObject();
+        userDates = gson.fromJson(object1, new TypeToken<HashMap<Long, UserDate>>() {
+        }.getType());
+        userDates.forEach((k, v) -> {
             v.setup();
             if (v.currentEventId == -1) {
                 v.currentEvent = all_summon_event.get(0);
             }
             v.currentEvent.setup(all_ele);
         });
-    }
-
-    @Override
-    public void run(CQMsg CQmsg) {
-        String msg = CQmsg.msg;
-        msg = msg.trim().replaceAll(" +", " ");
-        if (msg.startsWith(".龙约 ")) {
-            msg = msg.replace("&#91;", "[").replace("&#93;", "]");
-            String[] strings = msg.split(" ");
-            if (strings.length == 2) {
-                if ("卡池列表".equals(strings[1]) || "卡池".equals(strings[1])) {
-                    replyMsg(CQmsg, "当前可用卡池：\n" + getPoolList());
-                } else if ("十连".equals(strings[1])) {
-                    StringBuilder builder = new StringBuilder();
-                    UserDate date = getUser(CQmsg.fromClient);
-                    builder.append(zibenbot.getCQCode().at(CQmsg.fromClient)).append("的第");
-                    builder.append(date.total).append("-").append(date.total + 10).append("抽:\n").append(getTenString(date));
-                    float f = 100 * (date.currentEvent.o5 + date.current / 10 * 0.005f);
-                    java.text.DecimalFormat df = new java.text.DecimalFormat("##0.0");
-                    builder.append("\n").append("当前概率：").append(df.format(f)).append("%");
-                    builder.append("\n").append("当前卡池：").append(i18n(date.currentEvent.title));
-                    builder.append("\n").append("抽卡结果仅供参考，实际以游戏内为准。");
-                    replyMsg(CQmsg, builder.toString());
-                    user_config.set("userdates", gson.toJson(userDates));
-                    user_loader.save(user_config);
-                } else if ("单抽".equals(strings[1])) {
-                    StringBuilder builder = new StringBuilder();
-                    UserDate date = getUser(CQmsg.fromClient);
-                    builder.append(zibenbot.getCQCode().at(CQmsg.fromClient)).append("的第");
-                    builder.append(date.total);
-                    SummonEle ele = single(date);
-                    builder.append("抽:\n\t").append(getString(ele));
-                    builder.append(date.summerRes.get(ele.title) == 1 ? "(new)" : "(" + date.summerRes.get(ele.title) + ")");
-                    float f = 100 * (date.currentEvent.o5 + date.current / 10 * 0.005f);
-                    java.text.DecimalFormat df = new java.text.DecimalFormat("##0.0");
-                    builder.append("\n").append("当前概率：").append(df.format(f)).append("%");
-                    builder.append("\n").append("当前卡池：").append(i18n(date.currentEvent.title));
-                    builder.append("\n").append("抽卡结果仅供参考，实际以游戏内为准。");
-                    replyMsg(CQmsg, builder.toString());
-                    user_config.set("userdates", gson.toJson(userDates));
-                    user_loader.save(user_config);
-                } else if ("重置".equals(strings[1]) || "reset".equals(strings[1])) {
-                    UserDate date = getUser(CQmsg.fromClient);
-                    date.reset();
-                    replyMsg(CQmsg, zibenbot.getCQCode().at(CQmsg.fromClient) + "的抽卡数据已重置");
-                    user_config.set("userdates", gson.toJson(userDates));
-                    user_loader.save(user_config);
-                } else if ("抽卡统计".equals(strings[1]) || "统计".equals(strings[1])) {
-                    UserDate date = getUser(CQmsg.fromClient);
-                    StringBuilder builder = new StringBuilder();
-                    builder.append(zibenbot.getCQCode().at(CQmsg.fromClient));
-                    builder.append("的抽卡结果统计：");
-                    builder.append("\n\t").append("一共抽了").append(date.total).append("抽").append("\n");
-                    builder.append("\t").append("5星：").append(sumOfRara("5", date.summerRes)).append("\n");
-                    builder.append("\t").append("4星：").append(sumOfRara("4", date.summerRes)).append("\n");
-                    builder.append("\t").append("3星：").append(sumOfRara("3", date.summerRes)).append("\n");
-                    builder.append("\t").append("其中五星如下：").append("\n");
-                    date.summerRes.forEach((k, v) -> {
-                        SummonEle ele = getEleWithName(k);
-                        if (ele.rarity_num.equals("5")) {
-                            builder.append("\t\t").append(getString(ele));
-                            builder.append("(").append(v).append(")").append("\n");
-                        }
-                    });
-                    replyMsg(CQmsg, builder.toString());
-                } else {
-                    replyMsg(CQmsg, getUsages());
-                }
-            } else if(strings.length == 3) {
-                if ("卡池切换".equals(strings[1]) || "切换卡池".equals(strings[1])) {
-                    int i = -1;
-                    UserDate date = getUser(CQmsg.fromClient);
-                    try {
-                        i = Integer.valueOf(strings[2]);
-                        if (i == -1) {
-                            date.currentEventId = i;
-                            date.currentEvent = all_summon_event.get(0);
-                            user_config.set("userdates", gson.toJson(userDates));
-                            date.current = 0;
-                            user_loader.save(user_config);
-                            replyMsg(CQmsg, "用户：" + zibenbot.getCQCode().at(CQmsg.fromClient) + "的卡池切换到最新卡池并保持最新");
-                            return;
-                        }
-                        date.currentEventId = i;
-                        date.currentEvent = all_summon_event.get(i - 1);
-                        user_config.set("userdates", gson.toJson(userDates));
-                        date.current = 0;
-                        user_loader.save(user_config);
-                        replyMsg(CQmsg, "用户：" + zibenbot.getCQCode().at(CQmsg.fromClient) + "的卡池切换到 【" + date.currentEvent.title + "】");
-                    } catch (Exception e) {
-                        replyMsg(CQmsg, "卡池序号有误");
-                    }
-                } else {
-                    replyMsg(CQmsg, getUsages());
-                }
-            } else if (msg.startsWith(".龙约 i18n ")) {
-                String[] strings1 = _split_1(" ", msg);
-                if (strings1.length == 4) {
-                    String en_name = strings1[2];
-                    String zh_name = strings1[3];
-                    i18n.set(en_name, zh_name);
-                    i18n_loader.save(i18n);
-                    replyMsg(CQmsg, "已将[" + en_name + "]设置为[" + zh_name + "]");
-                } else {
-                    replyMsg(CQmsg, "i18n参数异常:" + Arrays.toString(strings1));
-                }
-            } else {
-                replyMsg(CQmsg, getUsages());
-            }
-        }
     }
 
     public String[] _split_1(String cha, String s) {
@@ -310,7 +418,7 @@ public class DraSummonSimulatorFunc extends BaseFunc {
         return list1.toArray(new String[0]);
     }
 
-    private String getUsages(){
+    private String getUsages() {
         StringBuilder builder = new StringBuilder();
         builder.append("使用说明：").append("\n");
         builder.append("\t").append("进行十连抽卡 -> .龙约 十连").append("\n");
@@ -323,7 +431,7 @@ public class DraSummonSimulatorFunc extends BaseFunc {
         return builder.toString();
     }
 
-    private SummonEle getEleWithName(String s){
+    private SummonEle getEleWithName(String s) {
         for (SummonEle ele : all_ele) {
             if (ele.title.equals(s)) {
                 return ele;
@@ -342,7 +450,7 @@ public class DraSummonSimulatorFunc extends BaseFunc {
         return sum.get();
     }
 
-    private String getTenString(UserDate date){
+    private String getTenString(UserDate date) {
         List<SummonEle> eles = ten(date);
         List<SummonEle> temp = new ArrayList<>();
         StringBuilder builder = new StringBuilder();
@@ -364,11 +472,11 @@ public class DraSummonSimulatorFunc extends BaseFunc {
         return builder.toString();
     }
 
-    private <T>int getCount(List<T> list, T t) {
+    private <T> int getCount(List<T> list, T t) {
         return (int) list.stream().filter(e -> e == t).count();
     }
 
-    private String getString(SummonEle ele){
+    private String getString(SummonEle ele) {
         StringBuilder builder = new StringBuilder();
         if (ele.rarity_num.equals("5")) {
             builder.append("★★★★★");
@@ -390,7 +498,7 @@ public class DraSummonSimulatorFunc extends BaseFunc {
         return builder.toString();
     }
 
-    private String getPoolList(){
+    private String getPoolList() {
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < all_summon_event.size(); i++) {
             builder.append("\t").append("[").append(i + 1).append("]");
@@ -402,8 +510,9 @@ public class DraSummonSimulatorFunc extends BaseFunc {
         return builder.toString();
     }
 
-    private String i18n(String s){
-        return i18n.getWithDafault(s, s);
+    private String i18n(String s) {
+        String ret = i18n.getWithDafault(s, s);
+        return ret;
     }
 
     public UserDate getTempUser() {
@@ -427,11 +536,17 @@ public class DraSummonSimulatorFunc extends BaseFunc {
         for (int i = 0; i < 10; i++) {
             SummonEle ele = null;
             if (date.current + i + 1 == 101) {
-                do ele = _single_100(date); while (ele == null);
+                do
+                    ele = _single_100(date);
+                while (ele == null);
             } else if (i == 9) {
-                do ele = _single_10(date); while (ele == null);
+                do
+                    ele = _single_10(date);
+                while (ele == null);
             } else {
-                do ele = _single(date); while (ele == null);
+                do
+                    ele = _single(date);
+                while (ele == null);
             }
             list.add(ele);
         }
@@ -451,9 +566,13 @@ public class DraSummonSimulatorFunc extends BaseFunc {
     public SummonEle single(UserDate date) {
         SummonEle ele = null;
         if (date.current == 101) {
-            do ele = _single_100(date); while (ele == null);
+            do
+                ele = _single_100(date);
+            while (ele == null);
         } else {
-            do ele = _single(date); while (ele == null);
+            do
+                ele = _single(date);
+            while (ele == null);
         }
         date.addSummon(ele);
         if ("5".equals(ele.rarity_num)) {
@@ -534,13 +653,16 @@ public class DraSummonSimulatorFunc extends BaseFunc {
 
         //4星
         if (e._featured_4_char_rate != 0.0f && r >= temp && r < (temp += e._featured_4_char_rate)) {
-            return (getEle(e.fChar_4, (r - temp + e._featured_4_char_rate) / e._featured_4_char_rate));
+            return (getEle(e.fChar_4,
+                    (r - temp + e._featured_4_char_rate) / e._featured_4_char_rate));
         }
         if (e._featured_4_drag_rate != 0.0f && r >= temp && r < (temp += e._featured_4_drag_rate)) {
-            return (getEle(e.fDra_4, (r - temp + e._featured_4_drag_rate) / e._featured_4_drag_rate));
+            return (getEle(e.fDra_4,
+                    (r - temp + e._featured_4_drag_rate) / e._featured_4_drag_rate));
         }
         if (e._featured_4_wyrm_rate != 0.0f && r >= temp && r < (temp += e._featured_4_wyrm_rate)) {
-            return (getEle(e.fWyrm_4, (r - temp + e._featured_4_wyrm_rate) / e._featured_4_wyrm_rate));
+            return (getEle(e.fWyrm_4,
+                    (r - temp + e._featured_4_wyrm_rate) / e._featured_4_wyrm_rate));
         }
 
         if (e._4_char_rate != 0.0f && r >= temp && r < (temp += e._4_char_rate)) {
@@ -667,6 +789,34 @@ public class DraSummonSimulatorFunc extends BaseFunc {
     public String cleanMsg(String s) {
         return StringEscapeUtils.unescapeHtml4(s.replaceAll("<[^<>]*?>", ""));
     }
+    static String[] ExperHD = new String[]{"超风, 超水, 超火, 超光, 超暗", "超风, 超水", "超火, 超暗", "超水, 超光",
+            "超风, 超暗", "超火, 超光", "超风, 超水, 超火, 超光, 超暗"};
+    private static List<Pattern> experHDPatterns = new ArrayList<>();
+    private static Pattern experHDP = Pattern.compile("超(风|水|火|光|暗|\\[CQ:emoji," + "id=128020" +
+            "]|光\\[CQ:emoji,id=128020])");
+
+    static {
+        experHDPatterns.add(Pattern.compile("今天有(开)*(超风|超水|超火|超光|超暗|超\\[CQ:emoji," +
+                "id=128020]|超光\\[CQ:emoji,id=128020]|光\\[CQ" + ":emoji,id=128020])+吗"));
+    }
+
+    public static String getExperHD() {
+
+        StringBuilder builder = new StringBuilder();
+        builder.append("周一：").append(todayWeekOf() == 1 ? "(今天) " : "").append(ExperHD[1]).append("\n");
+        builder.append("周二：").append(todayWeekOf() == 2 ? "(今天) " : "").append(ExperHD[2]).append("\n");
+        builder.append("周三：").append(todayWeekOf() == 3 ? "(今天) " : "").append(ExperHD[3]).append("\n");
+        builder.append("周四：").append(todayWeekOf() == 4 ? "(今天) " : "").append(ExperHD[4]).append("\n");
+        builder.append("周五：").append(todayWeekOf() == 5 ? "(今天) " : "").append(ExperHD[5]).append("\n");
+        builder.append("周六：").append(todayWeekOf() == 6 ? "(今天) " : "").append(ExperHD[6]).append("\n");
+        builder.append("周日：").append(todayWeekOf() == 0 ? "(今天) " : "").append(ExperHD[0]).append("\n");
+        return builder.toString();
+
+    }
+
+    public static int todayWeekOf() {
+        return (int) ((System.currentTimeMillis() / 1000 - 21600) / 86400 - 3) % 7;
+    }
 
     public static class UserDate {
 
@@ -682,6 +832,9 @@ public class DraSummonSimulatorFunc extends BaseFunc {
         public SummonEvent currentEvent;
 
         @Expose(serialize = false, deserialize = false)
+        public int todayCount = 0;
+
+        @Expose(serialize = false, deserialize = false)
         public Random random;
         @Expose()
         public Map<String, Integer> summerRes = new HashMap<>();
@@ -692,7 +845,8 @@ public class DraSummonSimulatorFunc extends BaseFunc {
             setup();
         }
 
-        void setup(){
+        void setup() {
+            todayCount = 0;
             random = new Random(id + System.currentTimeMillis());
         }
 
@@ -1074,12 +1228,9 @@ public class DraSummonSimulatorFunc extends BaseFunc {
             _featured_5_wyrm_rate_10 = field_featured_5_wyrm_rate_10.isEmpty() ? 0.00f :
                     Float.valueOf(field_featured_5_wyrm_rate_10) / 10000;
 
-            o3 = _featured_3_char_rate + _featured_3_drag_rate + _featured_3_wyrm_rate
-                    + _3_char_rate + _3_drag_rate + _3_wyrm_rate;
-            o4 = _featured_4_char_rate + _featured_4_drag_rate + _featured_4_wyrm_rate
-                    + _4_char_rate + _4_drag_rate + _4_wyrm_rate;
-            o5 = _featured_5_char_rate + _featured_5_drag_rate + _featured_5_wyrm_rate
-                + _5_char_rate + _5_drag_rate + _5_wyrm_rate;
+            o3 = _featured_3_char_rate + _featured_3_drag_rate + _featured_3_wyrm_rate + _3_char_rate + _3_drag_rate + _3_wyrm_rate;
+            o4 = _featured_4_char_rate + _featured_4_drag_rate + _featured_4_wyrm_rate + _4_char_rate + _4_drag_rate + _4_wyrm_rate;
+            o5 = _featured_5_char_rate + _featured_5_drag_rate + _featured_5_wyrm_rate + _5_char_rate + _5_drag_rate + _5_wyrm_rate;
 
             String[] strings = null;
             if (all_characters.isEmpty()) {
@@ -1222,16 +1373,16 @@ public class DraSummonSimulatorFunc extends BaseFunc {
 
     public static class Character extends SummonEle {
 
-        {
-            type = "c";
-        }
-
         //= "Support"
         @Expose()
         public String char_type;
         //= "Dagger"
         @Expose()
         public String weapon_type;
+
+        {
+            type = "c";
+        }
 
         @Override
         public int hashCode() {
@@ -1259,7 +1410,7 @@ public class DraSummonSimulatorFunc extends BaseFunc {
         @Expose()
         public String rarity_num;
 
-        private void setup(){
+        private void setup() {
             if (title != null && title.startsWith("\n")) {
                 title = title.replace("\n", "");
             }

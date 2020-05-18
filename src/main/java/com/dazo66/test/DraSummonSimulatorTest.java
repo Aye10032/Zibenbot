@@ -15,7 +15,8 @@ public class DraSummonSimulatorTest {
     public static void main(String[] args) {
         DraSummonSimulatorFunc func = new DraSummonSimulatorFunc(new Zibenbot());
 
-        System.out.println(Arrays.toString(func._split_1(" ", ".龙约 i18n [T em pl ar Hope]]]] [ 霍 普（骑士 ver ）]")));
+        System.out.println(Arrays.toString(func._split_1(" ", ".龙约 i18n [T em pl ar Hope]]]] [ 霍 " +
+                "普（骑士 ver ）]")));
         System.out.println(Arrays.toString(func._split_1(" ", ".龙约 i18n Hope 霍普")));
         System.out.println(Arrays.toString(func._split_1(" ", ".龙约 i18n [Xiao Lei] [小蕾]")));
         System.out.println(Arrays.toString(func._split_1(" ", ".龙约 i18n [Hope] [霍普]")));
@@ -50,7 +51,8 @@ public class DraSummonSimulatorTest {
         java.text.DecimalFormat df = new java.text.DecimalFormat("##0.0000");
         o.summerRes.forEach((k , v) -> {
             builder.append(df.format( (double) 100*v/o.total));
-            builder.append("%").append(", ").append(k.rarity_num).append(", ").append(k.title).append("\n");
+            builder.append("%").append(", ").append(k.rarity_num).append(", ").append(k.title)
+            .append("\n");
         });
 
         System.out.println(builder.toString());*/
