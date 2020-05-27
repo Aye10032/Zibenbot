@@ -73,9 +73,8 @@ public class FangZhouDiaoluoFunc extends BaseFunc {
             if (cqmsg.fromClient == last.getKey()) {
                 if (("是".equals(msg) || "yes".equals(msg) || "Yes".equals(msg) || "Y".equals(msg) || "y".equals(msg) || "确实".equals(msg) || "对".equals(msg))) {
                     retMsg(last.getValue(), cqmsg);
-                } else {
-                    last = null;
                 }
+                last = null;
             }
         }
         if (msg.startsWith(".方舟素材") || msg.startsWith(".方舟掉落") || msg.startsWith(".fz")) {
@@ -145,14 +144,16 @@ public class FangZhouDiaoluoFunc extends BaseFunc {
     private void retMsg(DiaoluoType.HeChenType type, CQMsg msg){
         String ret;
         if (type.calls.length == 0) {
-            ret = module.getString(this.type.getMaterialFromID(type.id));
+            ret = module.getString(this.type.getMaterialFromID(type.id)).replaceAll("\n *\n", "\n");
         } else {
             StringBuilder s = new StringBuilder();
             List<String> strings1 = getCalls(name_idList, type);
             for (int i1 = 0; i1 < strings1.size(); i1++) {
-                s.append(module.getString(this.type.getMaterialFromID(strings1.get(i1))));
+                String s1 = module.getString(this.type.getMaterialFromID(strings1.get(i1)));
+                s1 = s1.replaceAll("\n *\n", "\n");
+                s.append(s1);
                 if (i1 != strings1.size() - 1) {
-                    s.append("\n\n");
+                    s.append("\n");
                 }
             }
             ret = s.toString();

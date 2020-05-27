@@ -2,11 +2,7 @@ package com.aye10032.TimeTask;
 
 import com.aye10032.Functions.CQMsg;
 import com.aye10032.Functions.MsgType;
-import com.aye10032.Functions.ScreenshotFunc;
-import com.aye10032.Utils.ArticleUpateDate;
-import com.aye10032.Utils.Config;
-import com.aye10032.Utils.ConfigLoader;
-import com.aye10032.Utils.HttpUtils;
+import com.aye10032.Utils.*;
 import com.aye10032.Utils.TimeUtil.TimeConstant;
 import com.aye10032.Utils.TimeUtil.TimedTask;
 import com.aye10032.Zibenbot;
@@ -14,13 +10,17 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
+import okhttp3.RequestBody;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.openqa.selenium.*;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.Proxy;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -38,20 +38,26 @@ public class DragraliaTask extends TimedTask {
     Zibenbot zibenbot;
     Gson gson = new Gson();
     //<span class="local_date" data-local_date="1587708000">
-    private static Pattern date_tag_pattern = Pattern.compile("<span class=\"local_date\" data-local_date=\"\\d{10}\">");
+    private static Pattern date_tag_pattern = Pattern.compile("<span class=\"local_date\" " +
+            "data-local_date=\"\\d{10}\">");
     private static Pattern date_src_pattern = Pattern.compile("\\d{10}");
     private static Pattern img_name_pattern = Pattern.compile("\\w+.(png|jpg)");
     private static Pattern img_tag_pattern = Pattern.compile("<img[^<>]*\">");
     private static Pattern img_url_pattern = Pattern.compile("http[^<>]*.(png|jpg)");
+    private static Pattern dragralia_life_pattern = Pattern.compile("“轻松龙约”第\\d+话更新");
+    private static String dragralia_life = "<div>{title_name}</div><div><br></div><div><img " +
+            "src=\"{img_path}\"></div>" + "<div><br></div><div><br></div><div><br></div>" + "<div" +
+            ">今后也请继续支持《Dragalia Lost ～失落的龙约～》。</div>";
 
     private JsonParser jsonParser = new JsonParser();
     private ArticleUpateDate date = null;
     public Config config;
-    public CQMsg cqMsg = new CQMsg(-1, -1, 814843368L, 2155231604L, null, "DragraliaTask Return Msg", -1, MsgType.GROUP_MSG);
+    public CQMsg cqMsg = new CQMsg(-1, -1, 814843368L, 2155231604L, null, "DragraliaTask Return " +
+            "Msg", -1, MsgType.GROUP_MSG);
     public ConfigLoader<Config> loader;
     private int exceptionCount = 0;
 
-    OkHttpClient client = new OkHttpClient.Builder().callTimeout(30, TimeUnit.SECONDS).build();
+    OkHttpClient client = new OkHttpClient.Builder().callTimeout(30, TimeUnit.SECONDS).proxy(Zibenbot.proxy).build();
     public Runnable runnable = () -> {
         try {
             try {
@@ -71,6 +77,10 @@ public class DragraliaTask extends TimedTask {
     };
 
     public DragraliaTask(Zibenbot zibenbot) {
+        Proxy proxy;
+        if ((proxy = Zibenbot.getProxy()) != null) {
+            client = new OkHttpClient.Builder().callTimeout(30, TimeUnit.SECONDS).proxy(proxy).build();
+        }
         this.zibenbot = zibenbot;
         loader = new ConfigLoader<>(zibenbot.appDirectory + "/dragralia_4.json", Config.class);
         config = loader.load();
@@ -80,14 +90,17 @@ public class DragraliaTask extends TimedTask {
         calendar.set(Calendar.SECOND, 1);
         Date date = calendar.getTime();
         setRunnable(runnable).setTimes(-1).setCycle(TimeConstant.PER_HALF_HOUR).setTiggerTime(date);
-        cleanImg();
     }
 
 /*    public Article getArticle(ArticleInfo articleInfo) {
         try {
-            InputStream stream = HttpUtils.getInputStreamFromNet("https://dragalialost.com/api/index.php?format=json&type=information&category_id=&priority_lower_than=&action=information_detail&article_id=" + articleInfo.article_id + "&lang=zh_cn&td=%2B08%3A00", client);
+            InputStream stream = HttpUtils.getInputStreamFromNet("https://dragalialost
+            .com/api/index.php?format=json&type=information&category_id=&priority_lower_than
+            =&action=information_detail&article_id=" + articleInfo.article_id +
+            "&lang=zh_cn&td=%2B08%3A00", client);
             JsonObject object = jsonParser.parse(IOUtils.toString(stream)).getAsJsonObject();
-            JsonObject data = object.get("data").getAsJsonObject().get("information").getAsJsonObject();
+            JsonObject data = object.get("data").getAsJsonObject().get("information")
+            .getAsJsonObject();
             return gson.fromJson(data, Article.class);
         } catch (Exception e) {
             e.printStackTrace();
@@ -97,8 +110,10 @@ public class DragraliaTask extends TimedTask {
 
     private Set<Article> getNewArticles() {
         Set<Article> set = new HashSet<>();
-        ArticleUpateDate last = gson.fromJson(config.getWithDafault("last_update_date", "{}"), ArticleUpateDate.class);
-        long last_data = Long.parseLong(config.getWithDafault("last_data", Long.toString(System.currentTimeMillis()/1000 - 86400)));
+        ArticleUpateDate last = gson.fromJson(config.getWithDafault("last_update_date", "{}"),
+                ArticleUpateDate.class);
+        long last_data = Long.parseLong(config.getWithDafault("last_data",
+                Long.toString(System.currentTimeMillis() / 1000 - 86400)));
         long current = System.currentTimeMillis() / 1000;
         //判断是不是过了一天的14点
         if ((current - 21600) / 86400 > (last_data - 21600) / 86400) {
@@ -154,11 +169,14 @@ public class DragraliaTask extends TimedTask {
         List<String> img_list = new ArrayList<>();
         List<String> img_tag_list = new ArrayList<>();
         List<Runnable> runs = new ArrayList<>();
+        if (dragralia_life_pattern.matcher(a.title_name).find()) {
+            setDragraliaLifeArticle(a);
+        }
+
         String msg = StringEscapeUtils.unescapeHtml4(a.message);
         Matcher matcher = img_tag_pattern.matcher(msg);
         List<String> matchStrs = new ArrayList<>();
         AtomicReference<File> screenshotFile = new AtomicReference<>();
-
         int len = Chinese_length(msg);
         while (matcher.find()) { //此处find（）每次被调用后，会偏移到下一个匹配
             matchStrs.add(matcher.group());//获取当前匹配的值
@@ -172,24 +190,11 @@ public class DragraliaTask extends TimedTask {
         }
         if (len < 300) {
             img_list.forEach(img -> runs.add(() -> {
-                if (!new File(getFileName(img)).exists()) {
-                    downloadImg(img);
-                }
+                downloadImg(img);
             }));
         } else {
             runs.add(() -> {
-                String dir;
-                if ("test".equals(zibenbot.appDirectory)) {
-                    dir = "res";
-                } else {
-                    dir = zibenbot.appDirectory;
-                }
-                File file = new File(dir + "/dragraliatemp/" + a.article_id + ".jpg");
-                if (!file.exists() || a.isUpdate) {
-                    screenshotFile.set(getScreenshot(a));
-                } else {
-                    screenshotFile.set(file);
-                }
+                screenshotFile.set(getScreenshot(a));
             });
         }
         if (!"".equals(a.image_path)) {
@@ -218,7 +223,7 @@ public class DragraliaTask extends TimedTask {
                         e.printStackTrace();
                     }
                 } else {
-                    builder.append("\n\n").append(ret);
+                    builder.append(ret);
                 }
             } else {
                 builder.append(a.message);
@@ -230,20 +235,60 @@ public class DragraliaTask extends TimedTask {
         }, runs.toArray(new Runnable[]{}));
     }
 
-    private File getScreenshot(Article a){
+    private void setDragraliaLifeArticle(Article a) {
+        try {
+            System.out.println(a.title_name);
+            Matcher matcher = Pattern.compile("\\d+").matcher(a.title_name);
+            matcher.find();
+            Integer ep_num = Integer.valueOf(matcher.group());
+            RequestBody formBody = new FormBody.Builder()
+                    .add("lang", "chs")
+                    .add("type", "dragalialife")
+                    .build();
+            String s = IOUtils.toString(HttpUtils.postInputStreamFromNet("https://comic" +
+                    ".dragalialost.com/api/index", client, formBody));
+            System.out.println(s);
+            JsonObject latest_comic =
+                    jsonParser.parse(s).getAsJsonObject().get("latest_comic").getAsJsonObject();
+            if (latest_comic.get("episode_num").getAsInt() == ep_num) {
+                String s1 = dragralia_life.replace("{title_name}",
+                        latest_comic.get("title").getAsString());
+                s1 = s1.replace("{img_path}", latest_comic.get("main").getAsString());
+                a.message = s1;
+                a.image_path = latest_comic.get("thumbnail_l").getAsString();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
+    }
+
+    private File getScreenshot(Article a) {
         String dir;
         if ("test".equals(zibenbot.appDirectory)) {
-             dir = "res";
+            dir = "res";
         } else {
             dir = zibenbot.appDirectory;
         }
         String url = "https://dragalialost.com/chs/news/detail/" + a.article_id;
-        String exe = dir + "/phantomjs/bin/phantomjs.exe";
-        String js = dir + "/phantomjs/screenshot.js";
-        String outputfile = dir + "/dragraliatemp/" + a.article_id + ".jpg";
+        String outputfile = dir + "/dragraliatemp/" + a.article_id + ".png";
         try {
-            return ScreenshotFunc.getScreenshot(exe, js, url, outputfile, 1000);
-        } catch (IOException e) {
+            WebDriver driver = SeleniumUtils.getDriver();
+            driver.get(url);
+            Thread.sleep(3000);
+            JavascriptExecutor driver_js= SeleniumUtils.getDriverJs(driver);
+            driver_js.executeScript("for(item of document.getElementsByTagName('details')) {\n" + "    item.open = true;\n" + "}");
+            Double width = Double.valueOf(driver_js.executeScript(
+                    "return document.getElementsByTagName('html')[0].getBoundingClientRect().width;").toString());
+            Double height = Double.valueOf(driver_js.executeScript("return document.getElementsByTagName('html')[0].getBoundingClientRect().height;").toString());
+            driver.manage().window().setSize(new Dimension(1366, height.intValue()));
+            byte[] bytes = driver.findElement(By.tagName("html")).getScreenshotAs(OutputType.BYTES);
+            bytes = ImgUtils.compress(bytes, "png");
+            IOUtil.saveFileWithBytes(outputfile, bytes);
+            SeleniumUtils.closeDriver(driver);
+            return new File(outputfile);
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
         return null;
@@ -318,7 +363,9 @@ public class DragraliaTask extends TimedTask {
     }
 
     public Article getArticleFromNet(int id, boolean isUpdate) throws IOException {
-        InputStream stream = HttpUtils.getInputStreamFromNet("https://dragalialost.com/api/index.php?format=json&type=information&category_id=&priority_lower_than=&action=information_detail&article_id=" + id + "&lang=zh_cn&td=%2B08%3A00", client);
+        InputStream stream = HttpUtils.getInputStreamFromNet("https://dragalialost.com/api/index" +
+                ".php?format=json&type=information&category_id=&priority_lower_than=&action" +
+                "=information_detail&article_id=" + id + "&lang=zh_cn&td=%2B08%3A00", client);
         JsonParser jsonParser = new JsonParser();
         JsonObject object = jsonParser.parse(IOUtils.toString(stream)).getAsJsonObject();
         JsonElement e = object.get("data").getAsJsonObject().get("information");
@@ -331,27 +378,25 @@ public class DragraliaTask extends TimedTask {
 
     public ArticleUpateDate getUpdateDate() throws IOException {
         ArticleUpateDate date = new ArticleUpateDate();
-        InputStream stream = HttpUtils.getInputStreamFromNet("https://dragalialost.com/api/index.php?format=json&type=information&category_id=0&priority_lower_than=&action=information_list&article_id=&lang=zh_cn&td=%2B08%3A00", client);
+        InputStream stream = HttpUtils.getInputStreamFromNet("https://dragalialost.com/api/index" +
+                ".php?format=json&type=information&category_id=0&priority_lower_than=&action" +
+                "=information_list&article_id=&lang=zh_cn&td=%2B08%3A00", client);
         JsonParser jsonParser = new JsonParser();
         JsonObject object = jsonParser.parse(IOUtils.toString(stream)).getAsJsonObject();
-        object.get("data").getAsJsonObject().get("new_article_list").getAsJsonArray().forEach(
-                jsonElement -> date.new_article_list.add(jsonElement.getAsInt())
-        );
-        object.get("data").getAsJsonObject().get("update_article_list").getAsJsonArray().forEach(
-                e -> {
-                    int id = e.getAsJsonObject().get("id").getAsInt();
-                    long update_time = e.getAsJsonObject().get("update_time").getAsLong();
-                    date.update_article_list.add(new ArticleUpateDate.UpdateDate(id, update_time));
-                }
-        );
+        object.get("data").getAsJsonObject().get("new_article_list").getAsJsonArray().forEach(jsonElement -> date.new_article_list.add(jsonElement.getAsInt()));
+        object.get("data").getAsJsonObject().get("update_article_list").getAsJsonArray().forEach(e -> {
+            int id = e.getAsJsonObject().get("id").getAsInt();
+            long update_time = e.getAsJsonObject().get("update_time").getAsLong();
+            date.update_article_list.add(new ArticleUpateDate.UpdateDate(id, update_time));
+        });
         return date;
     }
 
-    private void cleanImg(){
+    private void cleanImg() {
         File dir = new File(zibenbot.appDirectory + "\\dragraliatemp");
         long current = System.currentTimeMillis();
         int i = 0;
-        for (File f: dir.listFiles()) {
+        for (File f : dir.listFiles()) {
             if (f.isFile() && current - f.lastModified() > 86400 * 3 * 1000) {
                 f.delete();
                 i++;
@@ -360,7 +405,7 @@ public class DragraliaTask extends TimedTask {
         Zibenbot.logger.info("清理了三天前的缓存 " + i + " 张。");
     }
 
-    public static class Article {
+    public static class Article implements Comparable{
         //文章id
         public int article_id;
         //类型名字
@@ -379,14 +424,19 @@ public class DragraliaTask extends TimedTask {
         @Override
         public boolean equals(Object obj) {
             if (obj instanceof Article) {
-                return ((Article) obj).article_id + ((Article) obj).update_time== article_id + update_time;
+                return obj.hashCode() == this.hashCode();
             }
             return false;
         }
 
         @Override
         public int hashCode() {
-            return article_id * 11451 + (int) update_time;
+            return article_id * 114514;
+        }
+
+        @Override
+        public int compareTo(Object o) {
+            return o.hashCode() - hashCode();
         }
     }
 

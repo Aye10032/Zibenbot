@@ -2,6 +2,8 @@ package com.aye10032.Utils.TimeUtil;
 
 import com.aye10032.Zibenbot;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.logging.Level;
 
 /**
@@ -11,6 +13,7 @@ public class TimeFlow implements Runnable {
 
     TimeTaskPool pool;
     Thread thread = new Thread(this);
+    ExecutorService service = Executors.newCachedThreadPool();
 
     public TimeFlow(TimeTaskPool pool) {
         this.pool = pool;
@@ -52,9 +55,14 @@ public class TimeFlow implements Runnable {
                     if (!(task instanceof AsynchronousTaskPool)) {
                         Zibenbot.logger.log(Level.INFO, String.format("触发任务", task.runnable.getClass().getSimpleName()));
                     }
-                    //依次运行任务
-                    task.run();
-                    //当执行次数为0时从等待任务中删除
+
+                    if (task.runnable != null && (task.times > 0 || task.times == -1)) {
+                        if (task.times > 0) {
+                            task.times--;
+                        }
+                        service.execute(task);
+                        task.tiggerTime = task.getNextTiggerTime();
+                    }
                     if (task.times == 0) {
                         pool.remove(task);
                     }

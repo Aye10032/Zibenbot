@@ -23,7 +23,7 @@ public class dragralia {
         }*/
 
 
-        System.out.println("<><1><><2>1<><><>123<><".replaceAll("<[^<>]*>+?", ""));
+        //System.out.println("<><1><><2>1<><><>123<><".replaceAll("<[^<>]*>+?", ""));
         System.out.println(System.currentTimeMillis());
         Zibenbot zibenbot = new Zibenbot();
         DragraliaTask task = new DragraliaTask(zibenbot);

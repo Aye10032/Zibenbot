@@ -10,7 +10,7 @@ import org.meowy.cqp.jcq.message.CQCode;
 public abstract class BaseFunc implements IFunc {
 
     protected boolean isEnable = true;
-    protected Zibenbot zibenbot;
+    public Zibenbot zibenbot;
     protected String appDirectory;
     protected CoolQ CQ;
     protected CQCode CC;

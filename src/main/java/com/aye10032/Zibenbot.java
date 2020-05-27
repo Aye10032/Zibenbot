@@ -3,12 +3,18 @@ package com.aye10032;
 import com.aye10032.Functions.*;
 import com.aye10032.TimeTask.DragraliaTask;
 import com.aye10032.Utils.IDNameUtil;
+import com.aye10032.Utils.SeleniumUtils;
 import com.aye10032.Utils.TimeUtil.TimeTaskPool;
 import com.aye10032.Utils.TimeUtil.TimedTask;
 import org.meowy.cqp.jcq.entity.*;
 import org.meowy.cqp.jcq.event.JcqAppAbstract;
 
 import javax.swing.*;
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
+import java.net.Socket;
+import java.net.SocketAddress;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -41,8 +47,24 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
     public TimeTaskPool pool = new TimeTaskPool();
     public TeamspeakBot teamspeakBot;
     public BotConfigFunc config;
+    public static Proxy proxy = null;
 
-
+    public static Proxy getProxy() {
+        Socket s = new Socket();
+        SocketAddress add = new InetSocketAddress("127.0.0.1", 1080);
+        try {
+            s.connect(add, 1000);
+            proxy = new Proxy(Proxy.Type.SOCKS, InetSocketAddress.createUnresolved("127.0.0.1", 1080));
+        } catch (IOException e) {
+            //连接超时需要处理的业务逻辑
+        }
+        try {
+            s.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
     public List<Long> enableGroup = new ArrayList<>();
     {
@@ -64,9 +86,13 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
         enableGroup.add(814843368L);
     }
 
+    {
+        appDirectory = "res";
+        SeleniumUtils.setup(appDirectory + "\\ChromeDriver\\chromedriver.exe");
+    }
 
     public Zibenbot() {
-        appDirectory = "test";
+
     }
 
 
@@ -147,6 +173,8 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
         // 应用的所有数据、配置【必须】存放于此目录，避免给用户带来困扰。
 
         //建立时间任务池 这里就两个任务 如果任务多的话 可以新建类进行注册
+
+        SeleniumUtils.setup(appDirectory + "\\ChromeDriver\\chromedriver.exe");
 
         List<Long> groupList = new ArrayList<Long>();
         groupList.add(995497677L);
@@ -547,6 +575,16 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
     public int menuB() {
         JOptionPane.showMessageDialog(null, "这是测试菜单B，可以在这里加载窗口");
         return 0;
+    }
+
+    public int test(CQMsg cqMsg){
+        if (cqMsg.isGroupMsg()) {
+            return groupMsg(cqMsg.subType, cqMsg.msgId, cqMsg.fromGroup, cqMsg.fromClient, "",  cqMsg.msg, cqMsg.font);
+        } else if (cqMsg.isPrivateMsg()){
+            return privateMsg(cqMsg.subType, cqMsg.msgId, cqMsg.fromClient, cqMsg.msg, cqMsg.font);
+        } else {
+            return teamspeakMsg(cqMsg.fromGroup, cqMsg.fromClient, cqMsg.msg);
+        }
     }
 
     /**
