@@ -12,6 +12,7 @@ import com.google.gson.reflect.TypeToken;
 import okhttp3.OkHttpClient;
 import org.apache.commons.lang3.StringEscapeUtils;
 
+import java.net.Proxy;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -42,6 +43,9 @@ public class DraSummonSimulatorFunc extends BaseFunc {
 
     public DraSummonSimulatorFunc(Zibenbot zibenbot) {
         super(zibenbot);
+        if (Zibenbot.proxy != null) {
+            client = new OkHttpClient.Builder().callTimeout(30, TimeUnit.SECONDS).proxy(Zibenbot.proxy).build();
+        }
     }
 
     @Override

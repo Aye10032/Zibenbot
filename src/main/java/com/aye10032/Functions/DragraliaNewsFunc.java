@@ -7,10 +7,7 @@ import com.aye10032.Utils.ConfigLoader;
 import com.aye10032.Zibenbot;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @author Dazo66
@@ -39,7 +36,7 @@ public class DragraliaNewsFunc extends BaseFunc {
             String[] strings = s.trim().split(" ");
             if (strings.length == 1) {
                 ArrayList<Runnable> rs = new ArrayList<>();
-                List<DragraliaTask.Article> articles = Collections.synchronizedList(new ArrayList<>());
+                Set<DragraliaTask.Article> articles = Collections.synchronizedSet(new HashSet<>());
                 date = null;
                 try {
                     date = task.getUpdateDate();
@@ -67,12 +64,13 @@ public class DragraliaNewsFunc extends BaseFunc {
                             articles.add(a);
                         }
                     }));
-
                     zibenbot.pool.asynchronousPool.execute(() -> {
+                        TreeSet<DragraliaTask.Article> set = new TreeSet<>(Comparator.reverseOrder());
+                        set.addAll(articles);
                         StringBuilder builder = new StringBuilder();
-                        if (articles.size() != 0) {
+                        if (set.size() != 0) {
                             builder.append("今天的公告如下：\n");
-                            articles.forEach(a -> {
+                            set.forEach(a -> {
                                 builder.append("\t").append("【").append(a.article_id).append("】").append(a.title_name).append("\n");
                             });
                             builder.append("如果需要查询具体公告 请回复：.龙约公告 [公告id] [公告id]...");
@@ -93,19 +91,10 @@ public class DragraliaNewsFunc extends BaseFunc {
                     }
                     DragraliaTask.Article a;
                     try {
-                        boolean flag = false;
-                        for (ArticleUpateDate.UpdateDate date1 : date.update_article_list) {
-                            if (date1.id == id) {
-                                flag = true;
-                            }
-                        }
-                        if (flag) {
-                            a = task.getArticleFromNet(id, true);
-                        } else {
-                            a = task.getArticleFromNet(id, false);
-                        }
+                        a = task.getArticleFromNet(id, false);
                     } catch (Exception e) {
                         replyMsg(CQmsg, "获取公告异常，公告id：" + id);
+                        e.printStackTrace();
                         continue;
                     }
                     task.sendArticle(a, CQmsg);

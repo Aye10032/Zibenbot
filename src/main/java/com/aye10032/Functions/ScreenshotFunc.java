@@ -1,6 +1,10 @@
 package com.aye10032.Functions;
 
+import com.aye10032.Utils.IOUtil;
+import com.aye10032.Utils.ImgUtils;
+import com.aye10032.Utils.SeleniumUtils;
 import com.aye10032.Zibenbot;
+import org.openqa.selenium.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,6 +18,10 @@ public class ScreenshotFunc extends BaseFunc {
 
     public ScreenshotFunc(Zibenbot zibenbot) {
         super(zibenbot);
+    }
+
+    static {
+
     }
 
     @Override
@@ -43,9 +51,9 @@ public class ScreenshotFunc extends BaseFunc {
             zibenbot.pool.timeoutEvent(1, () -> {
                 try {
                     if (args.length == 3) {
-                        replyMsg(CQmsg, zibenbot.getCQCode().image(getScreenshot(addhttp(args[1]), Integer.parseInt(args[2]))));
+                        replyMsg(CQmsg, zibenbot.getCQCode().image(getScreenshot(args[1], Integer.parseInt(args[2]))));
                     } else if (args.length == 2) {
-                        replyMsg(CQmsg, zibenbot.getCQCode().image(getScreenshot(addhttp(args[1]), 4000)));
+                        replyMsg(CQmsg, zibenbot.getCQCode().image(getScreenshot(args[1], 4000)));
                     } else {
                         replyMsg(CQmsg, "参数异常，Example：网页快照 [url] [timeout]");
                     }
@@ -59,37 +67,37 @@ public class ScreenshotFunc extends BaseFunc {
 
     }
 
-    public File getScreenshot(String url, int timeOut) throws IOException {
+    public File getScreenshot(String url, int timeOut) throws IOException, InterruptedException {
         String outFileName = getOutFileName(url);
-        return getScreenshot(appDirectory + "\\phantomjs\\bin\\phantomjs.exe", appDirectory + "\\phantomjs\\screenshot.js", url, outFileName, timeOut);
+        return getScreenshot(url, outFileName, timeOut);
     }
 
-    public static File getScreenshot(String phantomjs, String script, String url, String outFileName,int timeOut) throws IOException {
-        Process process = Runtime.getRuntime().exec(
-                "\"" + phantomjs+ "\"" + BLANK //你的phantomjs.exe路径
-                        + "\"" + script + "\"" + BLANK //就是上文中那段javascript脚本的存放路径
-                        + url + BLANK //你的目标url地址
-                        +"\""+ outFileName +"\""+ BLANK
-                        + timeOut
-        );//你的图片输出路径
-/*        System.out.println(
-                "\"" + phantomjs + BLANK //你的phantomjs.exe路径
-                        + "\"" + script + "\"" + BLANK //就是上文中那段javascript脚本的存放路径
-                        + url + BLANK //你的目标url地址
-                        +"\""+ outFileName +"\""+ BLANK
-                        + timeOut);*/
+    public static File getScreenshot(String url, String outFileName,int timeOut) throws IOException, InterruptedException {
+        WebDriver driver = SeleniumUtils.getDriver();
+        return getScreenshot(driver, url, outFileName, timeOut);
+    }
+
+    public static File getScreenshot(WebDriver driver, String url, String outFileName,int timeOut) throws IOException, InterruptedException {
         try {
-            int exit = process.waitFor();
-
-            process.destroy();
-
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+            driver.get(addhttp(url));
+            Thread.sleep(timeOut);
+            JavascriptExecutor driver_js= SeleniumUtils.getDriverJs(driver);
+            Double width = Double.valueOf(driver_js.executeScript(
+                    "return document.getElementsByTagName('html')[0].getBoundingClientRect().width;").toString());
+            Double height = Double.valueOf(driver_js.executeScript("return document.getElementsByTagName('html')[0].getBoundingClientRect().height;").toString());
+            driver.manage().window().setSize(new Dimension(1366, height.intValue()));
+            byte[] bytes = driver.findElement(By.tagName("html")).getScreenshotAs(OutputType.BYTES);
+            bytes = ImgUtils.compress(bytes, "png");
+            IOUtil.saveFileWithBytes(outFileName, bytes);
+        } catch (IOException | InterruptedException e) {
+            throw e;
+        } finally {
+            SeleniumUtils.closeDriver(driver);
         }
         return new File(outFileName);
     }
 
-    private String addhttp(String url){
+    private static String addhttp(String url) {
         if (url.startsWith("http")) {
             return url;
         } else {

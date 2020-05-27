@@ -2,6 +2,7 @@ package com.aye10032.Utils;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.Header;
 import org.apache.http.HeaderElement;
@@ -50,6 +51,11 @@ public class HttpUtils {
 
     public static String getStringFromNet(String url, HttpClient client) throws IOException {
         return IOUtils.toString(getInputStreamFromNet(url, client));
+    }
+
+    public static InputStream postInputStreamFromNet(String url, OkHttpClient client, RequestBody body) throws IOException {
+        Request request = new Request.Builder().url(url).method("POST", body).build();
+        return client.newCall(request).execute().body().byteStream();
     }
 
     public static InputStream getInputStreamFromNet(String url, OkHttpClient client) throws IOException {

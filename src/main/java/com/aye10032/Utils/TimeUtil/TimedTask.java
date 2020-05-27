@@ -32,7 +32,7 @@ public class TimedTask implements Runnable {
         return this;
     }
 
-    private Date getNextTiggerTime() {
+    public Date getNextTiggerTime() {
         return cycle.getNextTime(tiggerTime);
     }
 
@@ -46,13 +46,8 @@ public class TimedTask implements Runnable {
         return this;
     }
 
+    @Override
     public void run() {
-        if (runnable != null && (times > 0 || times == -1)) {
-            if (times > 0) {
-                times--;
-            }
-            runnable.run();
-            tiggerTime = getNextTiggerTime();
-        }
+        runnable.run();
     }
 }

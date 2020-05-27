@@ -22,7 +22,7 @@ public class fangzhoudiaoluoTest {
     public static void main(String[] args) throws IOException, InterruptedException {
         FangZhouDiaoluoFunc func = new FangZhouDiaoluoFunc();
         func.update();
-        func.run(new CQMsg(-1,-1, -1, -1, null, ".方舟掉落 zs", -1, null));
+        func.run(new CQMsg(-1,-1, -1, -1, null, ".方舟掉落 d32", -1, null));
         HttpClient client = HttpClientBuilder.create().setDefaultHeaders(Arrays.asList(getHeaders())).build();
         HttpResponse httpResponse =client.execute(new HttpGet("https://api.aog.wiki/materials//tier/1"));
         System.out.println(IOUtils.toString(httpResponse.getEntity().getContent()));
