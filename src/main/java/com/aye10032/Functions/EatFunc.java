@@ -20,14 +20,13 @@ public class EatFunc extends BaseFunc {
 
     public void run(CQMsg CQmsg) {
         if (CQmsg.msg.equals("晚饭")) {
-            String food = foodUtil.eatWhat();
-            zibenbot.replyMsg(CQmsg, food);
-        } else if (CQmsg.msg.equals("主食列表")) {
-            String food = foodUtil.mlist();
-            zibenbot.replyMsg(CQmsg, food);
-        } else if (CQmsg.msg.equals("小吃列表")) {
-            String food = foodUtil.slist();
-            zibenbot.replyMsg(CQmsg, food);
+            if (CQmsg.fromGroup == 792666782L){
+                String food = foodUtil.eatWhatWithSSR();
+                zibenbot.replyMsg(CQmsg, food);
+            }else {
+                String food = foodUtil.eatWhat();
+                zibenbot.replyMsg(CQmsg, food);
+            }
         }
     }
 }
