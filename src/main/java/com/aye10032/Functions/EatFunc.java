@@ -27,6 +27,12 @@ public class EatFunc extends BaseFunc {
                 String food = foodUtil.eatWhat();
                 zibenbot.replyMsg(CQmsg, food);
             }
+        }else if (CQmsg.fromGroup == 792666782L&&CQmsg.msg.equals("晚饭十连")){
+            StringBuilder food = new StringBuilder();
+            for (int i = 0; i < 10; i++) {
+                food.append(foodUtil.eatWhatWithSSR()).append("\n");
+            }
+            zibenbot.replyMsg(CQmsg, food.toString());
         }
     }
 }
