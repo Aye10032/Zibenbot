@@ -52,14 +52,14 @@ public class FoodUtil {
             int srint = random.nextInt(10);
             if (srint == 1) {
                 m = random.nextInt(ssrList.length);
-                food = ssrList[m];
-            }else {
+                food = "★★★ " + ssrList[m];
+            } else {
                 m = random.nextInt(srList.length);
-                food = srList[m];
+                food = "★★ " + srList[m];
             }
         } else {
             m = random.nextInt(mainlist.length);
-            food = mainlist[m];
+            food = "★ " + mainlist[m];
         }
 
         return food;
