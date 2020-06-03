@@ -21,18 +21,26 @@ public class EatFunc extends BaseFunc {
     public void run(CQMsg CQmsg) {
         if (CQmsg.msg.equals("晚饭")) {
             if (CQmsg.fromGroup == 792666782L){
-                String food = foodUtil.eatWhatWithSSR();
-                zibenbot.replyMsg(CQmsg, food);
+                String[] food = foodUtil.eatWhatWithSSR();
+                zibenbot.replyMsg(CQmsg, food[0]);
             }else {
                 String food = foodUtil.eatWhat();
                 zibenbot.replyMsg(CQmsg, food);
             }
         }else if (CQmsg.fromGroup == 792666782L&&CQmsg.msg.equals("晚饭十连")){
-            StringBuilder food = new StringBuilder();
-            for (int i = 0; i < 10; i++) {
-                food.append(foodUtil.eatWhatWithSSR()).append("\n");
+            StringBuilder foodBuilder = new StringBuilder();
+            boolean hasSSR = false;
+            for (int i = 0; i < 9; i++) {
+                String[] food = foodUtil.eatWhatWithSSR();
+                foodBuilder.append(food).append("\n");
+                if (!food[1].equals("1")){
+                    hasSSR = true;
+                }
             }
-            zibenbot.replyMsg(CQmsg, food.toString());
+            if (!hasSSR){
+                foodBuilder.append(foodUtil.eatGuaranteed(2)[0]);
+            }
+            zibenbot.replyMsg(CQmsg, foodBuilder.toString());
         }
     }
 }

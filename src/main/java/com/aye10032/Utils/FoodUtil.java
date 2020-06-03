@@ -43,23 +43,50 @@ public class FoodUtil {
         return food;
     }
 
-    public String eatWhatWithSSR() {
+    public String[] eatWhatWithSSR() {
         Random random = new Random();
         int flag = random.nextInt(30);
-        String food = "";
+        String[] food = new String[2];
         int m;
         if (flag == 1) {
             int srint = random.nextInt(10);
             if (srint == 1) {
                 m = random.nextInt(ssrList.length);
-                food = "★★★ " + ssrList[m];
+                food[0] = "★★★ " + ssrList[m];
+                food[1] = "3";
             } else {
                 m = random.nextInt(srList.length);
-                food = "★★ " + srList[m];
+                food[0] = "★★ " + srList[m];
+                food[1] = "2";
             }
         } else {
             m = random.nextInt(mainlist.length);
-            food = "★ " + mainlist[m];
+            food[0] = "★ " + mainlist[m];
+            food[1] = "1";
+        }
+
+        return food;
+    }
+
+    public String[] eatGuaranteed(int flag) {
+        String[] food = new String[2];
+        Random random = new Random();
+        int m;
+        if (flag == 2) {
+            int srint = random.nextInt(10);
+            if (srint == 1) {
+                m = random.nextInt(ssrList.length);
+                food[0] = "★★★ " + ssrList[m];
+                food[1] = "3";
+            } else {
+                m = random.nextInt(srList.length);
+                food[0] = "★★ " + srList[m];
+                food[1] = "2";
+            }
+        } else if (flag == 3) {
+            m = random.nextInt(ssrList.length);
+            food[0] = "★★★ " + ssrList[m];
+            food[1] = "3";
         }
 
         return food;
