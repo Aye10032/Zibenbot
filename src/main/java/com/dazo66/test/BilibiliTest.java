@@ -2,11 +2,7 @@ package com.dazo66.test;
 
 import com.aye10032.Functions.BiliFunc;
 import com.aye10032.Functions.CQMsg;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
+import com.aye10032.Zibenbot;
 
 import java.io.IOException;
 
@@ -26,8 +22,8 @@ public class BilibiliTest {
         System.out.println(conn.getHeaders("Location")[0].getValue());
         CloseableHttpResponse conn1 = httpClient.execute(new HttpGet(conn.getHeaders("Location")[0].getValue()));
 */
-        BiliFunc func = new BiliFunc(null);
-        func.run(CQMsg.getTempMsg("https://b23.tv/BV1j64y1M7qb/"));
+        BiliFunc func = new BiliFunc(new Zibenbot());
+        func.run(CQMsg.getTempMsg("BV1ZZ4y1n7JS"));
 
 
     }
