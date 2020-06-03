@@ -9,14 +9,6 @@ public class PaomianUtil {
     private String[] Tangdaren;
     private String[] Heweidao;
 
-    public static void main(String[] args) {
-        PaomianUtil paomianUtil = new PaomianUtil();
-
-        for (int i = 0; i < 20; i++) {
-            System.out.println(paomianUtil.getType());
-        }
-    }
-
     public PaomianUtil() {
         Tongyi = new String[]{"红烧牛肉", "老坛酸菜", "香辣牛肉", "藤椒牛肉", "酸豆角排骨"};
         Kangshifu = new String[]{"香辣牛肉", "红烧牛肉", "老坛酸菜", "雪菜肉丝", "藤椒牛肉", "葱香排骨", "爆椒牛肉", "红烧排骨"
