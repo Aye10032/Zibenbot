@@ -1,6 +1,8 @@
 package com.aye10032.Functions;
 
+import com.aye10032.Utils.ConfigLoader;
 import com.aye10032.Utils.FoodUtil;
+import com.aye10032.Utils.food.FoodClaass;
 import com.aye10032.Zibenbot;
 
 /**
@@ -9,6 +11,7 @@ import com.aye10032.Zibenbot;
 public class EatFunc extends BaseFunc {
 
     FoodUtil foodUtil;
+    FoodClaass foodClaass = ConfigLoader.load(zibenbot.appDirectory + "/foodData.json", FoodClaass.class);
 
     public EatFunc(Zibenbot zibenbot) {
         super(zibenbot);
@@ -20,25 +23,64 @@ public class EatFunc extends BaseFunc {
 
     public void run(CQMsg CQmsg) {
         if (CQmsg.msg.equals("晚饭")) {
-            if (CQmsg.fromGroup == 792666782L){
-                String[] food = foodUtil.eatWhatWithSSR();
-                zibenbot.replyMsg(CQmsg, food[0]);
-            }else {
+            if (CQmsg.fromGroup == 792666782L) {
+                if (foodClaass.getTimes(CQmsg.fromClient) == 99) {
+                    foodClaass.resetTimes(CQmsg.fromClient);
+                    String[] food = foodUtil.eatGuaranteed(3);
+                    zibenbot.replyMsg(CQmsg, food[0]);
+                } else {
+                    String[] food = foodUtil.eatWhatWithSSR();
+                    zibenbot.replyMsg(CQmsg, food[0]);
+                    if (food[1].equals("3")) {
+                        foodClaass.resetTimes(CQmsg.fromClient);
+                    } else {
+                        foodClaass.addOne(CQmsg.fromClient);
+                    }
+                }
+            } else {
                 String food = foodUtil.eatWhat();
                 zibenbot.replyMsg(CQmsg, food);
             }
-        }else if (CQmsg.fromGroup == 792666782L&&CQmsg.msg.equals("晚饭十连")){
+        } else if (CQmsg.fromGroup == 792666782L && CQmsg.msg.equals("晚饭十连")) {
             StringBuilder foodBuilder = new StringBuilder();
             boolean hasSSR = false;
             for (int i = 0; i < 9; i++) {
-                String[] food = foodUtil.eatWhatWithSSR();
-                foodBuilder.append(food).append("\n");
-                if (!food[1].equals("1")){
-                    hasSSR = true;
+                if (foodClaass.getTimes(CQmsg.fromClient) == 99) {
+                    foodClaass.resetTimes(CQmsg.fromClient);
+                    String[] food = foodUtil.eatGuaranteed(3);
+                    zibenbot.replyMsg(CQmsg, food[0]);
+                } else {
+                    String[] food = foodUtil.eatWhatWithSSR();
+                    foodBuilder.append(food[0]).append("\n");
+                    switch (food[1]) {
+                        case "1":
+                            foodClaass.addOne(CQmsg.fromClient);
+                            break;
+                        case "2":
+                            hasSSR = true;
+                            foodClaass.addOne(CQmsg.fromClient);
+                            break;
+                        case "3":
+                            hasSSR = true;
+                            foodClaass.resetTimes(CQmsg.fromClient);
+                            break;
+                    }
                 }
             }
-            if (!hasSSR){
-                foodBuilder.append(foodUtil.eatGuaranteed(2)[0]);
+            if (!hasSSR) {
+                if (foodClaass.getTimes(CQmsg.fromClient) == 99) {
+                    foodClaass.resetTimes(CQmsg.fromClient);
+                    String[] food = foodUtil.eatGuaranteed(3);
+                    foodBuilder.append(food[0]);
+                } else {
+                    String[] food = foodUtil.eatGuaranteed(2);
+                    foodBuilder.append(food[0]);
+                    if (food[1].equals("3")) {
+                        foodClaass.resetTimes(CQmsg.fromClient);
+                    } else {
+                        foodClaass.addOne(CQmsg.fromClient);
+                    }
+                }
             }
             zibenbot.replyMsg(CQmsg, foodBuilder.toString());
         }
