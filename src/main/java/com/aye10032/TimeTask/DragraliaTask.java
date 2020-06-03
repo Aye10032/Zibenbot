@@ -193,9 +193,11 @@ public class DragraliaTask extends TimedTask {
                 downloadImg(img);
             }));
         } else {
-            runs.add(() -> {
+            try {
                 screenshotFile.set(getScreenshot(a));
-            });
+            } catch (Exception e) {
+                //ignore
+            }
         }
         if (!"".equals(a.image_path)) {
             runs.add(() -> downloadImg(a.image_path));
@@ -223,7 +225,13 @@ public class DragraliaTask extends TimedTask {
                         e.printStackTrace();
                     }
                 } else {
-                    builder.append(ret);
+                    if (screenshotFile.get() == null || !screenshotFile.get().exists()) {
+                        builder.append("公告加载失败，请前玩官网查看：\n");
+                        builder.append("https://dragalialost.com/chs/news/detail/").append(a.article_id);
+                    }
+                    if (len <= 300) {
+                        builder.append(ret);
+                    }
                 }
             } else {
                 builder.append(a.message);
@@ -286,7 +294,6 @@ public class DragraliaTask extends TimedTask {
             byte[] bytes = driver.findElement(By.tagName("html")).getScreenshotAs(OutputType.BYTES);
             bytes = ImgUtils.compress(bytes, "png");
             IOUtil.saveFileWithBytes(outputfile, bytes);
-            SeleniumUtils.closeDriver(driver);
             return new File(outputfile);
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();

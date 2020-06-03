@@ -91,8 +91,6 @@ public class ScreenshotFunc extends BaseFunc {
             IOUtil.saveFileWithBytes(outFileName, bytes);
         } catch (IOException | InterruptedException e) {
             throw e;
-        } finally {
-            SeleniumUtils.closeDriver(driver);
         }
         return new File(outFileName);
     }
