@@ -18,6 +18,7 @@ public class SeleniumUtils {
     private static ChromeOptions options = new ChromeOptions();
     private static List<WebDriver> webDrivers = Collections.synchronizedList(new ArrayList<>());
     private static String dir;
+    private static WebDriver driver;
 
     public static void setup (String driverDir) {
         dir = driverDir;
@@ -46,6 +47,15 @@ public class SeleniumUtils {
     }
 
     public static WebDriver getDriver() {
+        if (driver != null) {
+            return driver;
+        } else {
+            driver = getNewDriver();
+            return driver;
+        }
+    }
+
+    private static WebDriver getNewDriver(){
         //Initiating your chromedriver
         WebDriver driver = new ChromeDriver(options);
 
@@ -61,7 +71,7 @@ public class SeleniumUtils {
         return driver;
     }
 
-    public static void closeDriver(WebDriver driver){
+    private static void closeDriver(WebDriver driver){
         driver.close();
         driver.quit();
     }

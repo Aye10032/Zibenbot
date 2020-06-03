@@ -42,10 +42,10 @@ public class FangZhouDiaoluoFunc extends BaseFunc {
     public FangZhouDiaoluoFunc(Zibenbot zibenbot) {
         super(zibenbot);
         if (zibenbot != null) {
-            arkonegraphFile = zibenbot.appDirectory + "/fangzhoudiaoluo/Arkonegraph.png";
+            arkonegraphFile = zibenbot.appDirectory + "/fangzhoudiaoluo/Arkonegraph.jpg";
             cacheFile = zibenbot.appDirectory + "/cacheFile.json";
         } else {
-            arkonegraphFile = "res/Arkonegraph.png";
+            arkonegraphFile = "res/Arkonegraph.jpg";
             cacheFile = "cacheFile.json";
         }
     }
@@ -217,7 +217,7 @@ public class FangZhouDiaoluoFunc extends BaseFunc {
         Zibenbot.logger.info("fangzhoudiaoluo update end");
     }
 
-    public void update_img(String img_url) throws IOException {
+    private void update_img(String img_url) throws IOException {
         //更新图片
         File file = new File(arkonegraphFile);
         if (!file.exists()) {
@@ -225,7 +225,7 @@ public class FangZhouDiaoluoFunc extends BaseFunc {
             file.createNewFile();
         }
         try {
-            ScreenshotFunc.getScreenshot(img_url, arkonegraphFile, 4000);
+            ScreenshotFunc.getScreenshot(img_url, arkonegraphFile, 10000);
         } catch (Exception e) {
             e.printStackTrace();
         }
