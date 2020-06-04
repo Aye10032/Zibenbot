@@ -8,6 +8,8 @@ import org.openqa.selenium.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author Dazo66
@@ -78,6 +80,10 @@ public class ScreenshotFunc extends BaseFunc {
     }
 
     public static File getScreenshot(WebDriver driver, String url, String outFileName,int timeOut) throws IOException, InterruptedException {
+        return getScreenshot(driver, url, outFileName, timeOut, new String[]{});
+    }
+
+    public static File getScreenshot(WebDriver driver, String url, String outFileName, int timeOut, String... js) throws IOException, InterruptedException {
         try {
             driver.get(addhttp(url));
             Thread.sleep(timeOut);
@@ -85,14 +91,15 @@ public class ScreenshotFunc extends BaseFunc {
             Double width = Double.valueOf(driver_js.executeScript(
                     "return document.getElementsByTagName('html')[0].getBoundingClientRect().width;").toString());
             Double height = Double.valueOf(driver_js.executeScript("return document.getElementsByTagName('html')[0].getBoundingClientRect().height;").toString());
+            for (String s : js) {
+                driver_js.executeScript(s);
+            }
             driver.manage().window().setSize(new Dimension(1366, height.intValue()));
             byte[] bytes = driver.findElement(By.tagName("html")).getScreenshotAs(OutputType.BYTES);
             bytes = ImgUtils.compress(bytes, "png");
             IOUtil.saveFileWithBytes(outFileName, bytes);
         } catch (IOException | InterruptedException e) {
             throw e;
-        } finally {
-            SeleniumUtils.closeDriver(driver);
         }
         return new File(outFileName);
     }

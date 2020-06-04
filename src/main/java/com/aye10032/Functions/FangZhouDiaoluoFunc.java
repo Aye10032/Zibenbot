@@ -1,6 +1,5 @@
 package com.aye10032.Functions;
 
-import com.aye10032.Utils.ConfigListener;
 import com.aye10032.Utils.HttpUtils;
 import com.aye10032.Utils.TimeUtil.TimedTask;
 import com.aye10032.Utils.fangzhoudiaoluo.DiaoluoType;
@@ -9,7 +8,6 @@ import com.aye10032.Utils.fangzhoudiaoluo.Module;
 import com.aye10032.Zibenbot;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import okhttp3.*;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -18,7 +16,10 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicHeader;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.*;
 
 import static com.aye10032.Utils.TimeUtil.TimeConstant.PER_DAY;
@@ -41,10 +42,10 @@ public class FangZhouDiaoluoFunc extends BaseFunc {
     public FangZhouDiaoluoFunc(Zibenbot zibenbot) {
         super(zibenbot);
         if (zibenbot != null) {
-            arkonegraphFile = zibenbot.appDirectory + "/fangzhoudiaoluo/Arkonegraph.png";
+            arkonegraphFile = zibenbot.appDirectory + "/fangzhoudiaoluo/Arkonegraph.jpg";
             cacheFile = zibenbot.appDirectory + "/cacheFile.json";
         } else {
-            arkonegraphFile = "res/Arkonegraph.png";
+            arkonegraphFile = "res/Arkonegraph.jpg";
             cacheFile = "cacheFile.json";
         }
     }
@@ -206,22 +207,9 @@ public class FangZhouDiaoluoFunc extends BaseFunc {
             Module.update();
             module = Module.module;
 
-            String img_url = "https://img.nga.178.com/attachments/mon_202004/05/-klbw3Q5-2mbmXeZ3rT3cS2io-1bf.png";
-            if (zibenbot != null) {
-                img_url = zibenbot.config.getConfig("fzdl_img", img_url);
-                String finalimgUrl = img_url;
-                zibenbot.config.addListener(new ConfigListener("fzdl_img", () -> {
-                    String url = zibenbot.config.getConfig("fzdl_img", finalimgUrl);
-                    try {
-                        update_img(url);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }));
-            }
-            if (!new File(arkonegraphFile).exists()) {
-                update_img(img_url);
-            }
+            String img_url = "https://aog.wiki/";
+            update_img(img_url);
+
             client.close();
         } catch (Exception e) {
             e.printStackTrace();
@@ -229,41 +217,18 @@ public class FangZhouDiaoluoFunc extends BaseFunc {
         Zibenbot.logger.info("fangzhoudiaoluo update end");
     }
 
-    public void update_img(String img_url) throws IOException {
+    private void update_img(String img_url) throws IOException {
         //更新图片
         File file = new File(arkonegraphFile);
         if (!file.exists()) {
             file.getParentFile().mkdirs();
             file.createNewFile();
         }
-        OkHttpClient client = new OkHttpClient().newBuilder()
-                .build();
-        Request request = new Request.Builder().url(img_url).build();
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                //Handle the error
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                if (response.isSuccessful()) {
-                    InputStream is = response.body().byteStream();
-                    OutputStream output = new FileOutputStream(arkonegraphFile);
-
-                    byte[] data = new byte[1024];
-                    int count;
-                    while ((count = is.read(data)) != -1) {
-                        output.write(data, 0, count);
-                    }
-                    output.flush();
-                    output.close();
-                    is.close();
-                } else {
-                    //Handle the error
-                }
-            }
-        });
+        try {
+            ScreenshotFunc.getScreenshot(img_url, arkonegraphFile, 10000);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
     }
 
