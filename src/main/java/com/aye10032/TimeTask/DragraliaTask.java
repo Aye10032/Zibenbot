@@ -2,6 +2,7 @@ package com.aye10032.TimeTask;
 
 import com.aye10032.Functions.CQMsg;
 import com.aye10032.Functions.MsgType;
+import com.aye10032.Functions.ScreenshotFunc;
 import com.aye10032.Utils.*;
 import com.aye10032.Utils.TimeUtil.TimeConstant;
 import com.aye10032.Utils.TimeUtil.TimedTask;
@@ -15,7 +16,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.RequestBody;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
-import org.openqa.selenium.*;
+import org.openqa.selenium.WebDriver;
 
 import java.io.File;
 import java.io.IOException;
@@ -127,7 +128,7 @@ public class DragraliaTask extends TimedTask {
                     last.new_article_list.add(i);
                 } catch (Exception e) {
                     Article a = new Article();
-                    a.message = "读取公告异常，公告id：" + i;
+                    a.message = "更新公告异常\n公告页面：https://dragalialost.com/chs/news/detail/"+ a.article_id;
                     a.article_id = -1;
                     set.add(a);
                 }
@@ -148,7 +149,7 @@ public class DragraliaTask extends TimedTask {
                     last.update_article_list.add(i);
                 } catch (Exception e) {
                     Article a = new Article();
-                    a.message = "更新公告异常，公告id：" + i.id;
+                    a.message = "更新公告异常\n公告页面：https://dragalialost.com/chs/news/detail/"+ a.article_id;
                     a.article_id = -1;
                     set.add(a);
                     exceptionCount++;
@@ -193,9 +194,11 @@ public class DragraliaTask extends TimedTask {
                 downloadImg(img);
             }));
         } else {
-            runs.add(() -> {
+            try {
                 screenshotFile.set(getScreenshot(a));
-            });
+            } catch (Exception e) {
+                //ignore
+            }
         }
         if (!"".equals(a.image_path)) {
             runs.add(() -> downloadImg(a.image_path));
@@ -223,7 +226,13 @@ public class DragraliaTask extends TimedTask {
                         e.printStackTrace();
                     }
                 } else {
-                    builder.append(ret);
+                    if (screenshotFile.get() == null || !screenshotFile.get().exists()) {
+                        builder.append("公告加载失败，请前往官网查看：\n");
+                        builder.append("https://dragalialost.com/chs/news/detail/").append(a.article_id);
+                    }
+                    if (len <= 300) {
+                        builder.append(ret);
+                    }
                 }
             } else {
                 builder.append(a.message);
@@ -275,19 +284,7 @@ public class DragraliaTask extends TimedTask {
         String outputfile = dir + "/dragraliatemp/" + a.article_id + ".png";
         try {
             WebDriver driver = SeleniumUtils.getDriver();
-            driver.get(url);
-            Thread.sleep(3000);
-            JavascriptExecutor driver_js= SeleniumUtils.getDriverJs(driver);
-            driver_js.executeScript("for(item of document.getElementsByTagName('details')) {\n" + "    item.open = true;\n" + "}");
-            Double width = Double.valueOf(driver_js.executeScript(
-                    "return document.getElementsByTagName('html')[0].getBoundingClientRect().width;").toString());
-            Double height = Double.valueOf(driver_js.executeScript("return document.getElementsByTagName('html')[0].getBoundingClientRect().height;").toString());
-            driver.manage().window().setSize(new Dimension(1366, height.intValue()));
-            byte[] bytes = driver.findElement(By.tagName("html")).getScreenshotAs(OutputType.BYTES);
-            bytes = ImgUtils.compress(bytes, "png");
-            IOUtil.saveFileWithBytes(outputfile, bytes);
-            SeleniumUtils.closeDriver(driver);
-            return new File(outputfile);
+            return ScreenshotFunc.getScreenshot(driver, url, outputfile, 4000, "for(item of document.getElementsByTagName('details')) {\n" + "    item.open = true;\n" + "}");
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }

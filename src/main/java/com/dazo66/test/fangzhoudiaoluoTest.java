@@ -2,30 +2,25 @@ package com.dazo66.test;
 
 import com.aye10032.Functions.CQMsg;
 import com.aye10032.Functions.FangZhouDiaoluoFunc;
-import org.apache.commons.io.IOUtils;
+import com.aye10032.Utils.SeleniumUtils;
 import org.apache.http.Header;
-import org.apache.http.HttpResponse;
 import org.apache.http.client.CookieStore;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.BasicCookieStore;
-import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.cookie.BasicClientCookie;
 import org.apache.http.message.BasicHeader;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Date;
 
 public class fangzhoudiaoluoTest {
     public static void main(String[] args) throws IOException, InterruptedException {
+        SeleniumUtils.setup("res\\ChromeDriver\\chromedriver.exe");
         FangZhouDiaoluoFunc func = new FangZhouDiaoluoFunc();
         func.update();
         func.run(new CQMsg(-1,-1, -1, -1, null, ".方舟掉落 d32", -1, null));
-        HttpClient client = HttpClientBuilder.create().setDefaultHeaders(Arrays.asList(getHeaders())).build();
+/*        HttpClient client = HttpClientBuilder.create().setDefaultHeaders(Arrays.asList(getHeaders())).build();
         HttpResponse httpResponse =client.execute(new HttpGet("https://api.aog.wiki/materials//tier/1"));
-        System.out.println(IOUtils.toString(httpResponse.getEntity().getContent()));
+        System.out.println(IOUtils.toString(httpResponse.getEntity().getContent()));*/
 
         System.out.println();
         //func.run(new CQMsg(-1,-1, -1, -1, null, ".方舟掉落 双击纳米片", -1, null));
