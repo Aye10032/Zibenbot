@@ -67,18 +67,37 @@ public class EatFunc extends BaseFunc {
                     }
                 }
             }
-            if (!hasSSR) {
-                if (foodClaass.getTimes(CQmsg.fromClient) == 99) {
-                    foodClaass.resetTimes(CQmsg.fromClient);
-                    String[] food = foodUtil.eatGuaranteed(3);
-                    foodBuilder.append(food[0]);
-                } else {
+
+            if (foodClaass.getTimes(CQmsg.fromClient) == 99) {
+                foodClaass.resetTimes(CQmsg.fromClient);
+                String[] food = foodUtil.eatGuaranteed(3);
+                foodBuilder.append(food[0]);
+            } else {
+                if (!hasSSR){
                     String[] food = foodUtil.eatGuaranteed(2);
                     foodBuilder.append(food[0]);
+
                     if (food[1].equals("3")) {
                         foodClaass.resetTimes(CQmsg.fromClient);
                     } else {
                         foodClaass.addOne(CQmsg.fromClient);
+                    }
+
+                }else {
+                    String[] food = foodUtil.eatWhatWithSSR();
+                    foodBuilder.append(food[0]);
+                    switch (food[1]) {
+                        case "1":
+                            foodClaass.addOne(CQmsg.fromClient);
+                            break;
+                        case "2":
+                            hasSSR = true;
+                            foodClaass.addOne(CQmsg.fromClient);
+                            break;
+                        case "3":
+                            hasSSR = true;
+                            foodClaass.resetTimes(CQmsg.fromClient);
+                            break;
                     }
                 }
             }
