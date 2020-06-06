@@ -41,6 +41,7 @@ public class EatFunc extends BaseFunc {
                 String food = foodUtil.eatWhat();
                 zibenbot.replyMsg(CQmsg, food);
             }
+            ConfigLoader.save(zibenbot.appDirectory + "/foodData.json", FoodClaass.class, foodClaass);
         } else if (CQmsg.fromGroup == 792666782L && CQmsg.msg.equals("晚饭十连")) {
             StringBuilder foodBuilder = new StringBuilder();
             boolean hasSSR = false;
@@ -73,7 +74,7 @@ public class EatFunc extends BaseFunc {
                 String[] food = foodUtil.eatGuaranteed(3);
                 foodBuilder.append(food[0]);
             } else {
-                if (!hasSSR){
+                if (!hasSSR) {
                     String[] food = foodUtil.eatGuaranteed(2);
                     foodBuilder.append(food[0]);
 
@@ -83,7 +84,7 @@ public class EatFunc extends BaseFunc {
                         foodClaass.addOne(CQmsg.fromClient);
                     }
 
-                }else {
+                } else {
                     String[] food = foodUtil.eatWhatWithSSR();
                     foodBuilder.append(food[0]);
                     switch (food[1]) {
@@ -102,6 +103,7 @@ public class EatFunc extends BaseFunc {
                 }
             }
             zibenbot.replyMsg(CQmsg, foodBuilder.toString());
+            ConfigLoader.save(zibenbot.appDirectory + "/foodData.json", FoodClaass.class, foodClaass);
         }
     }
 }
