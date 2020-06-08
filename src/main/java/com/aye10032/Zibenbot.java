@@ -2,6 +2,7 @@ package com.aye10032;
 
 import com.aye10032.Functions.*;
 import com.aye10032.TimeTask.DragraliaTask;
+import com.aye10032.Utils.ExceptionUtils;
 import com.aye10032.Utils.IDNameUtil;
 import com.aye10032.Utils.SeleniumUtils;
 import com.aye10032.Utils.TimeUtil.TimeTaskPool;
@@ -10,14 +11,17 @@ import org.meowy.cqp.jcq.entity.*;
 import org.meowy.cqp.jcq.event.JcqAppAbstract;
 
 import javax.swing.*;
+import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.util.*;
+import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 import static com.aye10032.Utils.TimeUtil.TimeConstant.PER_DAY;
 
@@ -63,7 +67,7 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return null;
+        return proxy;
     }
 
     public List<Long> enableGroup = new ArrayList<>();
@@ -175,6 +179,26 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
         //建立时间任务池 这里就两个任务 如果任务多的话 可以新建类进行注册
 
         SeleniumUtils.setup(appDirectory + "\\ChromeDriver\\chromedriver.exe");
+
+        try {
+            File log_dir = new File(appDirectory + "\\log\\");
+            if (!log_dir.exists()) {
+                log_dir.mkdirs();
+            }
+            // This block configure the logger with handler and formatter
+            fh = new FileHandler(appDirectory + "\\log\\" + new Date().toString().replace(" ", "_").replace(":", "_")+ ".log");
+            logger.addHandler(fh);
+            SimpleFormatter formatter = new SimpleFormatter();
+            fh.setFormatter(formatter);
+
+            // the following statement is used to log any messages
+            logger.info("My first log");
+
+        } catch (SecurityException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         List<Long> groupList = new ArrayList<Long>();
         groupList.add(995497677L);
@@ -318,9 +342,7 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
                 try {
                     func.run(cqMsg);
                 } catch (Exception e) {
-                    StringBuilder builder = new StringBuilder();
-                    Arrays.stream(e.getStackTrace()).forEach(element -> builder.append("\n").append(element));
-                    replyMsg(cqMsg, "运行出错：" + e + "\n" + builder.toString());
+                    replyMsg(cqMsg, "运行出错：" + e + "\n" + ExceptionUtils.printStack(e));
                 }
             }
         }
@@ -355,9 +377,7 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
                     try {
                         func.run(cqMsg);
                     } catch (Exception e) {
-                        StringBuilder builder = new StringBuilder();
-                        Arrays.stream(e.getStackTrace()).forEach(element -> builder.append("\n").append(element));
-                        replyMsg(cqMsg, "运行出错：" + e + "\n" + builder.toString());
+                        replyMsg(cqMsg, "运行出错：" + e + "\n" + ExceptionUtils.printStack(e));
                     }
                 }
 
@@ -392,9 +412,7 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
             try {
                 func.run(cqMsg);
             } catch (Exception e) {
-                StringBuilder builder = new StringBuilder();
-                Arrays.stream(e.getStackTrace()).forEach(element -> builder.append("\n").append(element));
-                replyMsg(cqMsg, "运行出错：" + e + "\n" + builder.toString());
+                replyMsg(cqMsg, "运行出错：" + e + "\n" + ExceptionUtils.printStack(e));
             }
         }
         return MSG_IGNORE;
@@ -592,6 +610,9 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
      * 老的方式依然支持，也就是不强行定构造方法也行
      */
     public static Logger logger = Logger.getLogger("zibenbot");
+    FileHandler fh;
+
+
 
     /**
      * 用main方法调试可以最大化的加快开发效率，检测和定位错误位置<br/>

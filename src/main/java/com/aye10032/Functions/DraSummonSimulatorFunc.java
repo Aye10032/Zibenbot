@@ -1,9 +1,6 @@
 package com.aye10032.Functions;
 
-import com.aye10032.Utils.ArrayUtils;
-import com.aye10032.Utils.Config;
-import com.aye10032.Utils.ConfigLoader;
-import com.aye10032.Utils.HttpUtils;
+import com.aye10032.Utils.*;
 import com.aye10032.Utils.TimeUtil.TimedTask;
 import com.aye10032.Zibenbot;
 import com.google.gson.*;
@@ -12,14 +9,13 @@ import com.google.gson.reflect.TypeToken;
 import okhttp3.OkHttpClient;
 import org.apache.commons.lang3.StringEscapeUtils;
 
-import java.net.Proxy;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.aye10032.Utils.TimeUtil.TimeConstant.PER_DAY;
+import static com.aye10032.Utils.TimeUtil.TimeConstant.PER_HOUR;
 
 /**
  * @author Dazo66
@@ -57,7 +53,7 @@ public class DraSummonSimulatorFunc extends BaseFunc {
         calendar.set(Calendar.MINUTE, 0);
         calendar.set(Calendar.SECOND, 1);
         Date date = calendar.getTime();
-        task.setTiggerTime(date).setCycle(PER_DAY).setRunnable(this::update);
+        task.setTiggerTime(date).setCycle(PER_HOUR).setRunnable(this::update);
         zibenbot.pool.add(task);
     }
 
@@ -123,7 +119,10 @@ public class DraSummonSimulatorFunc extends BaseFunc {
             msg = msg.replace("&#91;", "[").replace("&#93;", "]");
             String[] strings = msg.split(" ");
             if (strings.length == 2) {
-                if ("超龙".equals(strings[1])) {
+                if ("卡池更新".equals(strings[1])) {
+                    update();
+                    replyMsg(CQmsg, "卡池更新完成");
+                } else if ("超龙".equals(strings[1])) {
                     replyMsg(CQmsg, getExperHD());
                 } else if ("卡池列表".equals(strings[1]) || "卡池".equals(strings[1])) {
                     replyMsg(CQmsg, "当前可用卡池：\n" + getPoolList());
@@ -324,18 +323,14 @@ public class DraSummonSimulatorFunc extends BaseFunc {
                 this.all_summon_event.add(s);
             });
 
-            JsonObject object1 =
-                    parser.parse(user_config.getWithDafault("userdates", "{}")).getAsJsonObject();
-            userDates = gson.fromJson(object1, new TypeToken<HashMap<Integer, UserDate>>() {
-            }.getType());
-            updateUserDate();
-            save();
+
+
             Zibenbot.logger.info("数据解析完成：耗时：" + ((float) (current =
                     ((System.currentTimeMillis() - current) / 1000))) + "秒");
             Zibenbot.logger.info("DraSummonSimulator setup successful!");
         } catch (Exception e) {
             e.printStackTrace();
-            Zibenbot.logger.info("根数据网络读取异常，转为本地缓存");
+            Zibenbot.logger.info("根数据网络读取异常，转为本地缓存\n" + "e:" + ExceptionUtils.printStack(e));
             all_ele.clear();
             all_summon_event.clear();
             Config config = summon_loader.load();
@@ -356,10 +351,12 @@ public class DraSummonSimulatorFunc extends BaseFunc {
             all_summon_event = gson.fromJson(array, new TypeToken<List<SummonEvent>>() {
             }.getType());
             all_summon_event.forEach(event -> event.setup(all_ele));
-            updateUserDate();
 
             Zibenbot.logger.info("本地缓存读取完成。");
         }
+        updateUserDate();
+        save();
+
         all_ele.forEach(ele -> {
             i18n(ele.title);
         });
@@ -425,6 +422,7 @@ public class DraSummonSimulatorFunc extends BaseFunc {
     private String getUsages() {
         StringBuilder builder = new StringBuilder();
         builder.append("使用说明：").append("\n");
+        builder.append("\t").append("超龙日程 -> .龙约 超龙").append("\n");
         builder.append("\t").append("进行十连抽卡 -> .龙约 十连").append("\n");
         builder.append("\t").append("进行单抽 -> .龙约 单抽").append("\n");
         builder.append("\t").append("查看可用卡池 -> .龙约 卡池列表").append("\n");
