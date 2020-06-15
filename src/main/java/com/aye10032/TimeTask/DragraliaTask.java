@@ -189,7 +189,7 @@ public class DragraliaTask extends TimedTask {
                 img_list.add(matcher1.group());
             }
         }
-        if (len < 300) {
+        if (len <= 300) {
             img_list.forEach(img -> runs.add(() -> {
                 downloadImg(img);
             }));
@@ -219,20 +219,19 @@ public class DragraliaTask extends TimedTask {
                     //builder.append("（Update）\n");
                 }
                 String ret = clearMsg(msg);
-                if (len > 300 && screenshotFile.get() != null && screenshotFile.get().exists()) {
-                    try {
-                        builder.append("公告详情：").append("\n").append(zibenbot.getCQCode().image(screenshotFile.get()));
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                } else {
-                    if (screenshotFile.get() == null || !screenshotFile.get().exists()) {
+                if (len > 300) {
+                    if (screenshotFile.get() != null && screenshotFile.get().exists()){
+                        try {
+                            builder.append("公告详情：").append("\n").append(zibenbot.getCQCode().image(screenshotFile.get()));
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    } else {
                         builder.append("公告加载失败，请前往官网查看：\n");
                         builder.append("https://dragalialost.com/chs/news/detail/").append(a.article_id);
                     }
-                    if (len <= 300) {
-                        builder.append(ret);
-                    }
+                } else {
+                    builder.append(ret);
                 }
             } else {
                 builder.append(a.message);
