@@ -63,7 +63,7 @@ public class Module {
         stream.close();
 
         JsonParser parser = new JsonParser();
-        stream = HttpUtils.getInputStreamFromNet("https://api.aog.wiki/materials/gacha", client1);
+        stream = HttpUtils.getInputStreamFromNet("https://arkonegraph.herokuapp.com/materials/gacha", client1);
 
         String last = parser.parse(IOUtils.toString(stream))
                 .getAsJsonObject().get("material")
