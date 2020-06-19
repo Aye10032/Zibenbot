@@ -799,7 +799,7 @@ public class DraSummonSimulatorFunc extends BaseFunc {
 
     static {
         experHDPatterns.add(Pattern.compile("今天有(开)*(超风|超水|超火|超光|超暗|超\\[CQ:emoji," +
-                "id=128020]|超光\\[CQ:emoji,id=128020]|光\\[CQ" + ":emoji,id=128020])+吗"));
+                "id=128020]|超光\\[CQ:emoji,id=128020]|光\\[CQ:emoji,id=128020])+(吗|么|\\[CQ:emoji,id=128014]|嘛)"));
     }
 
     public static String getExperHD() {
