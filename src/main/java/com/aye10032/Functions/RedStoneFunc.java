@@ -45,6 +45,7 @@ public class RedStoneFunc extends BaseFunc {
             if (cqMsg.fromGroup != 456919710L){
                 zibenbot.getCoolQ().sendGroupMsg(456919710L, "已添加" + strlist[1] + " " + strlist[2]);
             }
+            ConfigLoader.save(zibenbot.appDirectory + "/videoData.json", VideoClass.class, videoClass);
         } else if (cqMsg.msg.startsWith("烤 ")) {
             if (strlist.length == 3) {
                 videoClass.addVideoSum();
@@ -55,6 +56,7 @@ public class RedStoneFunc extends BaseFunc {
             }
             videoClass.updateList();
             zibenbot.replyMsg(cqMsg, "已添加" + strlist[1] + " " + strlist[2]);
+            ConfigLoader.save(zibenbot.appDirectory + "/videoData.json", VideoClass.class, videoClass);
         } else if (cqMsg.msg.equals("搬运列表")) {
             videoClass.updateList();
             zibenbot.replyMsg(cqMsg, videoClass.getFullList());
@@ -63,10 +65,12 @@ public class RedStoneFunc extends BaseFunc {
             if (cqMsg.msg.equals("接坑")) {
                 videoClass.updateList();
                 zibenbot.replyMsg(cqMsg, videoClass.getTranslateList());
+                ConfigLoader.save(zibenbot.appDirectory + "/videoData.json", VideoClass.class, videoClass);
             } else if (cqMsg.msg.startsWith("已搬 ")) {
                 videoClass.VideoDone(strlist[1]);
                 videoClass.updateList();
                 zibenbot.replyMsg(cqMsg, videoClass.getFullList());
+                ConfigLoader.save(zibenbot.appDirectory + "/videoData.json", VideoClass.class, videoClass);
             } else if (cqMsg.msg.startsWith("接 ")) {
                 if (videoClass.getVideoNum() == 0) {
                     zibenbot.replyMsg(cqMsg, "当前列表中无视频");
@@ -83,9 +87,8 @@ public class RedStoneFunc extends BaseFunc {
                 }
                 videoClass.updateList();
                 zibenbot.replyMsg(cqMsg, videoClass.getTranslateList());
+                ConfigLoader.save(zibenbot.appDirectory + "/videoData.json", VideoClass.class, videoClass);
             }
         }
-
-        ConfigLoader.save(zibenbot.appDirectory + "/videoData.json", VideoClass.class, videoClass);
     }
 }
