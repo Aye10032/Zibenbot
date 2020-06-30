@@ -47,8 +47,7 @@ public class seleniumTest {
         bytes = ImgUtils.compress(bytes, "png");
         IOUtil.saveFileWithBytes("test/" + System.currentTimeMillis() + ".png", bytes);
         //closing the browser
-        driver.close();
-        driver.quit();
+        driver.get("about:blank");
         System.out.println(driver);
     }
 
