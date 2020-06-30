@@ -10,6 +10,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.http.Header;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -179,7 +180,7 @@ public class FangZhouDiaoluoFunc extends BaseFunc {
         DiaoluoType diaoluoType = null;
         try {
             for (int i = 1; i <= 5; i++) {
-                InputStream stream = HttpUtils.getInputStreamFromNet("https://api.aog.wiki/materials//tier/" + String.valueOf(i), client);
+                InputStream stream = HttpUtils.getInputStreamFromNet("https://arkonegraph.herokuapp.com/materials/tier/" + String.valueOf(i), client);
                 if (diaoluoType == null) {
                     diaoluoType = gson.fromJson(new InputStreamReader(stream), DiaoluoType.class);
                 } else {
@@ -207,11 +208,11 @@ public class FangZhouDiaoluoFunc extends BaseFunc {
             module = Module.module;
 
             String img_url = "https://aog.wiki/";
-            update_img(img_url);
+            //update_img(img_url);
 
             client.close();
         } catch (Exception e) {
-            e.printStackTrace();
+            Zibenbot.logger.info("方舟掉落更新出错：" + ExceptionUtils.getStackTrace(e));
         }
         Zibenbot.logger.info("fangzhoudiaoluo update end");
     }
@@ -224,7 +225,7 @@ public class FangZhouDiaoluoFunc extends BaseFunc {
             file.createNewFile();
         }
         try {
-            ScreenshotFunc.getScreenshot(img_url, arkonegraphFile, 10000);
+            ScreenshotFunc.getScreenshot(img_url, arkonegraphFile, 4000);
         } catch (Exception e) {
             e.printStackTrace();
         }
