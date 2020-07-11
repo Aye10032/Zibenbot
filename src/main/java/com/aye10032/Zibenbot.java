@@ -88,6 +88,7 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
         enableGroup.add(456919710L);
         enableGroup.add(792797914L);
         enableGroup.add(814843368L);
+        enableGroup.add(1098042439L);
     }
 
     {

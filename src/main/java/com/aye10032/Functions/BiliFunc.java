@@ -68,7 +68,8 @@ public class BiliFunc extends BaseFunc{
                             + "\n点赞：" + formatToW(biliInfo.getLike())
                             + " 投币：" + formatToW(biliInfo.getCoin())
                             + " 收藏：" + formatToW(biliInfo.getFavorite())
-                            + " 评论：" + formatToW(biliInfo.getReply());
+                            + " 评论：" + formatToW(biliInfo.getReply())
+                            + "\n简介：" + biliInfo.getDescription();
                 } else if(CQmsg.isTeamspealMsg()) {
                     send = biliInfo.getTitle() + "\n"
                             + biliInfo.getVideourl() + "\n"
@@ -78,7 +79,8 @@ public class BiliFunc extends BaseFunc{
                             + "\n点赞：" + formatToW(biliInfo.getLike())
                             + " 投币：" + formatToW(biliInfo.getCoin())
                             + " 收藏：" + formatToW(biliInfo.getFavorite())
-                            + " 评论：" + formatToW(biliInfo.getReply());
+                            + " 评论：" + formatToW(biliInfo.getReply())
+                            + "\n简介：" + biliInfo.getDescription();;
                 }
                 replyMsg(CQmsg, send);
             } catch (IOException e) {

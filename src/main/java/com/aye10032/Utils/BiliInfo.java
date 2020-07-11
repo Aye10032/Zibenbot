@@ -32,6 +32,7 @@ public class BiliInfo {
     private String pvideodir;
 
     private String title = "";
+    private String description = "";
     private String imgurl = "";
     private String videourl_av = "https://www.bilibili.com/video/av";
     private String videourl_bv = "https://www.bilibili.com/video/BV";
@@ -103,6 +104,7 @@ public class BiliInfo {
 
                 JsonObject dataJson = jsonObject.get("data").getAsJsonObject();
                 this.title = dataJson.get("title").getAsString();
+                this.description = dataJson.get("desc").getAsString();
                 this.imgurl = dataJson.get("pic").getAsString();
 
                 JsonObject ownerJson = dataJson.get("owner").getAsJsonObject();
@@ -142,7 +144,7 @@ public class BiliInfo {
                     hasPvdeo = false;
                 }
             }
-            downloadImg(headurl, "head", 80, 80);
+            downloadImg(headurl, "head", 200, 200);
             downloadImg(imgurl, "img");
 
         } catch (IOException e) {
@@ -394,6 +396,10 @@ public class BiliInfo {
 
     public String getTitle() {
         return this.title;
+    }
+
+    public String getDescription() {
+        return description;
     }
 
     public String getImgurl() {
