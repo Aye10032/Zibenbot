@@ -9,6 +9,8 @@ import java.lang.reflect.Type;
 
 public  class ConfigLoader<T> {
 
+    private final static String EMPTY_JSON = "{}";
+
     //直接传入文件和类型进行加载
     //如果文件不存在会返回所有属性为null的对象
     //推荐在拿属性的时候使用 ObjectUtils.defaultIfNull() 方法设置默认值
@@ -52,16 +54,15 @@ public  class ConfigLoader<T> {
     public T load(){
         if (file.exists()) {
             try {
-                Reader reader = new BufferedReader(new FileReader(file));
-                T ret = gson.fromJson(reader, type);
-                IOUtils.closeQuietly(reader);
-                return ret;
+                String s = IOUtils.toString(new FileReader(file));
+                s = s.trim().isEmpty() ? EMPTY_JSON : s;
+                return gson.fromJson(s, type);
             } catch (Exception e) {
                 e.printStackTrace();
-                return gson.fromJson("{}", type);
+                return gson.fromJson(EMPTY_JSON, type);
             }
         } else {
-            return gson.fromJson("{}", type);
+            return gson.fromJson(EMPTY_JSON, type);
         }
     }
 
