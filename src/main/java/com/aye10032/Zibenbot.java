@@ -17,7 +17,10 @@ import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.Socket;
 import java.net.SocketAddress;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -39,6 +42,16 @@ import static com.aye10032.Utils.TimeUtil.TimeConstant.PER_DAY;
  */
 public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
 
+    public static Proxy proxy = null;
+    /**
+     * 老的方式依然支持，也就是不强行定构造方法也行
+     */
+    public static Logger logger = Logger.getLogger("zibenbot");
+    //时间任务池
+    public TimeTaskPool pool = new TimeTaskPool();
+    public TeamspeakBot teamspeakBot;
+    public BotConfigFunc config;
+    public List<Long> enableGroup = new ArrayList<>();
     /**
      * 关于新版：本版本只是为了测试下新做的插件能不能正常运行，并不包含任何 “新” 内容
      * 新：指代 打包，调试运行
@@ -47,30 +60,8 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
      */
 
     List<IFunc> registerFunc = new ArrayList<IFunc>();
-    //时间任务池
-    public TimeTaskPool pool = new TimeTaskPool();
-    public TeamspeakBot teamspeakBot;
-    public BotConfigFunc config;
-    public static Proxy proxy = null;
+    FileHandler fh;
 
-    public static Proxy getProxy() {
-        Socket s = new Socket();
-        SocketAddress add = new InetSocketAddress("127.0.0.1", 1080);
-        try {
-            s.connect(add, 1000);
-            proxy = new Proxy(Proxy.Type.SOCKS, InetSocketAddress.createUnresolved("127.0.0.1", 1080));
-        } catch (IOException e) {
-            //连接超时需要处理的业务逻辑
-        }
-        try {
-            s.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return proxy;
-    }
-
-    public List<Long> enableGroup = new ArrayList<>();
     {
 
         //fromGroup == 995497677L
@@ -96,10 +87,10 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
         SeleniumUtils.setup(appDirectory + "\\ChromeDriver\\chromedriver.exe");
     }
 
+
     public Zibenbot() {
 
     }
-
 
     /**
      * 使用新的方式加载CQ （建议使用这种方式）
@@ -108,6 +99,61 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
      */
     public Zibenbot(CoolQ CQ) {
         super(CQ);
+    }
+
+    public static Proxy getProxy() {
+        Socket s = new Socket();
+        SocketAddress add = new InetSocketAddress("127.0.0.1", 1080);
+        try {
+            s.connect(add, 1000);
+            proxy = new Proxy(Proxy.Type.SOCKS, InetSocketAddress.createUnresolved("127.0.0.1", 1080));
+        } catch (IOException e) {
+            //连接超时需要处理的业务逻辑
+        }
+        try {
+            s.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return proxy;
+    }
+
+    /**
+     * 用main方法调试可以最大化的加快开发效率，检测和定位错误位置<br/>
+     * 以下就是使用Main方法进行测试的一个简易案例
+     *
+     * @param args 系统参数
+     */
+    public static void main(String[] args) {
+
+        // 要测试主类就先实例化一个主类对象
+        Zibenbot demo = new Zibenbot();
+        // 获取当前酷Q操作对象
+        CoolQ CQ = demo.getCoolQ();
+        CQ.logInfo("[JCQ] TEST Demo", "测试启动");// 现在就可以用CQ变量来执行任何想要的操作了
+        // 下面对主类进行各方法测试,按照JCQ运行过程，模拟实际情况
+        demo.startup();// 程序运行开始 调用应用初始化方法
+        demo.enable();// 程序初始化完成后，启用应用，让应用正常工作
+        // 开始模拟发送消息
+        // 模拟私聊消息
+        // 开始模拟QQ用户发送消息，以下QQ全部编造，请勿添加
+        demo.privateMsg(0, 10001, 2234567819L, "nmsl", 0);
+        demo.privateMsg(0, 10002, 2222222224L, "喵呜喵呜喵呜", 0);
+        demo.privateMsg(0, 10003, 2111111334L, "可以给我你的微信吗", 0);
+        demo.privateMsg(0, 10004, 3111111114L, "今天天气真好", 0);
+        demo.privateMsg(0, 10005, 3333333334L, "你好坏，都不理我QAQ", 0);
+        // 模拟群聊消息
+        // 开始模拟群聊消息
+        demo.groupMsg(1, 10006, 3456789012L, 3333333334L, "", ".禁言 [CQ:at,qq=348802256] 10", 0);
+        demo.groupMsg(1, 10008, 3456789012L, 11111111114L, "", "小喵呢，出来玩玩呀", 0);
+        demo.groupMsg(1, 10009, 427984429L, 3333333334L, "", "[CQ:at,qq=2222222224] 来一起玩游戏，开车开车", 0);
+        demo.groupMsg(1, 10010, 427984429L, 3333333334L, "", "好久不见啦 [CQ:at,qq=11111111114]", 0);
+        demo.groupMsg(1, 10011, 427984429L, 11111111114L, "", "qwq 有没有一起开的\n[CQ:at,qq=3333333334]你玩嘛", 0);
+        // ......
+        // 依次类推，可以根据实际情况修改参数，和方法测试效果
+        // 以下是收尾触发函数
+        // demo.disable();// 实际过程中程序结束不会触发disable，只有用户关闭了此插件才会触发
+        demo.exit();// 最后程序运行结束，调用exit方法
     }
 
     public int toPrivateMsg(long clientId, String msg) {
@@ -187,7 +233,7 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
                 log_dir.mkdirs();
             }
             // This block configure the logger with handler and formatter
-            fh = new FileHandler(appDirectory + "\\log\\" + new Date().toString().replace(" ", "_").replace(":", "_")+ ".log");
+            fh = new FileHandler(appDirectory + "\\log\\" + new Date().toString().replace(" ", "_").replace(":", "_") + ".log");
             logger.addHandler(fh);
             SimpleFormatter formatter = new SimpleFormatter();
             fh.setFormatter(formatter);
@@ -256,6 +302,7 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
         registerFunc.add(new DraSummonSimulatorFunc(this));
         registerFunc.add(new PaomianFunc(this));
         registerFunc.add(new SendGroupFunc(this));
+        registerFunc.add(new INMFunc(this));
 
         //对功能进行初始化
         for (IFunc func : registerFunc) {
@@ -597,60 +644,14 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
         return 0;
     }
 
-    public int test(CQMsg cqMsg){
+    public int test(CQMsg cqMsg) {
         if (cqMsg.isGroupMsg()) {
-            return groupMsg(cqMsg.subType, cqMsg.msgId, cqMsg.fromGroup, cqMsg.fromClient, "",  cqMsg.msg, cqMsg.font);
-        } else if (cqMsg.isPrivateMsg()){
+            return groupMsg(cqMsg.subType, cqMsg.msgId, cqMsg.fromGroup, cqMsg.fromClient, "", cqMsg.msg, cqMsg.font);
+        } else if (cqMsg.isPrivateMsg()) {
             return privateMsg(cqMsg.subType, cqMsg.msgId, cqMsg.fromClient, cqMsg.msg, cqMsg.font);
         } else {
             return teamspeakMsg(cqMsg.fromGroup, cqMsg.fromClient, cqMsg.msg);
         }
-    }
-
-    /**
-     * 老的方式依然支持，也就是不强行定构造方法也行
-     */
-    public static Logger logger = Logger.getLogger("zibenbot");
-    FileHandler fh;
-
-
-
-    /**
-     * 用main方法调试可以最大化的加快开发效率，检测和定位错误位置<br/>
-     * 以下就是使用Main方法进行测试的一个简易案例
-     *
-     * @param args 系统参数
-     */
-    public static void main(String[] args) {
-
-        // 要测试主类就先实例化一个主类对象
-        Zibenbot demo = new Zibenbot();
-        // 获取当前酷Q操作对象
-        CoolQ CQ = demo.getCoolQ();
-        CQ.logInfo("[JCQ] TEST Demo", "测试启动");// 现在就可以用CQ变量来执行任何想要的操作了
-        // 下面对主类进行各方法测试,按照JCQ运行过程，模拟实际情况
-        demo.startup();// 程序运行开始 调用应用初始化方法
-        demo.enable();// 程序初始化完成后，启用应用，让应用正常工作
-        // 开始模拟发送消息
-        // 模拟私聊消息
-        // 开始模拟QQ用户发送消息，以下QQ全部编造，请勿添加
-        demo.privateMsg(0, 10001, 2234567819L, "nmsl", 0);
-        demo.privateMsg(0, 10002, 2222222224L, "喵呜喵呜喵呜", 0);
-        demo.privateMsg(0, 10003, 2111111334L, "可以给我你的微信吗", 0);
-        demo.privateMsg(0, 10004, 3111111114L, "今天天气真好", 0);
-        demo.privateMsg(0, 10005, 3333333334L, "你好坏，都不理我QAQ", 0);
-        // 模拟群聊消息
-        // 开始模拟群聊消息
-        demo.groupMsg(1, 10006, 3456789012L, 3333333334L, "", ".禁言 [CQ:at,qq=348802256] 10", 0);
-        demo.groupMsg(1, 10008, 3456789012L, 11111111114L, "", "小喵呢，出来玩玩呀", 0);
-        demo.groupMsg(1, 10009, 427984429L, 3333333334L, "", "[CQ:at,qq=2222222224] 来一起玩游戏，开车开车", 0);
-        demo.groupMsg(1, 10010, 427984429L, 3333333334L, "", "好久不见啦 [CQ:at,qq=11111111114]", 0);
-        demo.groupMsg(1, 10011, 427984429L, 11111111114L, "", "qwq 有没有一起开的\n[CQ:at,qq=3333333334]你玩嘛", 0);
-        // ......
-        // 依次类推，可以根据实际情况修改参数，和方法测试效果
-        // 以下是收尾触发函数
-        // demo.disable();// 实际过程中程序结束不会触发disable，只有用户关闭了此插件才会触发
-        demo.exit();// 最后程序运行结束，调用exit方法
     }
 
 }
