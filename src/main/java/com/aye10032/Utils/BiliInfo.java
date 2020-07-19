@@ -150,7 +150,6 @@ public class BiliInfo {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 
     public void downloadImg(String imgurl, String filename) {
