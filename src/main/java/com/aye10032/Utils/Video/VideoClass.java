@@ -7,13 +7,11 @@ import java.util.Map;
 
 public class VideoClass {
 
-    private Integer videoNum;
-    private Integer videoSum;
-    private List<VideoData> dataList;
+    private Integer videoNum = 0;
+    private Integer videoSum = 0;
+    private List<VideoData> dataList = new ArrayList<VideoData>();
 
     public VideoClass() {
-        videoSum = 0;
-        dataList = new ArrayList<VideoData>();
     }
 
     public int getVideoNum() {
