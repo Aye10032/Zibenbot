@@ -241,7 +241,7 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
         config = new BotConfigFunc(this);
 
         registerFunc.add(config);
-        registerFunc.add(new AyeCube(this));
+        registerFunc.add(new CubeFunc(this));
         registerFunc.add(new BanFunc(this));
         registerFunc.add(new DianGuaiFunc(this));
         registerFunc.add(new EatFunc(this));
@@ -254,7 +254,6 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
         registerFunc.add(new ScreenshotFunc(this));
         registerFunc.add(new DragraliaNewsFunc(this));
         registerFunc.add(new DraSummonSimulatorFunc(this));
-        registerFunc.add(new CFOPFunc(this));
         registerFunc.add(new PaomianFunc(this));
 
         //对功能进行初始化
