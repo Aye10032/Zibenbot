@@ -126,29 +126,43 @@ public class DraSummonSimulatorFunc extends BaseFunc {
                     replyMsg(CQmsg, getExperHD());
                 } else if ("卡池列表".equals(strings[1]) || "卡池".equals(strings[1])) {
                     replyMsg(CQmsg, "当前可用卡池：\n" + getPoolList());
-                } else if ("十连".equals(strings[1])) {
+                } else if (strings[1].endsWith("连")) {
                     UserDate date = getUser(CQmsg.fromClient);
                     if (date.todayCount > 2 && CQmsg.isGroupMsg()) {
                         replyMsg(CQmsg, zibenbot.getCQCode().at(CQmsg.fromClient) +
                                 "今天的抽卡次数已经用完，请明天或者私聊抽卡。");
                     } else {
-                        StringBuilder builder = new StringBuilder();
-                        builder.append(zibenbot.getCQCode().at(CQmsg.fromClient)).append("的第");
-                        builder.append(date.total).append("-").append(date.total + 10).append(
-                                "抽:\n").append(getTenString(date));
-                        float f = 100 * (date.currentEvent.o5 + date.current / 10 * 0.005f);
-                        java.text.DecimalFormat df = new java.text.DecimalFormat("##0.0");
-                        builder.append("\n").append("当前概率：").append(df.format(f)).append("%");
-                        builder.append("\n").append("当前卡池：").append(i18n(date.currentEvent.title));
-                        builder.append("\n").append("抽卡结果仅供参考，实际以游戏内为准。");
-                        replyMsg(CQmsg, builder.toString());
-                        if (CQmsg.isGroupMsg()) {
-                            date.todayCount += 1;
+                        int x = 0;
+                        String s = strings[1].substring(0, strings[1].length() - 1 );
+                        try {
+                            x = Integer.parseInt(s);
+                        } catch (Exception e) {
+                            //ignore
                         }
-                        user_config.set("userdates", gson.toJson(userDates));
-                        user_loader.save(user_config);
-                        i18n_loader.save(i18n);
-
+                        if (x > 0) {
+                            if (x > 1000) {
+                                replyMsg(CQmsg, "最多只支持1000连");
+                                return;
+                            }
+                            StringBuilder builder = new StringBuilder();
+                            builder.append(zibenbot.getCQCode().at(CQmsg.fromClient)).append("的第");
+                            builder.append(date.total).append("-").append(date.total + x).append("抽:\n").append(getXSummonString(x, date));
+                            float f = 100 * (date.currentEvent.o5 + date.current / 10 * 0.005f);
+                            java.text.DecimalFormat df = new java.text.DecimalFormat("##0.0");
+                            builder.append("\n").append("当前概率：").append(df.format(f)).append("%");
+                            builder.append("\n").append("当前卡池：").append(i18n(date.currentEvent.title));
+                            builder.append("\n").append("抽卡结果仅供参考，实际以游戏内为准。");
+                            replyMsg(CQmsg, builder.toString());
+                            if (CQmsg.isGroupMsg()) {
+                                date.todayCount += 1;
+                            }
+                            user_config.set("userdates", gson.toJson(userDates));
+                            user_loader.save(user_config);
+                            i18n_loader.save(i18n);
+                        } else {
+                            replyMsg(CQmsg, "请输入正确的抽卡次数");
+                            return;
+                        }
                     }
                 } else if ("单抽".equals(strings[1])) {
                     UserDate date = getUser(CQmsg.fromClient);
@@ -423,7 +437,7 @@ public class DraSummonSimulatorFunc extends BaseFunc {
         StringBuilder builder = new StringBuilder();
         builder.append("使用说明：").append("\n");
         builder.append("\t").append("超龙日程 -> .龙约 超龙").append("\n");
-        builder.append("\t").append("进行十连抽卡 -> .龙约 十连").append("\n");
+        builder.append("\t").append("进行X连抽卡 -> .龙约 X连").append("\n");
         builder.append("\t").append("进行单抽 -> .龙约 单抽").append("\n");
         builder.append("\t").append("查看可用卡池 -> .龙约 卡池列表").append("\n");
         builder.append("\t").append("切换卡池 -> .龙约 切换卡池 [卡池序号]").append("\n");
@@ -452,26 +466,74 @@ public class DraSummonSimulatorFunc extends BaseFunc {
         return sum.get();
     }
 
-    private String getTenString(UserDate date) {
-        List<SummonEle> eles = ten(date);
-        List<SummonEle> temp = new ArrayList<>();
-        StringBuilder builder = new StringBuilder();
-        eles.forEach(ele -> {
-            int i = getCount(eles, ele);
-            boolean flag = date.summerRes.get(ele.title) == i && !temp.contains(ele);
-            builder.append("\t").append(getString(ele)).append("(");
-            if (flag) {
-                builder.append("new");
-            } else {
-                builder.append(date.summerRes.get(ele.title));
+    private String getXSummonString(int x, UserDate date) {
+        List<SummonEle> eles = summon(x, date);
+        if (x <= 10) {
+            List<SummonEle> temp = new ArrayList<>();
+            StringBuilder builder = new StringBuilder();
+            eles.forEach(ele -> {
+                int i = getCount(eles, ele);
+                boolean flag = date.summerRes.get(ele.title) == i && !temp.contains(ele);
+                builder.append("\t").append(getString(ele)).append("(");
+                if (flag) {
+                    builder.append("new");
+                } else {
+                    builder.append(date.summerRes.get(ele.title) - i + getCount(temp, ele) + 1);
+                }
+                builder.append(")");
+                temp.add(ele);
+                if (temp.size() != 10) {
+                    builder.append("\n");
+                }
+            });
+            return builder.toString();
+        } else {
+            List<SummonEle> temp = new ArrayList<>();
+            StringBuilder builder = new StringBuilder();
+            eles.forEach(ele -> {
+                if (ele.rarity_num.equals("5")) {
+                    int i = getCount(eles, ele);
+                    boolean flag = date.summerRes.get(ele.title) == i && !temp.contains(ele);
+                    builder.append("\t").append(getString(ele)).append("(");
+                    if (flag) {
+                        builder.append("new");
+                    } else {
+                        builder.append(date.summerRes.get(ele.title) - i + getCount(temp, ele) + 1);
+                    }
+                    builder.append(")");
+                    temp.add(ele);
+                    builder.append("\n");
+                }
+            });
+
+            if (builder.toString().isEmpty()) {
+                eles.forEach(ele -> {
+                    if (ele.rarity_num.equals("4")) {
+                        int i = getCount(eles, ele);
+                        boolean flag = date.summerRes.get(ele.title) == i && !temp.contains(ele);
+                        builder.append("\t").append(getString(ele)).append("(");
+                        if (flag) {
+                            builder.append("new");
+                        } else {
+                            builder.append(date.summerRes.get(ele.title) - i + getCount(temp, ele) + 1);
+                        }
+                        builder.append(")");
+                        temp.add(ele);
+                        builder.append("\n");
+                    }
+                });
             }
-            builder.append(")");
-            temp.add(ele);
-            if (temp.size() != 10) {
-                builder.append("\n");
-            }
-        });
-        return builder.toString();
+            return builder.toString().substring(0, builder.length() - 1);
+        }
+    }
+
+    private List<SummonEle> summon(int x, UserDate date){
+        List<SummonEle> ret = new ArrayList<>();
+        int ten = x / 10;
+        for (int i = 0; i < ten; i++) ret.addAll(ten(date));
+        int single = x % 10;
+        for (int i = 0; i < single; i++) ret.add(single(date));
+        return ret;
     }
 
     private <T> int getCount(List<T> list, T t) {
@@ -535,9 +597,10 @@ public class DraSummonSimulatorFunc extends BaseFunc {
 
     public List<SummonEle> ten(UserDate date) {
         List<SummonEle> list = new ArrayList<>();
+        SummonEvent e = date.currentEvent;
         for (int i = 0; i < 10; i++) {
             SummonEle ele = null;
-            if (date.current + i + 1 == 101) {
+            if ((e.o5 + (date.current / 10) * 0.005f) == 0.09f) {
                 do
                     ele = _single_100(date);
                 while (ele == null);
@@ -567,7 +630,8 @@ public class DraSummonSimulatorFunc extends BaseFunc {
 
     public SummonEle single(UserDate date) {
         SummonEle ele = null;
-        if (date.current == 101) {
+        SummonEvent e = date.currentEvent;
+        if ((e.o5 + (date.current / 10) * 0.005f) == 0.09f) {
             do
                 ele = _single_100(date);
             while (ele == null);
