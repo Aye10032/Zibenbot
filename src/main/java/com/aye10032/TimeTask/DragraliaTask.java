@@ -74,8 +74,8 @@ public class DragraliaTask extends TimedTask {
             e.printStackTrace();
             exceptionCount++;
         }
-
     };
+
 
     public DragraliaTask(Zibenbot zibenbot) {
         Proxy proxy;
@@ -109,7 +109,7 @@ public class DragraliaTask extends TimedTask {
         }
     }*/
 
-    private Set<Article> getNewArticles() {
+    private synchronized Set<Article> getNewArticles() {
         Set<Article> set = new HashSet<>();
         ArticleUpateDate last = gson.fromJson(config.getWithDafault("last_update_date", "{}"),
                 ArticleUpateDate.class);
