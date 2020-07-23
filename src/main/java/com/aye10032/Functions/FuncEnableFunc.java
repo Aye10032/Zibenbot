@@ -22,23 +22,28 @@ public class FuncEnableFunc extends BaseFunc {
 
     @Override
     public void setUp() {
-        disableList = ConfigLoader.load(new File(zibenbot.appDirectory + "/disable.json")
-                , new TypeToken<Map<Long, List<String>>>(){}.getType());
+        disableList = load();
     }
 
     @Override
     public void run(CQMsg CQmsg) {
-        if (CQmsg.isGroupMsg()) {
-            String[] msgs = CQmsg.msg.split(" ");
-            Boolean flag = null;
-            if (msgs[0].equals("disable") || msgs[0].equals("禁用")
-                    || msgs[0].equals(".disable") || msgs[0].equals(".禁用")) {
-                flag = false;
-            } else if (msgs[0].equals("enable") || msgs[0].equals("启用")
-                    || msgs[0].equals(".enable") || msgs[0].equals(".启用")) {
-                flag = true;
-            }
-            if (flag != null) {
+        //加载数据
+        disableList = load();
+        String[] msgs = CQmsg.msg.trim().split(" ");
+        Boolean flag = null;
+        if (msgs[0].equals("disable") || msgs[0].equals("禁用") || msgs[0].equals(".disable") || msgs[0].equals(".禁用")) {
+            flag = false;
+        } else if (msgs[0].equals("enable") || msgs[0].equals("启用") || msgs[0].equals(".enable") || msgs[0].equals(".启用")) {
+            flag = true;
+        }
+        //判断是否触发前置关键字
+        // null 直接跳过
+        // true 启用模式
+        // false 禁用模式
+        if (flag != null) {
+            if (CQmsg.isGroupMsg()) {
+                //没有方法名称
+                //返回所有方法
                 if (msgs.length == 1) {
                     StringBuilder builder = new StringBuilder();
                     builder.append("本群当前启用的模块有：\n");
@@ -62,15 +67,20 @@ public class FuncEnableFunc extends BaseFunc {
                         }
                     }
                     replyMsg(CQmsg, builder.toString());
-                } else if (msgs.length == 2){
+                //有方法名称
+                } else if (msgs.length == 2) {
+                    //查找是否有对应的
                     boolean a = false;
                     for (IFunc func : zibenbot.getRegisterFunc()) {
-                        if (func == this) continue;
+                        if (func == this) {
+                            continue;
+                        }
                         if (msgs[1].equals(func.getClass().getSimpleName())) {
                             a = true;
                             break;
                         }
                     }
+                    //有对应的进行启用/禁用
                     if (a) {
                         if (flag) {
                             setEnable(CQmsg.fromGroup, msgs[1]);
@@ -79,17 +89,23 @@ public class FuncEnableFunc extends BaseFunc {
                             setDisable(CQmsg.fromGroup, msgs[1]);
                             replyMsg(CQmsg, "已禁用：" + msgs[1]);
                         }
+                    //没有对应的 返回
                     } else {
                         replyMsg(CQmsg, "模块名称有误，或者不存在：" + msgs[1]);
                     }
                 }
+                //保存数据
                 save();
+            } else {
+                //私聊功能暂时封闭
+                //考虑以后私聊对群进行操作
+                replyMsg(CQmsg, "只可以对群启用/禁用功能");
             }
-        } else {
-            replyMsg(CQmsg, "只可以对群启用/禁用功能");
         }
+
     }
 
+    // getter and setter
     public void setEnable(Long groupId, String func){
         if (!isEnable(groupId, func)) {
             disableList.computeIfAbsent(groupId, k -> new ArrayList<>());
@@ -126,6 +142,11 @@ public class FuncEnableFunc extends BaseFunc {
     public boolean isEnable(Long groupId, IFunc func) {
         disableList.computeIfAbsent(groupId, k -> new ArrayList<>());
         return disableList.get(groupId).indexOf(func.getClass().getSimpleName()) == -1;
+    }
+
+    public Map<Long, List<String>> load() {
+        return ConfigLoader.load(new File(zibenbot.appDirectory + "/disable.json")
+                , new TypeToken<Map<Long, List<String>>>(){}.getType());
     }
 
     public void save(){
