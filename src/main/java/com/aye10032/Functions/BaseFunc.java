@@ -9,7 +9,6 @@ import org.meowy.cqp.jcq.message.CQCode;
  */
 public abstract class BaseFunc implements IFunc {
 
-    protected boolean isEnable = true;
     public Zibenbot zibenbot;
     protected String appDirectory;
     protected CoolQ CQ;
@@ -27,21 +26,6 @@ public abstract class BaseFunc implements IFunc {
             CC = zibenbot.getCQCode();
             appDirectory = zibenbot.appDirectory;
         }
-    }
-
-    @Override
-    public void setEnable() {
-        this.isEnable = true;
-    }
-
-    @Override
-    public void setdisable() {
-        this.isEnable = false;
-    }
-
-    @Override
-    public boolean isEnable() {
-        return isEnable;
     }
 
     public void replyMsg(CQMsg fromMsg, String msg) {

@@ -17,19 +17,19 @@ public  class ConfigLoader<T> {
     //在定义属性的时候 推荐使用对象类型的属性 不使用 int byte char 等
     //以防止出现默认值不为null的情况
     //详情示例参考 {ConfigTest.class}
-    public static <T> T load(File file, Class<T> type){
+    public static <T> T load(File file, Type type){
         return new ConfigLoader<T>(file, type).load();
     }
 
-    public static <T> T load(String file, Class<T> type){
+    public static <T> T load(String file, Type type){
         return new ConfigLoader<T>(new File(file), type).load();
     }
 
-    public static <T> void save(File file, Class<T> type, T config) {
+    public static <T> void save(File file, Type type, T config) {
         new ConfigLoader<T>(file, type).save(config);
     }
 
-    public static <T> void save(String file, Class<T> type, T config) {
+    public static <T> void save(String file, Type type, T config) {
         new ConfigLoader<T>(new File(file), type).save(config);
     }
 

@@ -12,12 +12,5 @@ public interface IFunc {
     //bot功能的运行在这里
     void run(CQMsg CQmsg);
 
-    //功能的禁用和启用
-    void setEnable();
-
-    void setdisable();
-
-    boolean isEnable();
-
 
 }
