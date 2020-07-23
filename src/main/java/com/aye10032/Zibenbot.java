@@ -51,6 +51,7 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
     public TimeTaskPool pool = new TimeTaskPool();
     public TeamspeakBot teamspeakBot;
     public BotConfigFunc config;
+    public FuncEnableFunc enableCollFunc;
     public List<Long> enableGroup = new ArrayList<>();
     /**
      * 关于新版：本版本只是为了测试下新做的插件能不能正常运行，并不包含任何 “新” 内容
@@ -90,6 +91,10 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
 
     public Zibenbot() {
 
+    }
+
+    public List<IFunc> getRegisterFunc() {
+        return registerFunc;
     }
 
     /**
@@ -284,9 +289,9 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
         Zibenbot.logger.log(Level.INFO, "registe time task end");
         //改成了手动注册
         Zibenbot.logger.log(Level.INFO, "registe func start");
-        config = new BotConfigFunc(this);
 
-        registerFunc.add(config);
+        registerFunc.add(config = new BotConfigFunc(this));
+        registerFunc.add(enableCollFunc = new FuncEnableFunc(this));
         registerFunc.add(new CubeFunc(this));
         registerFunc.add(new BanFunc(this));
         registerFunc.add(new DianGuaiFunc(this));
@@ -422,10 +427,12 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
             CQMsg cqMsg = new CQMsg(subType, msgId, fromGroup, fromQQ, anonymous, s, font, MsgType.GROUP_MSG);
             if (enableGroup.contains(fromGroup)) { // 这里的 0L 可以换成您的测试群
                 for (IFunc func : registerFunc) {
-                    try {
-                        func.run(cqMsg);
-                    } catch (Exception e) {
-                        replyMsg(cqMsg, "运行出错：" + e + "\n" + ExceptionUtils.printStack(e));
+                    if (enableCollFunc.isEnable(fromGroup, func)) {
+                        try {
+                            func.run(cqMsg);
+                        } catch (Exception e) {
+                            replyMsg(cqMsg, "运行出错：" + e + "\n" + ExceptionUtils.printStack(e));
+                        }
                     }
                 }
 
