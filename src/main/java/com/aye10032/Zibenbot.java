@@ -5,6 +5,7 @@ import com.aye10032.TimeTask.DragraliaTask;
 import com.aye10032.Utils.ExceptionUtils;
 import com.aye10032.Utils.IDNameUtil;
 import com.aye10032.Utils.SeleniumUtils;
+import com.aye10032.Utils.TimeUtil.TaskCycle;
 import com.aye10032.Utils.TimeUtil.TimeTaskPool;
 import com.aye10032.Utils.TimeUtil.TimedTask;
 import org.meowy.cqp.jcq.entity.*;
@@ -25,8 +26,6 @@ import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
-
-import static com.aye10032.Utils.TimeUtil.TimeConstant.PER_DAY;
 
 /**
  * 本文件是JCQ插件的主类<br>
@@ -254,36 +253,47 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
 
         List<Long> groupList = new ArrayList<Long>();
         groupList.add(995497677L);
-        SendGroupMSGTask shangong = new SendGroupMSGTask(this, groupList, "崽种上工了！");
-        SendGroupMSGTask xiagong = new SendGroupMSGTask(this, groupList, "崽种们下班了，快回家！");
+        SendGroupMSGTask maiyao = new SendGroupMSGTask(this, groupList, getCQImg(appDirectory + "/image/提醒买药小助手.jpg"));
         //创建任务对象
-        TimedTask shangongtask = new TimedTask();
-        TimedTask xiagongtask = new TimedTask();
+        TimedTask maiyaotask = new TimedTask();
         //设置时间
         Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR_OF_DAY, 8);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
         calendar.set(Calendar.MINUTE, 0);
         calendar.set(Calendar.SECOND, 0);
         Date date = calendar.getTime();
-        //设置任务
-        shangongtask.setRunnable(shangong)
-                //设置周期
-                .setCycle(PER_DAY)
-                //设置次数 -1 表示无限
-                .setTimes(-1)
-                //避免拿到的是未来的8点
-                .setTiggerTime(PER_DAY.getNextTime(date));
 
-        //换成晚上10点
-        calendar.set(Calendar.HOUR_OF_DAY, 22);
-        //重新生成date对象
-        date = calendar.getTime();
-        xiagongtask.setRunnable(xiagong).setCycle(PER_DAY).setTimes(-1)
-                //避免拿到的是未来的8点
-                .setTiggerTime(PER_DAY.getNextTime(date));
+        TaskCycle maiyaoCycle = date1 -> {
+            Date now = new Date();
+            while (now.compareTo(date1) >= 0) {
+                Calendar c = Calendar.getInstance();
+                c.setTime(date1);
+                int hour = c.get(Calendar.HOUR_OF_DAY);
+                if (0 <= hour && hour < 6) {
+                    c.set(Calendar.HOUR_OF_DAY, 6);
+                    date1.setTime(c.getTimeInMillis());
+                } else if (6 <= hour && hour < 12) {
+                    c.set(Calendar.HOUR_OF_DAY, 12);
+                    date1.setTime(c.getTimeInMillis());
+                } else if (12 <= hour && hour < 18) {
+                    c.set(Calendar.HOUR_OF_DAY, 18);
+                    date1.setTime(c.getTimeInMillis());
+                } else {
+                    c.set(Calendar.HOUR_OF_DAY, 0);
+                    date1.setTime(c.getTimeInMillis() +  + 86400 * 1000);
+                }
+            }
+            return date1;
+        };
+
+        maiyaotask.setRunnable(maiyao)
+                .setCycle(maiyaoCycle)
+                .setTimes(-1)
+                .setTiggerTime(maiyaoCycle.getNextTime(date));
+
+
         Zibenbot.logger.log(Level.INFO, "registe time task start");
-        pool.add(shangongtask);
-        pool.add(xiagongtask);
+        pool.add(maiyaotask);
 
         pool.add(new DragraliaTask(this));
         Zibenbot.logger.log(Level.INFO, "registe time task end");
@@ -418,28 +428,31 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
     public int groupMsg(int subType, int msgId, long fromGroup, long fromQQ, String fromAnonymous, String msg, int font) {
         // 如果消息来自匿名者
         Anonymous anonymous = null;
-        if (fromQQ == 80000000L && !fromAnonymous.equals("")) {
+        if (fromQQ == 80000000L && !"".equals(fromAnonymous)) {
             // 将匿名用户信息放到 anonymous 变量中
             anonymous = CQ.getAnonymous(fromAnonymous);
         }
         String[] strings = msg.split("\n");
         for (String s : strings) {
             CQMsg cqMsg = new CQMsg(subType, msgId, fromGroup, fromQQ, anonymous, s, font, MsgType.GROUP_MSG);
-            if (enableGroup.contains(fromGroup)) { // 这里的 0L 可以换成您的测试群
-                for (IFunc func : registerFunc) {
-                    if (enableCollFunc.isEnable(fromGroup, func)) {
-                        try {
-                            func.run(cqMsg);
-                        } catch (Exception e) {
-                            replyMsg(cqMsg, "运行出错：" + e + "\n" + ExceptionUtils.printStack(e));
-                        }
-                    }
-                }
-
-            }
+            runFuncs(cqMsg);
         }
 
         return MSG_IGNORE;
+    }
+
+    public void runFuncs(CQMsg cqMsg){
+        if (enableGroup.contains(cqMsg.fromGroup)) {
+            for (IFunc func : registerFunc) {
+                if (enableCollFunc.isEnable(cqMsg.fromGroup, func)) {
+                    try {
+                        func.run(cqMsg);
+                    } catch (Exception e) {
+                        replyMsg(cqMsg, "运行出错：" + e + "\n" + ExceptionUtils.printStack(e));
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -649,6 +662,10 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
     public int menuB() {
         JOptionPane.showMessageDialog(null, "这是测试菜单B，可以在这里加载窗口");
         return 0;
+    }
+
+    public String getCQImg(String filePath){
+        return getCQCode().image(filePath);
     }
 
     public int test(CQMsg cqMsg) {

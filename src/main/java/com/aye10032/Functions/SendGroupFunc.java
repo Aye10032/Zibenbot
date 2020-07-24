@@ -1,5 +1,6 @@
 package com.aye10032.Functions;
 
+import com.aye10032.Utils.ExceptionUtils;
 import com.aye10032.Utils.IDNameUtil;
 import com.aye10032.Zibenbot;
 
@@ -22,6 +23,7 @@ public class SendGroupFunc extends BaseFunc {
     @Override
     public void setUp() {
         oplist.add(2375985957L);
+        oplist.add(895981998L);
 
         groupMap.put(1, 995497677L);
         groupMap.put(2, 947657871L);
@@ -56,13 +58,18 @@ public class SendGroupFunc extends BaseFunc {
             int flag = msg.indexOf(" ", msg.indexOf(" ") + 1);
             msg = msg.substring(flag + 1);
             zibenbot.getCoolQ().sendGroupMsg(group, msg);
+            CQmsg.fromGroup = group;
+            CQmsg.type = MsgType.GROUP_MSG;
+            CQmsg.msg = msg;
+            zibenbot.runFuncs(CQmsg);
             Zibenbot.logger.log(Level.INFO,
                     String.format("回复群[%s]成员[%s]消息:%s",
                             IDNameUtil.getGroupNameByID(group, zibenbot.getCoolQ().getGroupList()),
                             IDNameUtil.getGroupMemberNameByID(group, CQmsg.fromClient, CQ),
                             msg));
-        } catch (NumberFormatException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            replyMsg(CQmsg, "运行出错：" + e + "\n" + ExceptionUtils.printStack(e));
+            Zibenbot.logger.log(Level.WARNING, "运行出错：" + e + "\n" + ExceptionUtils.printStack(e));
         }
     }
 
@@ -72,13 +79,16 @@ public class SendGroupFunc extends BaseFunc {
             int flag = msg.indexOf(" ");
             msg = msg.substring(flag + 1);
             zibenbot.getCoolQ().sendGroupMsg(group, msg);
-            Zibenbot.logger.log(Level.INFO,
-                    String.format("回复群[%s]成员[%s]消息:%s",
-                            IDNameUtil.getGroupNameByID(group, zibenbot.getCoolQ().getGroupList()),
-                            IDNameUtil.getGroupMemberNameByID(group, CQmsg.fromClient, CQ),
-                            msg));
-        } catch (NumberFormatException e) {
-            e.printStackTrace();
+            CQmsg.fromGroup = group;
+            CQmsg.type = MsgType.GROUP_MSG;
+            CQmsg.msg = msg;
+            zibenbot.runFuncs(CQmsg);
+            Zibenbot.logger.log(Level.INFO, String.format("转发到群[%s]消息:%s"
+                    , IDNameUtil.getGroupNameByID(group, zibenbot.getCoolQ().getGroupList())
+                    , msg));
+        } catch (Exception e) {
+            replyMsg(CQmsg, "运行出错：" + e + "\n" + ExceptionUtils.printStack(e));
+            Zibenbot.logger.log(Level.WARNING, "运行出错：" + e + "\n" + ExceptionUtils.printStack(e));
         }
     }
 }
