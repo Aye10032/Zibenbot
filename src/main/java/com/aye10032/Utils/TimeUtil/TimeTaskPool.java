@@ -15,7 +15,7 @@ public class TimeTaskPool {
 
     //创建线程安全的列表
     List<TimedTask> nextTasks = Collections.synchronizedList(new ArrayList<>());
-    List<TimedTask> tasks = Collections.synchronizedList(new ArrayList<>());
+    public List<TimedTask> tasks = Collections.synchronizedList(new ArrayList<>());
 
     //时间流对象 主要是包装了时间任务的线程
     TimeFlow flow;
@@ -32,11 +32,15 @@ public class TimeTaskPool {
     }
 
     public void add(TimedTask task) {
-        if (task.runnable != null) {
-            Zibenbot.logger.log(Level.INFO, String.format("添加时间任务 触发时间：%s 当前时间%s", task.tiggerTime.toString(), new Date().toString()));
+        if (task.getRunnable() != null) {
             tasks.add(task);
             flow.flush();
+            Zibenbot.logger.log(Level.INFO, String.format("添加时间任务 触发时间：%s 当前时间%s", task.getTiggerTime().toString(), new Date().toString()));
         }
+    }
+
+    public void flush(){
+        flow.flush();
     }
 
     public void remove(TimedTask task) {
@@ -54,6 +58,9 @@ public class TimeTaskPool {
     public List<TimedTask> getNextTasks() {
         nextTasks.clear();
         for (TimedTask task : tasks) {
+            if (task.getTiggerTime() == null) {
+                continue;
+            }
             if (nextTasks.size() == 0) {
                 nextTasks.add(task);
             } else {

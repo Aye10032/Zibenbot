@@ -2,12 +2,12 @@ package com.aye10032;
 
 import com.aye10032.Functions.*;
 import com.aye10032.TimeTask.DragraliaTask;
+import com.aye10032.TimeTask.SubscriptManager;
 import com.aye10032.Utils.ExceptionUtils;
 import com.aye10032.Utils.IDNameUtil;
 import com.aye10032.Utils.SeleniumUtils;
-import com.aye10032.Utils.TimeUtil.TaskCycle;
+import com.aye10032.Utils.TimeUtil.TimeCycle;
 import com.aye10032.Utils.TimeUtil.TimeTaskPool;
-import com.aye10032.Utils.TimeUtil.TimedTask;
 import org.meowy.cqp.jcq.entity.*;
 import org.meowy.cqp.jcq.event.JcqAppAbstract;
 
@@ -48,6 +48,7 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
     public static Logger logger = Logger.getLogger("zibenbot");
     //时间任务池
     public TimeTaskPool pool = new TimeTaskPool();
+    public SubscriptManager subManager = new SubscriptManager(this);
     public TeamspeakBot teamspeakBot;
     public BotConfigFunc config;
     public FuncEnableFunc enableCollFunc;
@@ -251,19 +252,7 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
             e.printStackTrace();
         }
 
-        List<Long> groupList = new ArrayList<Long>();
-        groupList.add(995497677L);
-        SendGroupMSGTask maiyao = new SendGroupMSGTask(this, groupList, getCQImg(appDirectory + "/image/提醒买药小助手.jpg"));
-        //创建任务对象
-        TimedTask maiyaotask = new TimedTask();
-        //设置时间
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR_OF_DAY, 0);
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.SECOND, 0);
-        Date date = calendar.getTime();
-
-        TaskCycle maiyaoCycle = date1 -> {
+        TimeCycle maiyaoCycle = date1 -> {
             Date now = new Date();
             while (now.compareTo(date1) >= 0) {
                 Calendar c = Calendar.getInstance();
@@ -285,16 +274,26 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
             }
             return date1;
         };
-
-        maiyaotask.setRunnable(maiyao)
-                .setCycle(maiyaoCycle)
-                .setTimes(-1)
-                .setTiggerTime(maiyaoCycle.getNextTime(date));
+        SimpleSubscription maiyao = new SimpleSubscription(this, maiyaoCycle,
+                getCQImg(appDirectory + "/image/提醒买药小助手.jpg")) {
+            private final static String NAME = "提醒买药小助手";
+            @Override
+            public String getName() {
+                return NAME;
+            }
+        };
 
 
         Zibenbot.logger.log(Level.INFO, "registe time task start");
-        pool.add(maiyaotask);
-
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        Date date = calendar.getTime();
+        subManager.setTiggerTime(date);
+        subManager.addSubscribable(maiyao);
+        pool.add(subManager);
+        registerFunc.add(subManager);
         pool.add(new DragraliaTask(this));
         Zibenbot.logger.log(Level.INFO, "registe time task end");
         //改成了手动注册
@@ -665,7 +664,12 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
     }
 
     public String getCQImg(String filePath){
-        return getCQCode().image(filePath);
+        try {
+            return getCQCode().image(new File(filePath));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return "图片读取失败";
     }
 
     public int test(CQMsg cqMsg) {

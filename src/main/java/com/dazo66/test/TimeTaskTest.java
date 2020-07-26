@@ -1,6 +1,6 @@
 package com.dazo66.test;
 
-import com.aye10032.Utils.TimeUtil.TaskCycle;
+import com.aye10032.Utils.TimeUtil.TimeCycle;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -18,7 +18,7 @@ public class TimeTaskTest {
         calendar.set(Calendar.SECOND, 0);
         Date date = calendar.getTime();
 
-        TaskCycle maiyaoCycle = date1 -> {
+        TimeCycle maiyaoCycle = date1 -> {
             Calendar calendar1 = Calendar.getInstance();
             calendar1.set(Calendar.HOUR_OF_DAY, 19);
             calendar1.set(Calendar.MINUTE, 0);
@@ -52,7 +52,7 @@ public class TimeTaskTest {
 
 
 
-    public static class Pre5Min implements TaskCycle {
+    public static class Pre5Min implements TimeCycle {
 
         public Date getNextTime(Date date) {
             Date now = new Date();
