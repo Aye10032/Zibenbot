@@ -15,16 +15,16 @@ public class TimeConstant {
     public static int WEEK = 7 * DAY;
     public static int YEAR = 365 * DAY;
 
-    public static TaskCycle PER_YEAR = new PerYear();
-    public static TaskCycle PER_MONTH = new PerMonth();
-    public static TaskCycle PER_WEEK = new PerWeek();
-    public static TaskCycle PER_DAY = new PerDay();
-    public static TaskCycle PER_HOUR = new PerHour();
-    public static TaskCycle PER_HALF_HOUR = new PerHalfHour();
-    public static TaskCycle PER_MIN = new PerMin();
-    public static TaskCycle PER_SEC = new PerSec();
+    public static TimeCycle PER_YEAR = new PerYear();
+    public static TimeCycle PER_MONTH = new PerMonth();
+    public static TimeCycle PER_WEEK = new PerWeek();
+    public static TimeCycle PER_DAY = new PerDay();
+    public static TimeCycle PER_HOUR = new PerHour();
+    public static TimeCycle PER_HALF_HOUR = new PerHalfHour();
+    public static TimeCycle PER_MIN = new PerMin();
+    public static TimeCycle PER_SEC = new PerSec();
 
-    private static class PerYear implements TaskCycle {
+    private static class PerYear implements TimeCycle {
 
         @Override
         public Date getNextTime(Date date) {
@@ -37,7 +37,7 @@ public class TimeConstant {
 
     }
 
-    private static class PerMonth implements TaskCycle {
+    private static class PerMonth implements TimeCycle {
 
         @Override
         public Date getNextTime(Date date) {
@@ -53,7 +53,7 @@ public class TimeConstant {
 
     }
 
-    private static class PerWeek implements TaskCycle {
+    private static class PerWeek implements TimeCycle {
 
         @Override
         public Date getNextTime(Date date) {
@@ -66,7 +66,7 @@ public class TimeConstant {
 
     }
 
-    private static class PerDay implements TaskCycle {
+    private static class PerDay implements TimeCycle {
 
         @Override
         public Date getNextTime(Date date) {
@@ -79,7 +79,7 @@ public class TimeConstant {
 
     }
 
-    private static class PerHalfHour implements TaskCycle {
+    private static class PerHalfHour implements TimeCycle {
 
         @Override
         public Date getNextTime(Date date) {
@@ -92,7 +92,7 @@ public class TimeConstant {
 
     }
 
-    private static class PerHour implements TaskCycle {
+    private static class PerHour implements TimeCycle {
 
         @Override
         public Date getNextTime(Date date) {
@@ -105,7 +105,7 @@ public class TimeConstant {
 
     }
 
-    private static class PerMin implements TaskCycle {
+    private static class PerMin implements TimeCycle {
 
         @Override
         public Date getNextTime(Date date) {
@@ -118,7 +118,7 @@ public class TimeConstant {
 
     }
 
-    private static class PerSec implements TaskCycle {
+    private static class PerSec implements TimeCycle {
 
         @Override
         public Date getNextTime(Date date) {

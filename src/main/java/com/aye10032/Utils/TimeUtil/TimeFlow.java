@@ -29,12 +29,13 @@ public class TimeFlow implements Runnable {
 
     @Override
     public void run() {
-        Zibenbot.logger.log(Level.INFO, "Time Thread Start");
+        Zibenbot.logger.log(Level.INFO, "Time Thread Start ");
         while (!Thread.currentThread().isInterrupted()) {
             //如果没有任务 就使线程长时间休眠
             if (pool.getNextTasks().size() == 0) {
                 try {
                     Thread.sleep(1111114514);
+                    Zibenbot.logger.log(Level.INFO, "Thread Sleep Because No Task To Run");
                 } catch (InterruptedException e) {
                     System.out.println("线程刷新");
                     break;//捕获到异常之后，执行break跳出循环。
@@ -53,17 +54,17 @@ public class TimeFlow implements Runnable {
             for (TimedTask task : pool.nextTasks) {
                 try {
                     if (!(task instanceof AsynchronousTaskPool)) {
-                        Zibenbot.logger.log(Level.INFO, String.format("触发任务", task.runnable.getClass().getSimpleName()));
+                        Zibenbot.logger.log(Level.INFO, String.format("触发任务: %s", task.getRunnable().getClass().getSimpleName()));
                     }
 
-                    if (task.runnable != null && (task.times > 0 || task.times == -1)) {
-                        if (task.times > 0) {
-                            task.times--;
+                    if (task.getRunnable() != null && (task.getTimes() > 0 || task.getTimes() == -1)) {
+                        if (task.getTimes() > 0) {
+                            task.setTimes(task.getTimes() - 1);
                         }
                         service.execute(task);
-                        task.tiggerTime = task.getNextTiggerTime();
+                        task.setTiggerTime(task.getNextTiggerTime());
                     }
-                    if (task.times == 0) {
+                    if (task.getTimes() == 0) {
                         pool.remove(task);
                     }
                 } catch (Exception e) {
