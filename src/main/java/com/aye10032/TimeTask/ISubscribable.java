@@ -21,7 +21,7 @@ public interface ISubscribable extends TimeCycle, Runnable {
     /**
      * 返回一个全局唯一的名字
      * 不推荐在子类中重写
-     * 子类都用虚拟类 在创建对象的时候用匿名内部类的方法重写
+     * 子类推荐用抽象类 在创建对象的时候用匿名内部类的方法重写
      * 这样保证每个对象的name都不一样
      * @return name
      */
