@@ -5,7 +5,6 @@ import com.aye10032.Functions.MsgType;
 import com.aye10032.Functions.ScreenshotFunc;
 import com.aye10032.Utils.*;
 import com.aye10032.Utils.TimeUtil.TimeConstant;
-import com.aye10032.Utils.TimeUtil.TimedTask;
 import com.aye10032.Zibenbot;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
@@ -33,32 +32,20 @@ import java.util.regex.Pattern;
 /**
  * @author Dazo66
  */
-public class DragraliaTask extends TimedTask {
+public abstract class DragraliaTask extends SubscribableBase {
 
+    public Config config;
+    public CQMsg cqMsg = new CQMsg(-1, -1, 814843368L, 2155231604L, null,
+            "DragraliaTask Return " + "Msg", -1, MsgType.GROUP_MSG);
+    public ConfigLoader<Config> loader;
     String TIMEOUT = "TIMEOUT";
     Zibenbot zibenbot;
     Gson gson = new Gson();
-    //<span class="local_date" data-local_date="1587708000">
-    private static Pattern date_tag_pattern = Pattern.compile("<span class=\"local_date\" " +
-            "data-local_date=\"\\d{10}\">");
-    private static Pattern date_src_pattern = Pattern.compile("\\d{10}");
-    private static Pattern img_name_pattern = Pattern.compile("\\w+.(png|jpg)");
-    private static Pattern img_tag_pattern = Pattern.compile("<img[^<>]*\">");
-    private static Pattern img_url_pattern = Pattern.compile("http[^<>]*.(png|jpg)");
-    private static Pattern dragralia_life_pattern = Pattern.compile("“轻松龙约”第\\d+话更新");
-    private static String dragralia_life = "<div>{title_name}</div><div><br></div><div><img " +
-            "src=\"{img_path}\"></div>" + "<div><br></div><div><br></div><div><br></div>" + "<div" +
-            ">今后也请继续支持《Dragalia Lost ～失落的龙约～》。</div>";
-
+    OkHttpClient client =
+            new OkHttpClient.Builder().callTimeout(30, TimeUnit.SECONDS).proxy(Zibenbot.proxy).build();
     private JsonParser jsonParser = new JsonParser();
     private ArticleUpateDate date = null;
-    public Config config;
-    public CQMsg cqMsg = new CQMsg(-1, -1, 814843368L, 2155231604L, null, "DragraliaTask Return " +
-            "Msg", -1, MsgType.GROUP_MSG);
-    public ConfigLoader<Config> loader;
     private int exceptionCount = 0;
-
-    OkHttpClient client = new OkHttpClient.Builder().callTimeout(30, TimeUnit.SECONDS).proxy(Zibenbot.proxy).build();
     public Runnable runnable = () -> {
         try {
             try {
@@ -76,38 +63,32 @@ public class DragraliaTask extends TimedTask {
         }
     };
 
-
     public DragraliaTask(Zibenbot zibenbot) {
+        super(zibenbot);
         Proxy proxy;
         if ((proxy = Zibenbot.getProxy()) != null) {
-            client = new OkHttpClient.Builder().callTimeout(30, TimeUnit.SECONDS).proxy(proxy).build();
+            client =
+                    new OkHttpClient.Builder().callTimeout(30, TimeUnit.SECONDS).proxy(proxy).build();
         }
         this.zibenbot = zibenbot;
         loader = new ConfigLoader<>(zibenbot.appDirectory + "/dragralia_4.json", Config.class);
         config = loader.load();
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR_OF_DAY, 1);
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.SECOND, 1);
-        Date date = calendar.getTime();
-        setRunnable(runnable).setTimes(-1).setCycle(TimeConstant.PER_HALF_HOUR).setTiggerTime(date);
     }
 
-/*    public Article getArticle(ArticleInfo articleInfo) {
-        try {
-            InputStream stream = HttpUtils.getInputStreamFromNet("https://dragalialost
-            .com/api/index.php?format=json&type=information&category_id=&priority_lower_than
-            =&action=information_detail&article_id=" + articleInfo.article_id +
-            "&lang=zh_cn&td=%2B08%3A00", client);
-            JsonObject object = jsonParser.parse(IOUtils.toString(stream)).getAsJsonObject();
-            JsonObject data = object.get("data").getAsJsonObject().get("information")
-            .getAsJsonObject();
-            return gson.fromJson(data, Article.class);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }*/
+    @Override
+    public Date getNextTime(Date date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 1);
+        calendar.add(Calendar.HOUR, 1);
+        return calendar.getTime();
+    }
+
+    @Override
+    public void run() {
+        runnable.run();
+    }
 
     private synchronized Set<Article> getNewArticles() {
         Set<Article> set = new HashSet<>();
@@ -128,7 +109,8 @@ public class DragraliaTask extends TimedTask {
                     last.new_article_list.add(i);
                 } catch (Exception e) {
                     Article a = new Article();
-                    a.message = "更新公告异常\n公告页面：https://dragalialost.com/chs/news/detail/"+ a.article_id;
+                    a.message =
+                            "更新公告异常\n公告页面：https://dragalialost.com/chs/news/detail/" + a.article_id;
                     a.article_id = -1;
                     set.add(a);
                 }
@@ -149,7 +131,8 @@ public class DragraliaTask extends TimedTask {
                     last.update_article_list.add(i);
                 } catch (Exception e) {
                     Article a = new Article();
-                    a.message = "更新公告异常\n公告页面：https://dragalialost.com/chs/news/detail/"+ a.article_id;
+                    a.message =
+                            "更新公告异常\n公告页面：https://dragalialost.com/chs/news/detail/" + a.article_id;
                     a.article_id = -1;
                     set.add(a);
                     exceptionCount++;
@@ -220,7 +203,7 @@ public class DragraliaTask extends TimedTask {
                 }
                 String ret = clearMsg(msg);
                 if (len > 300) {
-                    if (screenshotFile.get() != null && screenshotFile.get().exists()){
+                    if (screenshotFile.get() != null && screenshotFile.get().exists()) {
                         try {
                             builder.append("公告详情：").append("\n").append(zibenbot.getCQCode().image(screenshotFile.get()));
                         } catch (IOException e) {
@@ -246,13 +229,11 @@ public class DragraliaTask extends TimedTask {
     private void setDragraliaLifeArticle(Article a) {
         try {
             System.out.println(a.title_name);
-            Matcher matcher = Pattern.compile("\\d+").matcher(a.title_name);
+            Matcher matcher = Pattern.compile(NUMBER_PATTERN).matcher(a.title_name);
             matcher.find();
             Integer ep_num = Integer.valueOf(matcher.group());
-            RequestBody formBody = new FormBody.Builder()
-                    .add("lang", "chs")
-                    .add("type", "dragalialife")
-                    .build();
+            RequestBody formBody = new FormBody.Builder().add("lang", "chs").add("type",
+                    "dragalialife").build();
             String s = IOUtils.toString(HttpUtils.postInputStreamFromNet("https://comic" +
                     ".dragalialost.com/api/index", client, formBody));
             System.out.println(s);
@@ -283,7 +264,8 @@ public class DragraliaTask extends TimedTask {
         String outputfile = dir + "/dragraliatemp/" + a.article_id + ".png";
         try {
             WebDriver driver = SeleniumUtils.getDriver();
-            return ScreenshotFunc.getScreenshot(driver, url, outputfile, 4000, "for(item of document.getElementsByTagName('details')) {\n" + "    item.open = true;\n" + "}");
+            return ScreenshotFunc.getScreenshot(driver, url, outputfile, 4000, "for(item of " +
+                    "document.getElementsByTagName('details')) {\n" + "    item.open = true;\n" + "}");
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
@@ -358,10 +340,26 @@ public class DragraliaTask extends TimedTask {
         return tmpFile;
     }
 
+/*    public Article getArticle(ArticleInfo articleInfo) {
+        try {
+            InputStream stream = HttpUtils.getInputStreamFromNet("https://dragalialost
+            .com/api/index.php?format=json&type=information&category_id=&priority_lower_than
+            =&action=information_detail&article_id=" + articleInfo.article_id +
+            "&lang=zh_cn&td=%2B08%3A00", client);
+            JsonObject object = jsonParser.parse(IOUtils.toString(stream)).getAsJsonObject();
+            JsonObject data = object.get("data").getAsJsonObject().get("information")
+            .getAsJsonObject();
+            return gson.fromJson(data, Article.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }*/
+
     public Article getArticleFromNet(int id, boolean isUpdate) throws IOException {
-        InputStream stream = HttpUtils.getInputStreamFromNet("https://dragalialost.com/api/index" +
-                ".php?format=json&type=information&category_id=&priority_lower_than=&action" +
-                "=information_detail&article_id=" + id + "&lang=zh_cn&td=%2B08%3A00", client);
+        InputStream stream =
+                HttpUtils.getInputStreamFromNet("https://dragalialost.com/api/index" + ".php" +
+                        "?format=json&type=information&category_id=&priority_lower_than=&action" + "=information_detail&article_id=" + id + "&lang=zh_cn&td=%2B08%3A00", client);
         JsonParser jsonParser = new JsonParser();
         JsonObject object = jsonParser.parse(IOUtils.toString(stream)).getAsJsonObject();
         JsonElement e = object.get("data").getAsJsonObject().get("information");
@@ -374,9 +372,9 @@ public class DragraliaTask extends TimedTask {
 
     public ArticleUpateDate getUpdateDate() throws IOException {
         ArticleUpateDate date = new ArticleUpateDate();
-        InputStream stream = HttpUtils.getInputStreamFromNet("https://dragalialost.com/api/index" +
-                ".php?format=json&type=information&category_id=0&priority_lower_than=&action" +
-                "=information_list&article_id=&lang=zh_cn&td=%2B08%3A00", client);
+        InputStream stream =
+                HttpUtils.getInputStreamFromNet("https://dragalialost.com/api/index" + ".php" +
+                        "?format=json&type=information&category_id=0&priority_lower_than=&action" + "=information_list&article_id=&lang=zh_cn&td=%2B08%3A00", client);
         JsonParser jsonParser = new JsonParser();
         JsonObject object = jsonParser.parse(IOUtils.toString(stream)).getAsJsonObject();
         object.get("data").getAsJsonObject().get("new_article_list").getAsJsonArray().forEach(jsonElement -> date.new_article_list.add(jsonElement.getAsInt()));
@@ -401,7 +399,31 @@ public class DragraliaTask extends TimedTask {
         Zibenbot.logger.info("清理了三天前的缓存 " + i + " 张。");
     }
 
-    public static class Article implements Comparable{
+    private static final String NUMBER_PATTERN = "\\d+";
+    //<span class="local_date" data-local_date="1587708000">
+    private static Pattern date_tag_pattern = Pattern.compile("<span class=\"local_date\" " +
+            "data-local_date=\"\\d{10}\">");
+    private static Pattern date_src_pattern = Pattern.compile("\\d{10}");
+    private static Pattern img_name_pattern = Pattern.compile("\\w+.(png|jpg)");
+    private static Pattern img_tag_pattern = Pattern.compile("<img[^<>]*\">");
+    private static Pattern img_url_pattern = Pattern.compile("http[^<>]*.(png|jpg)");
+    private static Pattern dragralia_life_pattern = Pattern.compile("“轻松龙约”第\\d+话更新");
+    private static String dragralia_life = "<div>{title_name}</div><div><br></div><div><img " +
+            "src=\"{img_path}\"></div>" + "<div><br></div><div><br></div><div><br></div>" + "<div"
+            + ">今后也请继续支持《Dragalia Lost ～失落的龙约～》。</div>";
+
+    public static int Chinese_length(String s) {
+        int length = 0;
+        for (int i = 0; i < s.length(); i++) {
+            int ascii = Character.codePointAt(s, i);
+            if (!(ascii >= 0 && ascii <= 255)) {
+                length += 1;
+            }
+        }
+        return length;
+    }
+
+    public static class Article implements Comparable {
         //文章id
         public int article_id;
         //类型名字
@@ -418,6 +440,11 @@ public class DragraliaTask extends TimedTask {
         public long update_time;
 
         @Override
+        public int hashCode() {
+            return article_id * 114514;
+        }
+
+        @Override
         public boolean equals(Object obj) {
             if (obj instanceof Article) {
                 return obj.hashCode() == this.hashCode();
@@ -426,25 +453,9 @@ public class DragraliaTask extends TimedTask {
         }
 
         @Override
-        public int hashCode() {
-            return article_id * 114514;
-        }
-
-        @Override
         public int compareTo(Object o) {
             return o.hashCode() - hashCode();
         }
-    }
-
-    public static int Chinese_length(String s) {
-        int length = 0;
-        for (int i = 0; i < s.length(); i++) {
-            int ascii = Character.codePointAt(s, i);
-            if (!(ascii >= 0 && ascii <= 255)) {
-                length += 1;
-            }
-        }
-        return length;
     }
 
 }

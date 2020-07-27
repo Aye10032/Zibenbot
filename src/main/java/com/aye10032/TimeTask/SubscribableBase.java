@@ -3,6 +3,7 @@ package com.aye10032.TimeTask;
 import com.aye10032.Functions.CQMsg;
 import com.aye10032.Zibenbot;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -33,6 +34,11 @@ public abstract class SubscribableBase implements ISubscribable {
                 bot.replyMsg(cqMsg, s);
             }
         }
+    }
+
+    @Override
+    public List<CQMsg> getRecipients() {
+        return recipients == null ? Collections.emptyList() : recipients;
     }
 
     @Override
