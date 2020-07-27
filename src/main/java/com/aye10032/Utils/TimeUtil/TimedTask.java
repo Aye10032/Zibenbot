@@ -13,9 +13,9 @@ public class TimedTask implements Runnable {
 
     private int times = -1;
 
-    private Date begin;
+    private Long begin;
 
-    private Date tiggerTime = new Date();
+    private Long tiggerTime = System.currentTimeMillis();
 
     private TimeCycle cycle = TimeConstant.PER_DAY;
 
@@ -42,21 +42,23 @@ public class TimedTask implements Runnable {
     }
 
     public Date getTiggerTime() {
-        return tiggerTime;
+        return new Date(tiggerTime);
     }
 
     public TimedTask setTiggerTime(Date tiggerTime) {
-        this.begin = new Date(tiggerTime.getTime());
-        this.tiggerTime = tiggerTime;
+        if (begin == null) {
+            this.begin = tiggerTime.getTime();
+        }
+        this.tiggerTime = tiggerTime.getTime();
         return this;
     }
 
     public Date getBegin() {
-        return begin;
+        return new Date(begin);
     }
 
     public Date getNextTiggerTime() {
-        return cycle.getNextTime(getTiggerTime());
+        return TimeConstant.getNextTimeFromNow(getTiggerTime(), getCycle());
     }
 
     public TimedTask setTimes(int times) {

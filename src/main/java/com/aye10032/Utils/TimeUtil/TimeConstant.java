@@ -24,15 +24,22 @@ public class TimeConstant {
     public static TimeCycle PER_MIN = new PerMin();
     public static TimeCycle PER_SEC = new PerSec();
 
-    private static class PerYear implements TimeCycle {
+    public static Date getNextTimeFromNow(Date date, TimeCycle cycle){
+        Date now = new Date();
+        Date ret = (Date) date.clone();
+        while (now.compareTo(ret) >= 0) {
+            ret.setTime(cycle.getNextTime(ret).getTime());
+        }
+        return ret;
+    }
+
+  private static class PerYear implements TimeCycle {
 
         @Override
         public Date getNextTime(Date date) {
-            Date now = new Date();
-            while (now.compareTo(date) >= 0) {
-                date.setTime(date.getTime() + YEAR);
-            }
-            return date;
+            Date ret = new Date();
+            ret.setTime(date.getTime() + YEAR);
+            return ret;
         }
 
     }
@@ -41,14 +48,10 @@ public class TimeConstant {
 
         @Override
         public Date getNextTime(Date date) {
-            Date now = new Date();
-            while (now.compareTo(date) >= 0) {
-                Calendar cal = Calendar.getInstance();
-                cal.setTime(date);
-                cal.add(Calendar.MONTH, 1);
-                date.setTime(cal.getTimeInMillis());
-            }
-            return date;
+            Calendar ret = Calendar.getInstance();
+            ret.setTime(date);
+            ret.add(Calendar.MONTH, 1);
+            return ret.getTime();
         }
 
     }
@@ -57,11 +60,9 @@ public class TimeConstant {
 
         @Override
         public Date getNextTime(Date date) {
-            Date now = new Date();
-            while (now.compareTo(date) >= 0) {
-                date.setTime(date.getTime() + WEEK);
-            }
-            return date;
+            Date ret = new Date();
+            ret.setTime(date.getTime() + WEEK);
+            return ret;
         }
 
     }
@@ -70,11 +71,9 @@ public class TimeConstant {
 
         @Override
         public Date getNextTime(Date date) {
-            Date now = new Date();
-            while (now.compareTo(date) >= 0) {
-                date.setTime(date.getTime() + DAY);
-            }
-            return date;
+            Date ret = new Date();
+            ret.setTime(date.getTime() + DAY);
+            return ret;
         }
 
     }
@@ -83,11 +82,9 @@ public class TimeConstant {
 
         @Override
         public Date getNextTime(Date date) {
-            Date now = new Date();
-            while (now.compareTo(date) >= 0) {
-                date.setTime(date.getTime() + HOUR / 2);
-            }
-            return date;
+            Date ret = new Date();
+            ret.setTime(date.getTime() + HOUR / 2);
+            return ret;
         }
 
     }
@@ -96,11 +93,9 @@ public class TimeConstant {
 
         @Override
         public Date getNextTime(Date date) {
-            Date now = new Date();
-            while (now.compareTo(date) >= 0) {
-                date.setTime(date.getTime() + HOUR);
-            }
-            return date;
+            Date ret = new Date();
+            ret.setTime(date.getTime() + HOUR);
+            return ret;
         }
 
     }
@@ -109,11 +104,9 @@ public class TimeConstant {
 
         @Override
         public Date getNextTime(Date date) {
-            Date now = new Date();
-            while (now.compareTo(date) >= 0) {
-                date.setTime(date.getTime() + MIN);
-            }
-            return date;
+            Date ret = new Date();
+            ret.setTime(date.getTime() + MIN);
+            return ret;
         }
 
     }
@@ -122,11 +115,9 @@ public class TimeConstant {
 
         @Override
         public Date getNextTime(Date date) {
-            Date now = new Date();
-            while (now.compareTo(date) >= 0) {
-                date.setTime(date.getTime() + SEC);
-            }
-            return date;
+            Date ret = new Date();
+            ret.setTime(date.getTime() + SEC);
+            return ret;
         }
 
     }

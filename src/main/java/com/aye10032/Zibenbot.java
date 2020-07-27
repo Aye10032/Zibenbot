@@ -253,34 +253,25 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
         }
 
         TimeCycle maiyaoCycle = date1 -> {
-            Date now = new Date();
-            while (now.compareTo(date1) >= 0) {
-                Calendar c = Calendar.getInstance();
-                c.setTime(date1);
-                int hour = c.get(Calendar.HOUR_OF_DAY);
-                if (0 <= hour && hour < 6) {
-                    c.set(Calendar.HOUR_OF_DAY, 6);
-                    date1.setTime(c.getTimeInMillis());
-                } else if (6 <= hour && hour < 12) {
-                    c.set(Calendar.HOUR_OF_DAY, 12);
-                    date1.setTime(c.getTimeInMillis());
-                } else if (12 <= hour && hour < 18) {
-                    c.set(Calendar.HOUR_OF_DAY, 18);
-                    date1.setTime(c.getTimeInMillis());
-                } else {
-                    c.set(Calendar.HOUR_OF_DAY, 0);
-                    date1.setTime(c.getTimeInMillis() +  + 86400 * 1000);
-                }
+            Calendar c = Calendar.getInstance();
+            Date ret = (Date) date1.clone();
+            c.setTime(date1);
+            int hour = c.get(Calendar.HOUR_OF_DAY);
+            if (0 <= hour && hour < 6) {
+                c.set(Calendar.HOUR_OF_DAY, 6);
+                ret.setTime(c.getTimeInMillis());
+            } else if (6 <= hour && hour < 12) {
+                c.set(Calendar.HOUR_OF_DAY, 12);
+                ret.setTime(c.getTimeInMillis());
+            } else if (12 <= hour && hour < 18) {
+                c.set(Calendar.HOUR_OF_DAY, 18);
+                ret.setTime(c.getTimeInMillis());
+            } else {
+                c.set(Calendar.HOUR_OF_DAY, 0);
+                ret.setTime(c.getTimeInMillis() + 86400 * 1000);
             }
-            return date1;
-        };
-        SimpleSubscription maiyao = new SimpleSubscription(this, maiyaoCycle,
-                getCQImg(appDirectory + "/image/提醒买药小助手.jpg")) {
-            private final static String NAME = "提醒买药小助手";
-            @Override
-            public String getName() {
-                return NAME;
-            }
+
+            return ret;
         };
 
 
@@ -290,11 +281,29 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
         calendar.set(Calendar.MINUTE, 0);
         calendar.set(Calendar.SECOND, 0);
         Date date = calendar.getTime();
+        //创建订阅器对象
+        SimpleSubscription maiyao = new SimpleSubscription(this, maiyaoCycle,
+                getCQImg(appDirectory + "/image/提醒买药小助手.jpg")) {
+            private final static String NAME = "提醒买药小助手";
+            @Override
+            public String getName() {
+                return NAME;
+            }
+        };
         subManager.setTiggerTime(date);
         subManager.addSubscribable(maiyao);
+        subManager.addSubscribable(new DragraliaTask(this) {
+            private final static String NAME = "龙约公告转发小助手";
+            @Override
+            public String getName() {
+                return NAME;
+            }
+        });
+        //把订阅管理器注册进线程池
         pool.add(subManager);
+        //把订阅管理器注册进可用的模块里
         registerFunc.add(subManager);
-        pool.add(new DragraliaTask(this));
+
         Zibenbot.logger.log(Level.INFO, "registe time task end");
         //改成了手动注册
         Zibenbot.logger.log(Level.INFO, "registe func start");

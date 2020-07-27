@@ -31,7 +31,7 @@ public interface ISubscribable extends TimeCycle, Runnable {
      * 返回自 date 之后的下一个运行时间
      * 不包括 date
      *
-      * @param date
+     * @param date
      * @return
      */
     @Override
@@ -44,5 +44,11 @@ public interface ISubscribable extends TimeCycle, Runnable {
      */
     @Override
     void run();
+
+    /**
+     * 得到所有收件人
+     * @return list
+     */
+    List<CQMsg> getRecipients();
 
 }

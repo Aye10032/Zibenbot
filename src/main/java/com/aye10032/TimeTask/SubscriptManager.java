@@ -4,6 +4,7 @@ import com.aye10032.Functions.CQMsg;
 import com.aye10032.Functions.IFunc;
 import com.aye10032.Functions.MsgType;
 import com.aye10032.Utils.ConfigLoader;
+import com.aye10032.Utils.TimeUtil.TimeConstant;
 import com.aye10032.Utils.TimeUtil.TimeCycle;
 import com.aye10032.Utils.TimeUtil.TimedTask;
 import com.aye10032.Zibenbot;
@@ -20,6 +21,7 @@ import java.util.logging.Level;
  * 订阅器的控制类
  * 与时间线程池相联系
  * 也能响应对应聊天语句
+ *
  * @author Dazo66
  */
 public class SubscriptManager extends TimedTask implements IFunc {
@@ -43,34 +45,19 @@ public class SubscriptManager extends TimedTask implements IFunc {
     /**
      * 定时运行的方法 运行时间和订阅的东西相关
      */
-    protected Runnable runnable = new Runnable() {
-        @Override
-        public void run() {
-            //得到这次要运行的
-            List<ISubscribable> list = getNextTiggerSub();
-            //对下次要运行的订阅进行循环
-            for (ISubscribable s : list) {
-                List<CQMsg> recipients = Collections.synchronizedList(new ArrayList<>());
-                for (MsgType type : MsgType.values()) {
-                    if (subscriptMap.get(type) != null) {
-                        List<Long> temp = subscriptMap.get(type).get(s.getName());
-                        if (temp != null) {
-                            for (Long l : temp) {
-                                //收集所有要发送的收件人
-                                recipients.add(getCqmsg(type, l));
-                            }
-                        }
-                    }
-                }
-                //对订阅器设置收件人
-                s.setRecipients(recipients);
+    protected Runnable runnable = () -> {
+        //得到这次要运行的
+        List<ISubscribable> list = getNextTiggerSub();
+        //对下次要运行的订阅进行循环
+        for (ISubscribable s : list) {
+            if (s.getRecipients() != null && !s.getRecipients().isEmpty()) {
                 //运行各个订阅器
                 s.run();
                 Zibenbot.logger.log(Level.INFO, "SubscriptManager run start:" + s.toString());
             }
-            //清除暂存的下次要运行的订阅器
-            next.clear();
         }
+        //清除暂存的下次要运行的订阅器
+        next.clear();
     };
 
     public SubscriptManager(Zibenbot zibenbot) {
@@ -84,6 +71,53 @@ public class SubscriptManager extends TimedTask implements IFunc {
             CC = zibenbot.getCQCode();
             appDirectory = zibenbot.appDirectory;
         }
+    }
+
+    public Map<Date, List<ISubscribable>> getFutureTasks(int count) {
+        Map<Date, List<ISubscribable>> map = new LinkedHashMap<>();
+        if (count > 0) {
+            map.put(getTiggerTime(), getNextTiggerSub());
+        }
+        Date date = getTiggerTime();
+        Date temp;
+        for (int i = 1; i < count; i++) {
+            map.put(temp = getNextTiggerTimeFrom(date), getNextTiggerSubFrom(date));
+            date = (Date) temp.clone();
+        }
+        return map;
+    }
+
+    /**
+     * 刷新所有的订阅器的收件人
+     * 只在需要调用的时候 调用
+     */
+    private void flushRecipients() {
+        for (ISubscribable s : allSubscription) {
+            s.setRecipients(getRecipients(s));
+        }
+    }
+
+    /**
+     * 返回指定的订阅器的收件人列表
+     *
+     * @param s 指定的订阅器
+     * @retrun 收件人列表
+     */
+
+    public List<CQMsg> getRecipients(ISubscribable s) {
+        List<CQMsg> recipients = Collections.synchronizedList(new ArrayList<>());
+        for (MsgType type : MsgType.values()) {
+            if (subscriptMap.get(type) != null) {
+                List<Long> temp = subscriptMap.get(type).get(s.getName());
+                if (temp != null) {
+                    for (Long l : temp) {
+                        //收集所有要发送的收件人
+                        recipients.add(getCqmsg(type, l));
+                    }
+                }
+            }
+        }
+        return recipients;
     }
 
     @Override
@@ -124,8 +158,8 @@ public class SubscriptManager extends TimedTask implements IFunc {
     public Date getNextTiggerTime() {
         Date date = null;
         for (ISubscribable s : allSubscription) {
-            Date temp = s.getNextTime(getTiggerTime());
-            if (date == null || date.before(temp)) {
+            Date temp = TimeConstant.getNextTimeFromNow(getTiggerTime(), s);
+            if (date == null || temp.before(date)) {
                 date = temp;
             }
         }
@@ -154,12 +188,24 @@ public class SubscriptManager extends TimedTask implements IFunc {
         return this;
     }
 
+    private Date getNextTiggerTimeFrom(Date from) {
+        Date date = null;
+        for (ISubscribable s : allSubscription) {
+            Date temp = s.getNextTime(from);
+            if (date == null || temp.before(date)) {
+                date = temp;
+            }
+        }
+        return date;
+    }
+
     /**
      * 初始化 在{@link Zibenbot}中调用
      */
     @Override
     public void setUp() {
         subscriptMap = load();
+        flushRecipients();
     }
 
     /**
@@ -196,23 +242,29 @@ public class SubscriptManager extends TimedTask implements IFunc {
                         }
                     }
                 }
+                //重新读取后刷新收件人
+                flushRecipients();
                 replyMsg(CQmsg, builder.toString());
             } else if (msgs.length == 2) {
                 if ("调试".equals(msgs[1]) || "debug".equals(msgs[1])) {
                     StringBuilder builder = new StringBuilder();
-                    List<ISubscribable> list = getNextTiggerSub();
-                    DateFormat format = new SimpleDateFormat("MM/dd HH:mm");
-                    String timeString = "";
-                    if (list.size() >= 1) {
-                        builder.append(timeString = format.format(getTiggerTime()));
-                        builder.append(" ");
-                        builder.append(list.get(0).getName());
-                    } else {
-                        builder.append("队列中没有任务");
+                    Map<Date, List<ISubscribable>> map = getFutureTasks(10);
+                    String TAB_STRING = "                    ";
+                    for (Date date : map.keySet()) {
+                        List<ISubscribable> list = map.get(date);
+                        DateFormat format = new SimpleDateFormat("MM/dd HH:mm");
+                        if (list.size() >= 1) {
+                            builder.append(format.format(date));
+                            builder.append(" ");
+                            builder.append(list.get(0).getName()).append("\n");
+                        }
+                        for (int i = 1; i < list.size(); i++) {
+                            builder.append(TAB_STRING).append(list.get(i).getName());
+                            builder.append("\n");
+                        }
                     }
-                    timeString = timeString.replaceAll("\\S", " ");
-                    for (int i = 1; i < list.size(); i++) {
-                        builder.append(timeString).append(" ").append(list.get(i).getName());
+                    if (builder.length() == 0) {
+                        builder.append("当前队列中没有任务");
                     }
                     replyMsg(CQmsg, builder.toString());
                     return;
@@ -235,6 +287,8 @@ public class SubscriptManager extends TimedTask implements IFunc {
                         replyMsg(CQmsg, String.format("【%s】 已取消订阅 【%s】", CQmsg.isGroupMsg() ?
                                 "群:" + CQmsg.fromGroup : "用户:" + CQmsg.fromClient, msgs[1]));
                     }
+                    //订阅后刷新收件人
+                    flushRecipients();
                 } else {
                     replyMsg(CQmsg, "找不到这个订阅器：" + msgs[1]);
                 }
@@ -254,23 +308,27 @@ public class SubscriptManager extends TimedTask implements IFunc {
             next.clear();
         }
         if (next.isEmpty()) {
-            List<ISubscribable> ret = Collections.synchronizedList(new ArrayList<>());
-            Date date = null;
-            for (ISubscribable s : allSubscription) {
-                Date temp = s.getNextTime(getTiggerTime());
-                if (date == null || date.before(temp)) {
-                    date = temp;
-                    ret.clear();
-                    ret.add(s);
-                } else if (date.equals(temp)) {
-                    ret.add(s);
-                }
-            }
-            next = ret;
-            return ret;
+            next = getNextTiggerSubFrom(getTiggerTime());
+            return next;
         } else {
             return next;
         }
+    }
+
+    private List<ISubscribable> getNextTiggerSubFrom(Date from) {
+        List<ISubscribable> ret = Collections.synchronizedList(new ArrayList<>());
+        Date date = null;
+        for (ISubscribable s : allSubscription) {
+            Date temp = s.getNextTime(from);
+            if (date == null || temp.before(date)) {
+                date = temp;
+                ret.clear();
+                ret.add(s);
+            } else if (date.equals(temp)) {
+                ret.add(s);
+            }
+        }
+        return ret;
     }
 
     /**
@@ -307,7 +365,7 @@ public class SubscriptManager extends TimedTask implements IFunc {
     /**
      * 查询用户是否已经订阅了
      *
-     * @param msg          包含用户类型和用户id
+     * @param msg     包含用户类型和用户id
      * @param subName Subscribable对象
      * @return boolean
      */
@@ -398,6 +456,7 @@ public class SubscriptManager extends TimedTask implements IFunc {
     public void addSubscribable(ISubscribable subscription) {
         if (!allSubscription.contains(subscription)) {
             allSubscription.add(subscription);
+            setTiggerTime(getBegin());
             setTiggerTime(getNextTiggerTime());
             if (zibenbot.pool.tasks.contains(this)) {
                 zibenbot.pool.flush();
