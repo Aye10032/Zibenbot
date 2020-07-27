@@ -41,7 +41,7 @@ public class AsynchronousTaskPool extends TimedTask {
 
     public AsynchronousTaskPool(){
         pool = Executors.newCachedThreadPool();
-        setRunnable(thisRun).setTimes(-1).setCycle(TimeConstant.PER_SEC)
+        setRunnable(thisRun).setTimes(-1).setCycle(TimeConstant.NEXT_SEC)
                 .setTiggerTime(new Date(System.currentTimeMillis() + 1000));
     }
 

@@ -77,12 +77,11 @@ public abstract class DragraliaTask extends SubscribableBase {
 
     @Override
     public Date getNextTime(Date date) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(date);
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.SECOND, 1);
-        calendar.add(Calendar.HOUR, 1);
-        return calendar.getTime();
+        long d = date.getTime();
+        //得到下一个01分
+        //19：00
+        d = d + (TimeConstant.HOUR + TimeConstant.SEC - ((d - TimeConstant.SEC) % TimeConstant.HOUR)) + TimeConstant.SEC;
+        return new Date(d);
     }
 
     @Override

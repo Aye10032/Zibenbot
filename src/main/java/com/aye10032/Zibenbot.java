@@ -6,7 +6,7 @@ import com.aye10032.TimeTask.SubscriptManager;
 import com.aye10032.Utils.ExceptionUtils;
 import com.aye10032.Utils.IDNameUtil;
 import com.aye10032.Utils.SeleniumUtils;
-import com.aye10032.Utils.TimeUtil.TimeCycle;
+import com.aye10032.Utils.TimeUtil.ITimeAdapter;
 import com.aye10032.Utils.TimeUtil.TimeTaskPool;
 import org.meowy.cqp.jcq.entity.*;
 import org.meowy.cqp.jcq.event.JcqAppAbstract;
@@ -252,26 +252,24 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
             e.printStackTrace();
         }
 
-        TimeCycle maiyaoCycle = date1 -> {
+        ITimeAdapter maiyaoCycle = date1 -> {
             Calendar c = Calendar.getInstance();
-            Date ret = (Date) date1.clone();
             c.setTime(date1);
+            c.set(Calendar.MINUTE, 0);
+            c.set(Calendar.SECOND, 0);
             int hour = c.get(Calendar.HOUR_OF_DAY);
             if (0 <= hour && hour < 6) {
                 c.set(Calendar.HOUR_OF_DAY, 6);
-                ret.setTime(c.getTimeInMillis());
             } else if (6 <= hour && hour < 12) {
                 c.set(Calendar.HOUR_OF_DAY, 12);
-                ret.setTime(c.getTimeInMillis());
             } else if (12 <= hour && hour < 18) {
                 c.set(Calendar.HOUR_OF_DAY, 18);
-                ret.setTime(c.getTimeInMillis());
             } else {
                 c.set(Calendar.HOUR_OF_DAY, 0);
-                ret.setTime(c.getTimeInMillis() + 86400 * 1000);
+                c.setTime(new Date(c.getTimeInMillis() + 86400 * 1000));
             }
 
-            return ret;
+            return c.getTime();
         };
 
 
