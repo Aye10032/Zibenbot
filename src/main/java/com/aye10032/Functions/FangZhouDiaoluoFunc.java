@@ -23,7 +23,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.*;
 
-import static com.aye10032.Utils.TimeUtil.TimeConstant.PER_DAY;
+import static com.aye10032.Utils.TimeUtil.TimeConstant.NEXT_DAY;
 import static com.aye10032.Utils.fangzhoudiaoluo.Module.getModules;
 import static com.aye10032.Utils.fangzhoudiaoluo.Module.getVers;
 
@@ -64,7 +64,7 @@ public class FangZhouDiaoluoFunc extends BaseFunc {
         calendar.set(Calendar.MINUTE, 0);
         calendar.set(Calendar.SECOND, 0);
         Date date = calendar.getTime();
-        task.setTiggerTime(date).setCycle(PER_DAY).setRunnable(this::update);
+        task.setTiggerTime(date).setCycle(NEXT_DAY).setRunnable(this::update);
         zibenbot.pool.add(task);
     }
 

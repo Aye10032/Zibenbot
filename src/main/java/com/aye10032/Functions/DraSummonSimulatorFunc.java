@@ -15,7 +15,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.aye10032.Utils.TimeUtil.TimeConstant.PER_HOUR;
+import static com.aye10032.Utils.TimeUtil.TimeConstant.NEXT_HOUR;
 
 /**
  * @author Dazo66
@@ -53,7 +53,7 @@ public class DraSummonSimulatorFunc extends BaseFunc {
         calendar.set(Calendar.MINUTE, 0);
         calendar.set(Calendar.SECOND, 1);
         Date date = calendar.getTime();
-        task.setTiggerTime(date).setCycle(PER_HOUR).setRunnable(this::update);
+        task.setTiggerTime(date).setCycle(NEXT_HOUR).setRunnable(this::update);
         zibenbot.pool.add(task);
     }
 

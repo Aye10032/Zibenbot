@@ -5,7 +5,7 @@ import com.aye10032.Functions.IFunc;
 import com.aye10032.Functions.MsgType;
 import com.aye10032.Utils.ConfigLoader;
 import com.aye10032.Utils.TimeUtil.TimeConstant;
-import com.aye10032.Utils.TimeUtil.TimeCycle;
+import com.aye10032.Utils.TimeUtil.ITimeAdapter;
 import com.aye10032.Utils.TimeUtil.TimedTask;
 import com.aye10032.Zibenbot;
 import com.google.gson.reflect.TypeToken;
@@ -81,7 +81,8 @@ public class SubscriptManager extends TimedTask implements IFunc {
         Date date = getTiggerTime();
         Date temp;
         for (int i = 1; i < count; i++) {
-            map.put(temp = getNextTiggerTimeFrom(date), getNextTiggerSubFrom(date));
+            map.put(temp = getNextTiggerTimeFrom((Date) date.clone())
+                    , getNextTiggerSubFrom((Date) date.clone()));
             date = (Date) temp.clone();
         }
         return map;
@@ -132,7 +133,7 @@ public class SubscriptManager extends TimedTask implements IFunc {
      * @return this
      */
     @Override
-    public TimedTask setCycle(TimeCycle cycle) {
+    public TimedTask setCycle(ITimeAdapter cycle) {
         return this;
     }
 
@@ -191,7 +192,7 @@ public class SubscriptManager extends TimedTask implements IFunc {
     private Date getNextTiggerTimeFrom(Date from) {
         Date date = null;
         for (ISubscribable s : allSubscription) {
-            Date temp = s.getNextTime(from);
+            Date temp = s.getNextTime((Date) from.clone());
             if (date == null || temp.before(date)) {
                 date = temp;
             }
@@ -304,22 +305,26 @@ public class SubscriptManager extends TimedTask implements IFunc {
      * @return 可能有多个Subscribable同时触发
      */
     public List<ISubscribable> getNextTiggerSub() {
-        if (System.currentTimeMillis() - getTiggerTime().getTime() > 5) {
-            next.clear();
+        List<ISubscribable> ret = Collections.synchronizedList(new ArrayList<>());
+        Date date = null;
+        for (ISubscribable s : allSubscription) {
+            Date temp = TimeConstant.getNextTimeFromNow(getBegin(), s);
+            if (date == null || temp.before(date)) {
+                date = temp;
+                ret.clear();
+                ret.add(s);
+            } else if (date.equals(temp)) {
+                ret.add(s);
+            }
         }
-        if (next.isEmpty()) {
-            next = getNextTiggerSubFrom(getTiggerTime());
-            return next;
-        } else {
-            return next;
-        }
+        return ret;
     }
 
     private List<ISubscribable> getNextTiggerSubFrom(Date from) {
         List<ISubscribable> ret = Collections.synchronizedList(new ArrayList<>());
         Date date = null;
         for (ISubscribable s : allSubscription) {
-            Date temp = s.getNextTime(from);
+            Date temp = s.getNextTime((Date) from.clone());
             if (date == null || temp.before(date)) {
                 date = temp;
                 ret.clear();

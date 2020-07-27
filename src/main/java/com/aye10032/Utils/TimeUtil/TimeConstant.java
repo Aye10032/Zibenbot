@@ -15,25 +15,32 @@ public class TimeConstant {
     public static int WEEK = 7 * DAY;
     public static int YEAR = 365 * DAY;
 
-    public static TimeCycle PER_YEAR = new PerYear();
-    public static TimeCycle PER_MONTH = new PerMonth();
-    public static TimeCycle PER_WEEK = new PerWeek();
-    public static TimeCycle PER_DAY = new PerDay();
-    public static TimeCycle PER_HOUR = new PerHour();
-    public static TimeCycle PER_HALF_HOUR = new PerHalfHour();
-    public static TimeCycle PER_MIN = new PerMin();
-    public static TimeCycle PER_SEC = new PerSec();
+    public static ITimeAdapter NEXT_YEAR = new NextYear();
+    public static ITimeAdapter NEXT_MONTH = new NextMonth();
+    public static ITimeAdapter NEXT_WEEK = new NextWeek();
+    public static ITimeAdapter NEXT_DAY = new NextDay();
+    public static ITimeAdapter NEXT_HOUR = new NextHour();
+    public static ITimeAdapter NEXT_HALF_HOUR = new NextHalfHour();
+    public static ITimeAdapter NEXT_MIN = new NextMin();
+    public static ITimeAdapter NEXT_SEC = new NextSec();
 
-    public static Date getNextTimeFromNow(Date date, TimeCycle cycle){
+    /**
+     * 当前时间的下一个
+     * 不断运行cycel的循环直到找到现在的下一个
+     * @param date 基准时间
+     * @param adapter 时间适配器 得到下个时间
+     * @return
+     */
+    public static Date getNextTimeFromNow(Date date, ITimeAdapter adapter){
         Date now = new Date();
         Date ret = (Date) date.clone();
         while (now.compareTo(ret) >= 0) {
-            ret.setTime(cycle.getNextTime(ret).getTime());
+            ret.setTime(adapter.getNextTime(ret).getTime());
         }
         return ret;
     }
 
-  private static class PerYear implements TimeCycle {
+  private static class NextYear implements ITimeAdapter {
 
         @Override
         public Date getNextTime(Date date) {
@@ -44,7 +51,7 @@ public class TimeConstant {
 
     }
 
-    private static class PerMonth implements TimeCycle {
+    private static class NextMonth implements ITimeAdapter {
 
         @Override
         public Date getNextTime(Date date) {
@@ -56,7 +63,7 @@ public class TimeConstant {
 
     }
 
-    private static class PerWeek implements TimeCycle {
+    private static class NextWeek implements ITimeAdapter {
 
         @Override
         public Date getNextTime(Date date) {
@@ -67,7 +74,7 @@ public class TimeConstant {
 
     }
 
-    private static class PerDay implements TimeCycle {
+    private static class NextDay implements ITimeAdapter {
 
         @Override
         public Date getNextTime(Date date) {
@@ -78,7 +85,7 @@ public class TimeConstant {
 
     }
 
-    private static class PerHalfHour implements TimeCycle {
+    private static class NextHalfHour implements ITimeAdapter {
 
         @Override
         public Date getNextTime(Date date) {
@@ -89,7 +96,7 @@ public class TimeConstant {
 
     }
 
-    private static class PerHour implements TimeCycle {
+    private static class NextHour implements ITimeAdapter {
 
         @Override
         public Date getNextTime(Date date) {
@@ -100,7 +107,7 @@ public class TimeConstant {
 
     }
 
-    private static class PerMin implements TimeCycle {
+    private static class NextMin implements ITimeAdapter {
 
         @Override
         public Date getNextTime(Date date) {
@@ -111,7 +118,7 @@ public class TimeConstant {
 
     }
 
-    private static class PerSec implements TimeCycle {
+    private static class NextSec implements ITimeAdapter {
 
         @Override
         public Date getNextTime(Date date) {

@@ -17,7 +17,7 @@ public class TimedTask implements Runnable {
 
     private Long tiggerTime = System.currentTimeMillis();
 
-    private TimeCycle cycle = TimeConstant.PER_DAY;
+    private ITimeAdapter cycle = TimeConstant.NEXT_DAY;
 
     private Runnable runnable = null;
 
@@ -28,7 +28,7 @@ public class TimedTask implements Runnable {
         return times;
     }
 
-    public TimeCycle getCycle() {
+    public ITimeAdapter getCycle() {
         return cycle;
     }
 
@@ -36,7 +36,7 @@ public class TimedTask implements Runnable {
         return runnable;
     }
 
-    public TimedTask setCycle(TimeCycle cycle) {
+    public TimedTask setCycle(ITimeAdapter cycle) {
         this.cycle = cycle;
         return this;
     }

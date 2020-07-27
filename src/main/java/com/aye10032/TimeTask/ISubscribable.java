@@ -1,7 +1,7 @@
 package com.aye10032.TimeTask;
 
 import com.aye10032.Functions.CQMsg;
-import com.aye10032.Utils.TimeUtil.TimeCycle;
+import com.aye10032.Utils.TimeUtil.ITimeAdapter;
 
 import java.util.Date;
 import java.util.List;
@@ -10,7 +10,7 @@ import java.util.List;
  * 可订阅的接口类
  * @author Dazo66
  */
-public interface ISubscribable extends TimeCycle, Runnable {
+public interface ISubscribable extends ITimeAdapter, Runnable {
 
     /**
      * 设置收件人 一般由控制器调用

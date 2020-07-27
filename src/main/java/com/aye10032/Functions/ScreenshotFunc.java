@@ -8,8 +8,6 @@ import org.openqa.selenium.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author Dazo66
@@ -83,7 +81,7 @@ public class ScreenshotFunc extends BaseFunc {
         return getScreenshot(driver, url, outFileName, timeOut, new String[]{});
     }
 
-    public static File getScreenshot(WebDriver driver, String url, String outFileName, int timeOut, String... js) throws IOException, InterruptedException {
+    public synchronized static File getScreenshot(WebDriver driver, String url, String outFileName, int timeOut, String... js) throws IOException, InterruptedException {
         try {
             driver.get(url = addhttp(url));
             Zibenbot.logger.info("Chrome Dirver switch to" + url);

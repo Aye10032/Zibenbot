@@ -1,8 +1,7 @@
 package com.aye10032;
 
 import com.aye10032.TimeTask.SubscribableBase;
-import com.aye10032.Utils.TimeUtil.TimeConstant;
-import com.aye10032.Utils.TimeUtil.TimeCycle;
+import com.aye10032.Utils.TimeUtil.ITimeAdapter;
 
 import java.util.Date;
 
@@ -17,9 +16,9 @@ import java.util.Date;
 public abstract class SimpleSubscription extends SubscribableBase {
 
     private final String msg;
-    private TimeCycle cycle;
+    private ITimeAdapter cycle;
 
-    public SimpleSubscription(Zibenbot zibenbot, TimeCycle cycle, String msg) {
+    public SimpleSubscription(Zibenbot zibenbot, ITimeAdapter cycle, String msg) {
         super(zibenbot);
         this.msg = msg;
         this.cycle = cycle;
