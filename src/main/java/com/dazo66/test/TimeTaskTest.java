@@ -11,10 +11,10 @@ import java.util.Date;
 public class TimeTaskTest {
 
     public static void main(String[] args) {
-        long d = 1595847600000L;
-        d = d + (TimeConstant.HOUR - TimeConstant.SEC - ((d - TimeConstant.SEC) % TimeConstant.HOUR)) + TimeConstant.SEC;
 
-        System.out.println(new Date(d));
+        Date date = new Date(1595856236264L);
+        System.out.println(date);
+        System.out.println(TimeConstant.getNextSpecialTime(date, -1, -1, -1, 1, 0));
     }
 
 

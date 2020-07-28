@@ -1,12 +1,9 @@
-package com.aye10032.TimeTask;
+package com.aye10032.Utils.TimeUtil;
 
 import com.aye10032.Functions.CQMsg;
 import com.aye10032.Functions.IFunc;
 import com.aye10032.Functions.MsgType;
 import com.aye10032.Utils.ConfigLoader;
-import com.aye10032.Utils.TimeUtil.TimeConstant;
-import com.aye10032.Utils.TimeUtil.ITimeAdapter;
-import com.aye10032.Utils.TimeUtil.TimedTask;
 import com.aye10032.Zibenbot;
 import com.google.gson.reflect.TypeToken;
 import org.meowy.cqp.jcq.entity.CoolQ;
@@ -24,7 +21,7 @@ import java.util.logging.Level;
  *
  * @author Dazo66
  */
-public class SubscriptManager extends TimedTask implements IFunc {
+public class SubscriptManager extends TimedTaskBase implements IFunc {
 
     protected Zibenbot zibenbot;
     protected String appDirectory;
@@ -47,7 +44,7 @@ public class SubscriptManager extends TimedTask implements IFunc {
      */
     protected Runnable runnable = () -> {
         //得到这次要运行的
-        List<ISubscribable> list = getNextTiggerSub();
+        List<ISubscribable> list = getCurrentTiggerSub();
         //对下次要运行的订阅进行循环
         for (ISubscribable s : list) {
             if (s.getRecipients() != null && !s.getRecipients().isEmpty()) {
@@ -59,6 +56,29 @@ public class SubscriptManager extends TimedTask implements IFunc {
         //清除暂存的下次要运行的订阅器
         next.clear();
     };
+
+    private List<ISubscribable> getCurrentTiggerSub(){
+        return getCurrentTiggerSub(getTiggerTime());
+    }
+
+    private List<ISubscribable> getCurrentTiggerSub(Date current){
+        List<ISubscribable> ret = Collections.synchronizedList(new ArrayList<>());
+        Date begin = getBegin();
+        for (ISubscribable s : allSubscription) {
+            Date date2 = (Date) begin.clone();
+            while (true) {
+                if (date2.getTime() < current.getTime()) {
+                    date2 = s.getNextTime(date2);
+                } else if (date2.getTime() == current.getTime()) {
+                    ret.add(s);
+                    break;
+                } else {
+                    break;
+                }
+            }
+        }
+        return ret;
+    }
 
     public SubscriptManager(Zibenbot zibenbot) {
         this.zibenbot = zibenbot;
@@ -133,7 +153,7 @@ public class SubscriptManager extends TimedTask implements IFunc {
      * @return this
      */
     @Override
-    public TimedTask setCycle(ITimeAdapter cycle) {
+    public TimedTaskBase setCycle(ITimeAdapter cycle) {
         return this;
     }
 
@@ -174,7 +194,7 @@ public class SubscriptManager extends TimedTask implements IFunc {
      * @return this
      */
     @Override
-    public TimedTask setTimes(int times) {
+    public TimedTaskBase setTimes(int times) {
         return super.setTimes(-1);
     }
 
@@ -185,7 +205,7 @@ public class SubscriptManager extends TimedTask implements IFunc {
      * @return this
      */
     @Override
-    public TimedTask setRunnable(Runnable runnable) {
+    public TimedTaskBase setRunnable(Runnable runnable) {
         return this;
     }
 
@@ -463,7 +483,7 @@ public class SubscriptManager extends TimedTask implements IFunc {
             allSubscription.add(subscription);
             setTiggerTime(getBegin());
             setTiggerTime(getNextTiggerTime());
-            if (zibenbot.pool.tasks.contains(this)) {
+            if (zibenbot.pool.isContain(this)) {
                 zibenbot.pool.flush();
             }
         } else {

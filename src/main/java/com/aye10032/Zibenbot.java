@@ -2,7 +2,8 @@ package com.aye10032;
 
 import com.aye10032.Functions.*;
 import com.aye10032.TimeTask.DragraliaTask;
-import com.aye10032.TimeTask.SubscriptManager;
+import com.aye10032.TimeTask.SimpleSubscription;
+import com.aye10032.Utils.TimeUtil.SubscriptManager;
 import com.aye10032.Utils.ExceptionUtils;
 import com.aye10032.Utils.IDNameUtil;
 import com.aye10032.Utils.SeleniumUtils;

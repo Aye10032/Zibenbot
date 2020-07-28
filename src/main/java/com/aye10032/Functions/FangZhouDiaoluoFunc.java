@@ -1,7 +1,7 @@
 package com.aye10032.Functions;
 
 import com.aye10032.Utils.HttpUtils;
-import com.aye10032.Utils.TimeUtil.TimedTask;
+import com.aye10032.Utils.TimeUtil.TimedTaskBase;
 import com.aye10032.Utils.fangzhoudiaoluo.DiaoluoType;
 import com.aye10032.Utils.fangzhoudiaoluo.DiaoluoTypeDeserializer;
 import com.aye10032.Utils.fangzhoudiaoluo.Module;
@@ -58,7 +58,7 @@ public class FangZhouDiaoluoFunc extends BaseFunc {
     @Override
     public void setUp() {
         update();
-        TimedTask task = new TimedTask();
+        TimedTaskBase task = new TimedTaskBase(){};
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.HOUR_OF_DAY, 20);
         calendar.set(Calendar.MINUTE, 0);
