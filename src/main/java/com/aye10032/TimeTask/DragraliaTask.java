@@ -36,10 +36,7 @@ import java.util.regex.Pattern;
 public abstract class DragraliaTask extends SubscribableBase {
 
     public Config config;
-    public CQMsg cqMsg = new CQMsg(-1, -1, 814843368L, 2155231604L, null,
-            "DragraliaTask Return " + "Msg", -1, MsgType.GROUP_MSG);
     public ConfigLoader<Config> loader;
-    String TIMEOUT = "TIMEOUT";
     Zibenbot zibenbot;
     Gson gson = new Gson();
     OkHttpClient client =
@@ -57,7 +54,7 @@ public abstract class DragraliaTask extends SubscribableBase {
                 exceptionCount++;
             }
             Set<Article> articles = getNewArticles();
-            articles.forEach(a -> this.sendArticle(a, cqMsg));
+            articles.forEach(a -> this.sendArticle(a, getRecipients()));
         } catch (Exception e) {
             e.printStackTrace();
             exceptionCount++;
@@ -150,7 +147,7 @@ public abstract class DragraliaTask extends SubscribableBase {
 
     }
 
-    public void sendArticle(Article a, CQMsg cqMsg) {
+    public void sendArticle(Article a, List<CQMsg> cqMsg) {
         List<String> img_list = new ArrayList<>();
         List<String> img_tag_list = new ArrayList<>();
         List<Runnable> runs = new ArrayList<>();
@@ -222,9 +219,15 @@ public abstract class DragraliaTask extends SubscribableBase {
             }
             //todo 测试完毕修改这里
             if (exceptionCount <= 3) {
-                zibenbot.replyMsg(cqMsg, builder.toString());
+                send(cqMsg, builder.toString());
             }
         }, runs.toArray(new Runnable[]{}));
+    }
+
+    public void send(List<CQMsg> list, String s){
+        for (CQMsg cqMsg : list) {
+            zibenbot.replyMsg(cqMsg, s);
+        }
     }
 
     private void setDragraliaLifeArticle(Article a) {

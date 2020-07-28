@@ -103,7 +103,9 @@ public class DragraliaNewsFunc extends BaseFunc {
                         e.printStackTrace();
                         continue;
                     }
-                    task.sendArticle(a, CQmsg);
+                    ArrayList<CQMsg> list = new ArrayList<>();
+                    list.add(CQmsg);
+                    task.sendArticle(a, list);
                 }
             }
         }
