@@ -4,6 +4,7 @@ import com.aye10032.Functions.CQMsg;
 import com.aye10032.Functions.MsgType;
 import com.aye10032.Functions.ScreenshotFunc;
 import com.aye10032.Utils.*;
+import com.aye10032.Utils.TimeUtil.SubscribableBase;
 import com.aye10032.Utils.TimeUtil.TimeConstant;
 import com.aye10032.Zibenbot;
 import com.google.gson.Gson;
@@ -77,11 +78,12 @@ public abstract class DragraliaTask extends SubscribableBase {
 
     @Override
     public Date getNextTime(Date date) {
-        long d = date.getTime();
+        /*long d = date.getTime();
         //得到下一个01分
         //19：00
         d = d + (TimeConstant.HOUR + TimeConstant.SEC - ((d - TimeConstant.SEC) % TimeConstant.HOUR)) + TimeConstant.SEC;
-        return new Date(d);
+        return new Date(d);*/
+        return TimeConstant.getNextSpecialTime(date, -1, -1, -1, 0, 1);
     }
 
     @Override
@@ -185,7 +187,7 @@ public abstract class DragraliaTask extends SubscribableBase {
         if (!"".equals(a.image_path)) {
             runs.add(() -> downloadImg(a.image_path));
         }
-        zibenbot.pool.asynchronousPool.execute(() -> {
+        zibenbot.pool.getAsynchronousPool().execute(() -> {
             StringBuilder builder = new StringBuilder();
             if (a.article_id != -1) {
                 builder.append("【").append(a.category_name).append("】 ").append(a.title_name).append("\n");

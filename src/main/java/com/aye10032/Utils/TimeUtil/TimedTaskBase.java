@@ -7,9 +7,11 @@ import java.util.Date;
 import java.util.logging.Level;
 
 /**
+ * 时间任务的子类
+ *
  * @author Dazo66
  */
-public class TimedTask implements Runnable {
+public abstract class TimedTaskBase implements Runnable {
 
     private int times = -1;
 
@@ -21,7 +23,7 @@ public class TimedTask implements Runnable {
 
     private Runnable runnable = null;
 
-    public TimedTask() {
+    public TimedTaskBase() {
     }
 
     public int getTimes() {
@@ -36,7 +38,7 @@ public class TimedTask implements Runnable {
         return runnable;
     }
 
-    public TimedTask setCycle(ITimeAdapter cycle) {
+    public TimedTaskBase setCycle(ITimeAdapter cycle) {
         this.cycle = cycle;
         return this;
     }
@@ -45,7 +47,7 @@ public class TimedTask implements Runnable {
         return new Date(tiggerTime);
     }
 
-    public TimedTask setTiggerTime(Date tiggerTime) {
+    public TimedTaskBase setTiggerTime(Date tiggerTime) {
         if (begin == null) {
             this.begin = tiggerTime.getTime();
         }
@@ -61,12 +63,12 @@ public class TimedTask implements Runnable {
         return TimeConstant.getNextTimeFromNow(getTiggerTime(), getCycle());
     }
 
-    public TimedTask setTimes(int times) {
+    public TimedTaskBase setTimes(int times) {
         this.times = times;
         return this;
     }
 
-    public TimedTask setRunnable(Runnable runnable) {
+    public TimedTaskBase setRunnable(Runnable runnable) {
         this.runnable = runnable;
         return this;
     }

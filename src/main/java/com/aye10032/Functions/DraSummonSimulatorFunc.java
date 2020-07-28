@@ -1,7 +1,7 @@
 package com.aye10032.Functions;
 
 import com.aye10032.Utils.*;
-import com.aye10032.Utils.TimeUtil.TimedTask;
+import com.aye10032.Utils.TimeUtil.TimedTaskBase;
 import com.aye10032.Zibenbot;
 import com.google.gson.*;
 import com.google.gson.annotations.Expose;
@@ -47,7 +47,7 @@ public class DraSummonSimulatorFunc extends BaseFunc {
     @Override
     public void setUp() {
         update();
-        TimedTask task = new TimedTask();
+        TimedTaskBase task = new TimedTaskBase(){};
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.HOUR_OF_DAY, 14);
         calendar.set(Calendar.MINUTE, 0);

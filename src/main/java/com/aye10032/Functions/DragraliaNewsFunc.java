@@ -70,7 +70,7 @@ public class DragraliaNewsFunc extends BaseFunc {
                             articles.add(a);
                         }
                     }));
-                    zibenbot.pool.asynchronousPool.execute(() -> {
+                    zibenbot.pool.getAsynchronousPool().execute(() -> {
                         TreeSet<DragraliaTask.Article> set = new TreeSet<>(Comparator.reverseOrder());
                         set.addAll(articles);
                         StringBuilder builder = new StringBuilder();
