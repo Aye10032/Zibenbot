@@ -27,6 +27,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -43,7 +44,6 @@ public abstract class DragraliaTask extends SubscribableBase {
             new OkHttpClient.Builder().callTimeout(30, TimeUnit.SECONDS).proxy(Zibenbot.proxy).build();
     private JsonParser jsonParser = new JsonParser();
     private ArticleUpateDate date = null;
-    private int exceptionCount = 0;
     public Runnable runnable = () -> {
         try {
             try {
@@ -51,13 +51,12 @@ public abstract class DragraliaTask extends SubscribableBase {
             } catch (Exception e) {
                 e.printStackTrace();
                 //zibenbot.replyMsg(cqMsg, "公告获取异常");
-                exceptionCount++;
             }
             Set<Article> articles = getNewArticles();
             articles.forEach(a -> this.sendArticle(a, getRecipients()));
         } catch (Exception e) {
             e.printStackTrace();
-            exceptionCount++;
+            Zibenbot.logger.log(Level.WARNING, ExceptionUtils.printStack(e));
         }
     };
 
@@ -98,7 +97,6 @@ public abstract class DragraliaTask extends SubscribableBase {
         //判断是不是过了一天的14点
         if ((current - 21600) / 86400 > (last_data - 21600) / 86400) {
             last.clear();
-            exceptionCount = 0;
         }
         date.new_article_list.forEach(i -> {
             if (!last.new_article_list.contains(i)) {
@@ -133,7 +131,6 @@ public abstract class DragraliaTask extends SubscribableBase {
                             "更新公告异常\n公告页面：https://dragalialost.com/chs/news/detail/" + a.article_id;
                     a.article_id = -1;
                     set.add(a);
-                    exceptionCount++;
                 }
             }
 
@@ -218,9 +215,7 @@ public abstract class DragraliaTask extends SubscribableBase {
                 builder.append(a.message);
             }
             //todo 测试完毕修改这里
-            if (exceptionCount <= 3) {
-                send(cqMsg, builder.toString());
-            }
+            send(cqMsg, builder.toString());
         }, runs.toArray(new Runnable[]{}));
     }
 

@@ -44,11 +44,10 @@ public class TimeTaskPool {
     }
 
     public void add(TimedTaskBase task) {
-        if (task.getRunnable() != null) {
-            tasks.add(task);
-            flow.flush();
-            Zibenbot.logger.log(Level.INFO, String.format("添加时间任务 触发时间：%s 当前时间%s", task.getTiggerTime().toString(), new Date().toString()));
-        }
+        tasks.add(task);
+        flow.flush();
+        Zibenbot.logger.log(Level.INFO, String.format("添加时间任务 触发时间：%s 当前时间%s",
+                task.getTiggerTime().toString(), new Date().toString()));
     }
 
     public void flush(){
@@ -73,9 +72,9 @@ public class TimeTaskPool {
             if (task.getTiggerTime() == null) {
                 continue;
             }
-            if (nextTasks.size() == 0) {
+            if (nextTasks.size() == 0 && task.getTiggerTime().getTime() > System.currentTimeMillis()) {
                 nextTasks.add(task);
-            } else {
+            } else if (nextTasks.size() > 0) {
                 int flag = task.getTiggerTime().compareTo(nextTasks.get(0).getTiggerTime());
                 if (flag == 0) {
                     nextTasks.add(task);
@@ -89,9 +88,13 @@ public class TimeTaskPool {
     }
 
     public void timeoutEvent(int millisTimeout, Runnable runnable) {
-        add(new TimedTaskBase(){}
+        add(new TimedTaskBase(){
+                    @Override
+                    public void run(Date current) {
+                        runnable.run();
+                    }
+                }
                 .setTimes(1)
-                .setRunnable(runnable)
                 .setTiggerTime(new Date(System.currentTimeMillis() + millisTimeout))
         );
     }

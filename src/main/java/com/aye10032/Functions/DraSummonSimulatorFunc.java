@@ -47,13 +47,17 @@ public class DraSummonSimulatorFunc extends BaseFunc {
     @Override
     public void setUp() {
         update();
-        TimedTaskBase task = new TimedTaskBase(){};
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.HOUR_OF_DAY, 14);
         calendar.set(Calendar.MINUTE, 0);
         calendar.set(Calendar.SECOND, 1);
         Date date = calendar.getTime();
-        task.setTiggerTime(date).setCycle(NEXT_HOUR).setRunnable(this::update);
+        TimedTaskBase task = new TimedTaskBase(){
+            @Override
+            public void run(Date current) {
+                update();
+            }
+        }.setTiggerTime(date).setCycle(NEXT_HOUR);
         zibenbot.pool.add(task);
     }
 

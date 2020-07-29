@@ -19,31 +19,10 @@ public class AsynchronousTaskPool extends TimedTaskBase {
 
     ExecutorService pool;
     Map<Runnable, List<Future<?>>> runnableMap = new ConcurrentHashMap<>();
-    Runnable thisRun = () -> {
-        if (runnableMap.size() != 0) {
-            List<Runnable> list = new ArrayList<>();
-            for (Runnable runnable : runnableMap.keySet()) {
-                boolean allExecut = true;
-                for (Future<?> future : runnableMap.get(runnable)) {
-                    if (!future.isDone() && !future.isCancelled()) {
-                        allExecut = false;
-                    }
-                }
-                if (allExecut) {
-                    list.add(runnable);
-                }
-            }
-            for (Runnable r : list) {
-                runnableMap.remove(r);
-                r.run();
-            }
-
-        }
-    };
 
     public AsynchronousTaskPool(){
         pool = Executors.newCachedThreadPool();
-        setRunnable(thisRun).setTimes(-1).setCycle(TimeConstant.NEXT_SEC)
+        setTimes(-1).setCycle(TimeConstant.NEXT_SEC)
                 .setTiggerTime(new Date(System.currentTimeMillis() + 1000));
     }
 
@@ -64,6 +43,26 @@ public class AsynchronousTaskPool extends TimedTaskBase {
     }
 
 
-
+    @Override
+    public void run(Date current) {
+        if (runnableMap.size() != 0) {
+            List<Runnable> list = new ArrayList<>();
+            for (Runnable runnable : runnableMap.keySet()) {
+                boolean allExecut = true;
+                for (Future<?> future : runnableMap.get(runnable)) {
+                    if (!future.isDone() && !future.isCancelled()) {
+                        allExecut = false;
+                    }
+                }
+                if (allExecut) {
+                    list.add(runnable);
+                }
+            }
+            for (Runnable r : list) {
+                runnableMap.remove(r);
+                r.run();
+            }
+        }
+    }
 
 }
