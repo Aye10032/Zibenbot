@@ -27,6 +27,7 @@ public class SubscriptManager extends TimedTaskBase implements IFunc {
     protected String appDirectory;
     protected CoolQ CQ;
     protected CQCode CC;
+    private Date last;
     /**
      * 各个途径的订阅信息 每次从配置中读取
      */
@@ -39,23 +40,6 @@ public class SubscriptManager extends TimedTaskBase implements IFunc {
      * 暂存的下一次要运行的东西
      */
     private List<ISubscribable> next = Collections.synchronizedList(new ArrayList<>());
-    /**
-     * 定时运行的方法 运行时间和订阅的东西相关
-     */
-    protected Runnable runnable = () -> {
-        //得到这次要运行的
-        List<ISubscribable> list = getCurrentTiggerSub();
-        //对下次要运行的订阅进行循环
-        for (ISubscribable s : list) {
-            if (s.getRecipients() != null && !s.getRecipients().isEmpty()) {
-                //运行各个订阅器
-                s.run();
-                Zibenbot.logger.log(Level.INFO, "SubscriptManager run start:" + s.toString());
-            }
-        }
-        //清除暂存的下次要运行的订阅器
-        next.clear();
-    };
 
     private List<ISubscribable> getCurrentTiggerSub(){
         return getCurrentTiggerSub(getTiggerTime());
@@ -141,11 +125,6 @@ public class SubscriptManager extends TimedTaskBase implements IFunc {
         return recipients;
     }
 
-    @Override
-    public Runnable getRunnable() {
-        return runnable;
-    }
-
     /**
      * 禁用了这个方法
      *
@@ -196,17 +175,6 @@ public class SubscriptManager extends TimedTaskBase implements IFunc {
     @Override
     public TimedTaskBase setTimes(int times) {
         return super.setTimes(-1);
-    }
-
-    /**
-     * 禁用了这个方法
-     *
-     * @param runnable unuse
-     * @return this
-     */
-    @Override
-    public TimedTaskBase setRunnable(Runnable runnable) {
-        return this;
     }
 
     private Date getNextTiggerTimeFrom(Date from) {
@@ -520,6 +488,22 @@ public class SubscriptManager extends TimedTaskBase implements IFunc {
             System.out.println(msg);
         }
 
+    }
+
+    @Override
+    public void run(Date current) {
+        //得到这次要运行的
+        List<ISubscribable> list = getCurrentTiggerSub(current);
+        //对下次要运行的订阅进行循环
+        for (ISubscribable s : list) {
+            if (s.getRecipients() != null && !s.getRecipients().isEmpty()) {
+                //运行各个订阅器
+                s.run();
+                Zibenbot.logger.log(Level.INFO, "SubscriptManager run start:" + s.toString());
+            }
+        }
+        //清除暂存的下次要运行的订阅器
+        next.clear();
     }
 
     private final static String EMPTY = "";

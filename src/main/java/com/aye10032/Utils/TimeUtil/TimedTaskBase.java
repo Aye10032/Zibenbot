@@ -1,17 +1,13 @@
 package com.aye10032.Utils.TimeUtil;
 
-import com.aye10032.Utils.ExceptionUtils;
-import com.aye10032.Zibenbot;
-
 import java.util.Date;
-import java.util.logging.Level;
 
 /**
  * 时间任务的子类
  *
  * @author Dazo66
  */
-public abstract class TimedTaskBase implements Runnable {
+public abstract class TimedTaskBase {
 
     private int times = -1;
 
@@ -21,10 +17,10 @@ public abstract class TimedTaskBase implements Runnable {
 
     private ITimeAdapter cycle = TimeConstant.NEXT_DAY;
 
-    private Runnable runnable = null;
-
     public TimedTaskBase() {
     }
+
+    public abstract void run(Date date);
 
     public int getTimes() {
         return times;
@@ -32,10 +28,6 @@ public abstract class TimedTaskBase implements Runnable {
 
     public ITimeAdapter getCycle() {
         return cycle;
-    }
-
-    public Runnable getRunnable() {
-        return runnable;
     }
 
     public TimedTaskBase setCycle(ITimeAdapter cycle) {
@@ -66,20 +58,5 @@ public abstract class TimedTaskBase implements Runnable {
     public TimedTaskBase setTimes(int times) {
         this.times = times;
         return this;
-    }
-
-    public TimedTaskBase setRunnable(Runnable runnable) {
-        this.runnable = runnable;
-        return this;
-    }
-
-    @Override
-    public void run() {
-        try {
-            getRunnable().run();
-        } catch (Exception e) {
-            e.printStackTrace();
-            Zibenbot.logger.log(Level.WARNING, String.format("运行任务：[%s]时出现异常[%s]\n%s", this.getClass().getName(), e.getMessage(), ExceptionUtils.printStack(e)));
-        }
     }
 }

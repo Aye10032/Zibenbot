@@ -1,5 +1,6 @@
 package com.aye10032.Utils.TimeUtil;
 
+import com.aye10032.Utils.ExceptionUtils;
 import com.aye10032.Zibenbot;
 
 import java.util.concurrent.ExecutorService;
@@ -67,14 +68,24 @@ public class TimeFlow implements Runnable {
             for (TimedTaskBase task : pool.nextTasks) {
                 try {
                     if (!(task instanceof AsynchronousTaskPool)) {
-                        Zibenbot.logger.log(Level.INFO, String.format("触发任务: %s", task.getRunnable().getClass().getSimpleName()));
+                        Zibenbot.logger.log(Level.INFO, String.format("触发任务: %s", task.getClass().getSimpleName()));
                     }
 
-                    if (task.getRunnable() != null && (task.getTimes() > 0 || task.getTimes() == -1)) {
+                    if (task.getTimes() > 0 || task.getTimes() == -1) {
                         if (task.getTimes() > 0) {
                             task.setTimes(task.getTimes() - 1);
                         }
-                        service.execute(task);
+                        service.execute(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    task.run(task.getTiggerTime());
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                    Zibenbot.logger.log(Level.WARNING, String.format("运行任务：[%s]时出现异常[%s]\n%s", this.getClass().getName(), e.getMessage(), ExceptionUtils.printStack(e)));
+                                }
+                            }
+                        });
                         task.setTiggerTime(task.getNextTiggerTime());
                     }
                     if (task.getTimes() == 0) {

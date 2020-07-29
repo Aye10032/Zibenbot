@@ -58,13 +58,17 @@ public class FangZhouDiaoluoFunc extends BaseFunc {
     @Override
     public void setUp() {
         update();
-        TimedTaskBase task = new TimedTaskBase(){};
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.HOUR_OF_DAY, 20);
         calendar.set(Calendar.MINUTE, 0);
         calendar.set(Calendar.SECOND, 0);
         Date date = calendar.getTime();
-        task.setTiggerTime(date).setCycle(NEXT_DAY).setRunnable(this::update);
+        TimedTaskBase task = new TimedTaskBase(){
+            @Override
+            public void run(Date current) {
+                update();
+            }
+        }.setTiggerTime(date).setCycle(NEXT_DAY);
         zibenbot.pool.add(task);
     }
 
