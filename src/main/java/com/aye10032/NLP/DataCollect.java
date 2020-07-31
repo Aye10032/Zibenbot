@@ -58,8 +58,8 @@ public class DataCollect extends BaseFunc {
     @Override
     public void run(CQMsg CQmsg) {
         boolean flag = false;
-        if (CQmsg.isPrivateMsg()){
-            flag = true;
+        if (CQmsg.fromClient == 1969631968L){
+            return;
         }else if (CQmsg.isGroupMsg()) {
             List<Long> at_list = zibenbot.getCQCode().getAts(CQmsg.msg);
             if (at_list.size() != 0){
