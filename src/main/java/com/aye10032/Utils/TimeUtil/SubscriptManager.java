@@ -498,8 +498,8 @@ public class SubscriptManager extends TimedTaskBase implements IFunc {
         for (ISubscribable s : list) {
             if (s.getRecipients() != null && !s.getRecipients().isEmpty()) {
                 //运行各个订阅器
+                Zibenbot.logger.log(Level.INFO, "SubscriptManager run start:" + s.toString() + current);
                 s.run();
-                Zibenbot.logger.log(Level.INFO, "SubscriptManager run start:" + s.toString());
             }
         }
         //清除暂存的下次要运行的订阅器
