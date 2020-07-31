@@ -1,6 +1,7 @@
 package com.aye10032;
 
 import com.aye10032.Functions.*;
+import com.aye10032.NLP.DataCollect;
 import com.aye10032.TimeTask.DragraliaTask;
 import com.aye10032.TimeTask.SimpleSubscription;
 import com.aye10032.Utils.TimeUtil.SubscriptManager;
@@ -325,6 +326,7 @@ public class Zibenbot extends JcqAppAbstract implements ICQVer, IMsg, IRequest {
         registerFunc.add(new PaomianFunc(this));
         registerFunc.add(new SendGroupFunc(this));
         registerFunc.add(new INMFunc(this));
+        registerFunc.add(new DataCollect(this));
 
         //对功能进行初始化
         for (IFunc func : registerFunc) {
