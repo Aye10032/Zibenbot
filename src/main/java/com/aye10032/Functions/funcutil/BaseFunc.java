@@ -1,5 +1,7 @@
-package com.aye10032.Functions;
+package com.aye10032.Functions.funcutil;
 
+import com.aye10032.Functions.funcutil.CQMsg;
+import com.aye10032.Functions.funcutil.IFunc;
 import com.aye10032.Zibenbot;
 import org.meowy.cqp.jcq.entity.CoolQ;
 import org.meowy.cqp.jcq.message.CQCode;

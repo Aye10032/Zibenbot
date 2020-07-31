@@ -1,6 +1,6 @@
 package com.dazo66.test;
 
-import com.aye10032.Functions.CQMsg;
+import com.aye10032.Functions.funcutil.CQMsg;
 import com.aye10032.Functions.FangZhouDiaoluoFunc;
 import com.aye10032.Utils.SeleniumUtils;
 import org.apache.http.Header;

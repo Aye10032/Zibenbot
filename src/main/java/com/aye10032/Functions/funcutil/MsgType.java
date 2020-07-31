@@ -1,4 +1,4 @@
-package com.aye10032.Functions;
+package com.aye10032.Functions.funcutil;
 
 public enum MsgType {
 

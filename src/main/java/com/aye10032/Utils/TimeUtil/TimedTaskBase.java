@@ -11,9 +11,9 @@ public abstract class TimedTaskBase {
 
     private int times = -1;
 
-    private Long begin;
+    private long begin = -1;
 
-    private Long tiggerTime = System.currentTimeMillis();
+    private long tiggerTime = System.currentTimeMillis();
 
     private ITimeAdapter cycle = TimeConstant.NEXT_DAY;
 
@@ -40,7 +40,7 @@ public abstract class TimedTaskBase {
     }
 
     public TimedTaskBase setTiggerTime(Date tiggerTime) {
-        if (begin == null) {
+        if (begin == -1) {
             this.begin = tiggerTime.getTime();
         }
         this.tiggerTime = tiggerTime.getTime();

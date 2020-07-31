@@ -1,7 +1,6 @@
 package com.aye10032.Utils.TimeUtil;
 
-import com.aye10032.Functions.CQMsg;
-import com.aye10032.Utils.TimeUtil.ITimeAdapter;
+import com.aye10032.Functions.funcutil.CQMsg;
 
 import java.util.Date;
 import java.util.List;

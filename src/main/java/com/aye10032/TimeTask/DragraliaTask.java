@@ -1,7 +1,6 @@
 package com.aye10032.TimeTask;
 
-import com.aye10032.Functions.CQMsg;
-import com.aye10032.Functions.MsgType;
+import com.aye10032.Functions.funcutil.CQMsg;
 import com.aye10032.Functions.ScreenshotFunc;
 import com.aye10032.Utils.*;
 import com.aye10032.Utils.TimeUtil.SubscribableBase;

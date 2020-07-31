@@ -1,7 +1,7 @@
 package com.dazo66.test;
 
 import com.aye10032.Functions.BiliFunc;
-import com.aye10032.Functions.CQMsg;
+import com.aye10032.Functions.funcutil.CQMsg;
 import com.aye10032.Zibenbot;
 
 import java.io.IOException;

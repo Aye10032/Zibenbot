@@ -1,6 +1,6 @@
 package com.dazo66.test;
 
-import com.aye10032.Functions.CQMsg;
+import com.aye10032.Functions.funcutil.CQMsg;
 import com.aye10032.Functions.DragraliaNewsFunc;
 import com.aye10032.Zibenbot;
 

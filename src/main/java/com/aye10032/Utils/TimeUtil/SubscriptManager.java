@@ -1,8 +1,8 @@
 package com.aye10032.Utils.TimeUtil;
 
-import com.aye10032.Functions.CQMsg;
-import com.aye10032.Functions.IFunc;
-import com.aye10032.Functions.MsgType;
+import com.aye10032.Functions.funcutil.CQMsg;
+import com.aye10032.Functions.funcutil.IFunc;
+import com.aye10032.Functions.funcutil.MsgType;
 import com.aye10032.Utils.ConfigLoader;
 import com.aye10032.Zibenbot;
 import com.google.gson.reflect.TypeToken;
@@ -45,7 +45,7 @@ public class SubscriptManager extends TimedTaskBase implements IFunc {
         return getCurrentTiggerSub(getTiggerTime());
     }
 
-    private List<ISubscribable> getCurrentTiggerSub(Date current){
+    private List<ISubscribable> getCurrentTiggerSub(Date current) {
         List<ISubscribable> ret = Collections.synchronizedList(new ArrayList<>());
         Date begin = getBegin();
         for (ISubscribable s : allSubscription) {

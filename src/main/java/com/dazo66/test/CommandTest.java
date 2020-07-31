@@ -1,9 +1,10 @@
 package com.dazo66.test;
 
-import com.aye10032.Functions.FuncCommanderFactory;
+import com.aye10032.Functions.funcutil.FuncCommanderFactory;
 import com.dazo66.commandstream.Commander;
 import com.dazo66.commandstream.CommanderBuilder;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.lucene.util.RamUsageEstimator;
 
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicReference;
@@ -29,10 +30,10 @@ public class CommandTest {
                     .next()
                         .or(NumberUtils::isDigits)
                         .run((strings) -> System.out.println(Arrays.toString(strings)))
-                        .ifNot(() -> System.out.println("plus d1 wrong" + s.get()))
+                        //.ifNot((strings) -> System.out.println("plus d1 wrong" + s.get()))
                         .next()
                             .or(NumberUtils::isDigits)
-                            .ifNot(() -> System.out.println("plus d2 wrong"))
+                            .ifNot((strings) -> System.out.println("plus d2 wrong"))
                             .run((strings) -> {
                                 Double d1 = NumberUtils.toDouble(strings[2]);
                                 Double d2 = NumberUtils.toDouble(strings[3]);
@@ -43,10 +44,10 @@ public class CommandTest {
                     .or("reduce"::equals)
                     .next()
                         .or(NumberUtils::isDigits)
-                        .ifNot(() -> System.out.println("reduce d1 wrong"))
+                        //.ifNot((strings) -> System.out.println("reduce d1 wrong"))
                         .next()
                             .or(NumberUtils::isDigits)
-                            .ifNot(() -> System.out.println("reduce d2 wrong"))
+                            //.ifNot((strings) -> System.out.println("reduce d2 wrong"))
                             .run((strings) -> {
                                 Double d1 = NumberUtils.toDouble(strings[2]);
                                 Double d2 = NumberUtils.toDouble(strings[3]);
@@ -57,10 +58,10 @@ public class CommandTest {
                     .or("mult"::equals)
                     .next()
                         .or(NumberUtils::isDigits)
-                        .ifNot(() -> System.out.println("mult d1 wrong"))
+                        //.ifNot((strings) -> System.out.println("mult d1 wrong"))
                         .next()
                             .or(NumberUtils::isDigits)
-                            .ifNot(() -> System.out.println("mult d2 wrong"))
+                            //.ifNot((strings) -> System.out.println("mult d2 wrong"))
                             .run((strings) -> {
                                 Double d1 = NumberUtils.toDouble(strings[2]);
                                 Double d2 = NumberUtils.toDouble(strings[3]);
@@ -71,10 +72,10 @@ public class CommandTest {
                     .or("div"::equals)
                     .next()
                         .or(NumberUtils::isDigits)
-                        .ifNot(() -> System.out.println("div d1 wrong"))
+                        //.ifNot((strings) -> System.out.println("div d1 wrong"))
                         .next()
                             .or(NumberUtils::isDigits)
-                            .ifNot(() -> System.out.println("div d2 wrong"))
+                            //.ifNot((strings) -> System.out.println("div d2 wrong"))
                             .run((strings) -> {
                                 Double d1 = NumberUtils.toDouble(strings[2]);
                                 Double d2 = NumberUtils.toDouble(strings[3]);
@@ -93,6 +94,9 @@ public class CommandTest {
         commander.execute("math plus x 2");
         s.set("222222");
         commander.execute("math plus x 2");
+
+        System.out.println(RamUsageEstimator.humanSizeOf(commander));
+        System.out.println(RamUsageEstimator.humanSizeOf(new CommanderBuilder().start().build()));
 /*        commander.execute("math reduce 1 x");
         commander.execute("math mult x 2");
         commander.execute("math div 1 x");

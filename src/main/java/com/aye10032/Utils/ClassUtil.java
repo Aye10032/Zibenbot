@@ -1,7 +1,7 @@
 package com.aye10032.Utils;
 
 
-import com.aye10032.Functions.BaseFunc;
+import com.aye10032.Functions.funcutil.BaseFunc;
 
 import java.io.File;
 import java.io.IOException;

@@ -1,5 +1,7 @@
 package com.aye10032.Functions;
 
+import com.aye10032.Functions.funcutil.BaseFunc;
+import com.aye10032.Functions.funcutil.CQMsg;
 import com.aye10032.TimeTask.DragraliaTask;
 import com.aye10032.Utils.ArticleUpateDate;
 import com.aye10032.Utils.Config;

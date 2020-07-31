@@ -3,6 +3,7 @@ package com.aye10032.Utils.TimeUtil;
 import com.aye10032.Utils.ExceptionUtils;
 import com.aye10032.Zibenbot;
 
+import java.util.Date;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
@@ -75,11 +76,12 @@ public class TimeFlow implements Runnable {
                         if (task.getTimes() > 0) {
                             task.setTimes(task.getTimes() - 1);
                         }
+                        final Date current = task.getTiggerTime();
                         service.execute(new Runnable() {
                             @Override
                             public void run() {
                                 try {
-                                    task.run(task.getTiggerTime());
+                                    task.run(current);
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                     Zibenbot.logger.log(Level.WARNING, String.format("运行任务：[%s]时出现异常[%s]\n%s", this.getClass().getName(), e.getMessage(), ExceptionUtils.printStack(e)));
