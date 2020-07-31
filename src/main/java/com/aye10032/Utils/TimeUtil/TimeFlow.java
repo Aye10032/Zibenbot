@@ -68,7 +68,7 @@ public class TimeFlow implements Runnable {
             for (TimedTaskBase task : pool.nextTasks) {
                 try {
                     if (!(task instanceof AsynchronousTaskPool)) {
-                        Zibenbot.logger.log(Level.INFO, String.format("触发任务: %s", task.getClass().getSimpleName()));
+                        Zibenbot.logger.log(Level.INFO, String.format("触发任务: %s 时间：%s ", task.getClass().getSimpleName(), task.getTiggerTime()));
                     }
 
                     if (task.getTimes() > 0 || task.getTimes() == -1) {
