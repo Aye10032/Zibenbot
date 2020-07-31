@@ -1,5 +1,8 @@
 package com.aye10032.Functions;
 
+import com.aye10032.Functions.funcutil.BaseFunc;
+import com.aye10032.Functions.funcutil.CQMsg;
+import com.aye10032.Functions.funcutil.MsgType;
 import com.aye10032.Utils.ExceptionUtils;
 import com.aye10032.Utils.IDNameUtil;
 import com.aye10032.Zibenbot;

@@ -1,5 +1,7 @@
 package com.aye10032.Functions;
 
+import com.aye10032.Functions.funcutil.BaseFunc;
+import com.aye10032.Functions.funcutil.CQMsg;
 import com.aye10032.Utils.AyeCompile;
 import com.aye10032.Utils.BiliInfo;
 import com.aye10032.Zibenbot;
@@ -10,7 +12,7 @@ import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
 
-public class BiliFunc extends BaseFunc{
+public class BiliFunc extends BaseFunc {
     Map<Integer, String> code_msg = new HashMap<>();
 
     public BiliFunc(Zibenbot zibenbot) {
