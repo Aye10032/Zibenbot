@@ -2,6 +2,10 @@ package com.aye10032.Functions.funcutil;
 
 import org.meowy.cqp.jcq.entity.Anonymous;
 
+/**
+ * CQMsg的包装对象 每个传入的消息都进行包装后交由模块执行
+ * @author Dazo66
+ */
 public class CQMsg {
 
     public int subType = -1;
@@ -36,6 +40,12 @@ public class CQMsg {
         return type == MsgType.TEAMSPEAK_MSG;
     }
 
+    /**
+     * 生成一个测试用的CQmsg对象
+     *
+     * @param testMsg
+     * @return
+     */
     public static CQMsg getTempMsg(String testMsg){
         return new CQMsg(-1, -1, 995497677L, 2375985957L, null, testMsg, -1, MsgType.GROUP_MSG);
     }

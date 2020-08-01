@@ -1,12 +1,11 @@
 package com.aye10032.Functions.funcutil;
 
-import com.aye10032.Functions.funcutil.CQMsg;
-import com.aye10032.Functions.funcutil.IFunc;
 import com.aye10032.Zibenbot;
 import org.meowy.cqp.jcq.entity.CoolQ;
 import org.meowy.cqp.jcq.message.CQCode;
 
 /**
+ * 基础的func的类 包装了一些可用的方法
  * @author Dazo66
  */
 public abstract class BaseFunc implements IFunc {
@@ -30,6 +29,12 @@ public abstract class BaseFunc implements IFunc {
         }
     }
 
+    /**
+     * 根据传入的消息，回复消息
+     *
+     * @param fromMsg 从哪来的什么消息
+     * @param msg 要回复的内容
+     */
     public void replyMsg(CQMsg fromMsg, String msg) {
         if (zibenbot!= null) {
             zibenbot.replyMsg(fromMsg, msg);

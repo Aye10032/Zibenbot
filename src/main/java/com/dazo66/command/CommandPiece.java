@@ -1,10 +1,14 @@
-package com.dazo66.commandstream;
+package com.dazo66.command;
 
-import com.dazo66.commandstream.interfaces.CommandRun;
+import com.dazo66.command.interfaces.CommandRun;
 
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 命令片，代表一个命令深度，可以包含多个分支
+ * @author Dazo66
+ */
 public class CommandPiece {
 
     private List<or> ors = new ArrayList<>();
@@ -31,10 +35,10 @@ public class CommandPiece {
         this.ifNot = ifNot;
     }
 
-    protected List<or> match(String patch) {
+    protected List<or> match(String[] patch) {
         List<or> r = new ArrayList<>();
         for (or or : ors) {
-            if (or.ret(patch)) {
+            if (or.match(patch)) {
                 r.add(or);
             }
         }

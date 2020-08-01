@@ -1,6 +1,6 @@
 package com.aye10032.Functions.funcutil;
 
-import com.dazo66.commandstream.interfaces.CommanderFactory;
+import com.dazo66.command.interfaces.CommanderFactory;
 
 /**
  * @author Dazo66
