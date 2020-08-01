@@ -9,7 +9,6 @@ import com.aye10032.Utils.BanUtil.BanRecord;
 import com.aye10032.Zibenbot;
 import com.dazo66.commandstream.CommanderBuilder;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.lucene.util.RamUsageEstimator;
 import org.meowy.cqp.jcq.entity.CoolQ;
 import org.meowy.cqp.jcq.message.CQCode;
 

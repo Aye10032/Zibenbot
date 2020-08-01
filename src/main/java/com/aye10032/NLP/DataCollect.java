@@ -7,16 +7,33 @@ import com.aye10032.Zibenbot;
 import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
 
 public class DataCollect extends BaseFunc {
 
+    private Connection c = null;
+
     public static void main(String[] args) {
 
+    }
+
+    public Connection getConnection(){
+        try {
+            if (c == null || c.isClosed()) {
+                Class.forName("org.sqlite.JDBC");
+                c = DriverManager.getConnection("jdbc:sqlite:" + zibenbot.appDirectory +
+                        "\\nlpdata\\botnlpdata.db");
+                System.out.println("Opened database successfully");
+            }
+        } catch (SQLException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return c;
     }
 
     public DataCollect(Zibenbot zibenbot) {
@@ -31,10 +48,7 @@ public class DataCollect extends BaseFunc {
             Connection c = null;
             Statement stmt = null;
             try {
-                Class.forName("org.sqlite.JDBC");
-                c = DriverManager.getConnection("jdbc:sqlite:" + zibenbot.appDirectory + "\\nlpdata\\botnlpdata.db");
-                System.out.println("Opened database successfully");
-
+                c = getConnection();
                 stmt = c.createStatement();
                 String sql = "CREATE TABLE \"question\" (\n" +
                         "\t\"ID\"\tINTEGER NOT NULL,\n" +
@@ -47,10 +61,9 @@ public class DataCollect extends BaseFunc {
                 stmt.executeUpdate(sql);
                 stmt.close();
                 c.close();
-                    System.out.println("Creat table successfully");
+                Zibenbot.logger.log(Level.WARNING, "Creat table successfully");
             } catch (Exception e) {
-                System.err.println(e.getClass().getName() + ": " + e.getMessage());
-                System.exit(0);
+                Zibenbot.logger.log(Level.WARNING, e.getClass().getName() + ": " + e.getMessage());
             }
         }
     }
@@ -75,31 +88,21 @@ public class DataCollect extends BaseFunc {
             }
         }
 
-        if (flag){
-            Connection c = null;
-            Statement stmt = null;
+        if (flag) {
+            Statement stmt;
             try {
-                Class.forName("org.sqlite.JDBC");
-                c = DriverManager.getConnection("jdbc:sqlite:" + zibenbot.appDirectory + "\\nlpdata\\botnlpdata.db");
-                System.out.println("Opened database successfully");
-
-                stmt = c.createStatement();
-
-                Date dNow = new Date( );
+                stmt = getConnection().createStatement();
+                Date dNow = new Date();
                 SimpleDateFormat ft = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-
-                String sql = "INSERT INTO question (msg,fromQQ,fromGroup,time) " +
-                        "VALUES ('"+CQmsg.msg+"', '"+CQmsg.fromClient+"', '"+CQmsg.fromGroup+"', '"+ft.format(dNow)+"' );";
+                String sql =
+                        "INSERT INTO question (msg,fromQQ,fromGroup,time) " + "VALUES ('" + CQmsg.msg + "', '" + CQmsg.fromClient + "', '" + CQmsg.fromGroup + "', '" + ft.format(dNow) + "' );";
                 stmt.executeUpdate(sql);
-
                 stmt.close();
                 c.close();
-                System.out.println("Records created successfully");
-                zibenbot.getCoolQ().sendPrivateMsg(2375985957L,"已添加数据集：" + CQmsg.msg);
-                replyMsg(CQmsg, "["+ft.format(dNow)+"][INFO] 本条对话已添加NLP待处理数据集");
+                zibenbot.getCoolQ().sendPrivateMsg(2375985957L, "已添加数据集：" + CQmsg.msg);
+                replyMsg(CQmsg, "[" + ft.format(dNow) + "][INFO] 本条对话已添加NLP待处理数据集");
             } catch (Exception e) {
-                System.err.println(e.getClass().getName() + ": " + e.getMessage());
-                System.exit(0);
+                Zibenbot.logger.log(Level.WARNING, e.getClass().getName() + ": " + e.getMessage());
             }
         }
     }

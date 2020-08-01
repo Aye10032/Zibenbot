@@ -4,7 +4,6 @@ import com.aye10032.Functions.funcutil.FuncCommanderFactory;
 import com.dazo66.commandstream.Commander;
 import com.dazo66.commandstream.CommanderBuilder;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.lucene.util.RamUsageEstimator;
 
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicReference;
@@ -95,8 +94,8 @@ public class CommandTest {
         s.set("222222");
         commander.execute("math plus x 2");
 
-        System.out.println(RamUsageEstimator.humanSizeOf(commander));
-        System.out.println(RamUsageEstimator.humanSizeOf(new CommanderBuilder().start().build()));
+/*        System.out.println(RamUsageEstimator.humanSizeOf(commander));
+        System.out.println(RamUsageEstimator.humanSizeOf(new CommanderBuilder().start().build()));*/
 /*        commander.execute("math reduce 1 x");
         commander.execute("math mult x 2");
         commander.execute("math div 1 x");
