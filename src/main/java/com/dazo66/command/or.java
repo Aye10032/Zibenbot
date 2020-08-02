@@ -2,6 +2,7 @@ package com.dazo66.command;
 
 import com.dazo66.command.interfaces.ArrayCheck;
 import com.dazo66.command.interfaces.CommandRun;
+import com.dazo66.command.interfaces.ICommand;
 import com.dazo66.command.interfaces.PieceCheck;
 
 
@@ -9,11 +10,11 @@ import com.dazo66.command.interfaces.PieceCheck;
  * 命令分支 其下可能有可运行的或者是指向下一个深度的命令片
  * @author Dazo66
  */
-public class or {
+public class or<S extends ICommand> {
 
     private PieceCheck pieceCheck;
     private ArrayCheck arrayCheck;
-    private CommandRun run;
+    private CommandRun<S> run;
     private CommandPiece piece;
 
     public void setArrayCheck(ArrayCheck arrayCheck) {
@@ -38,7 +39,7 @@ public class or {
         this.pieceCheck = pieceCheck;
     }
 
-    public CommandRun getRun() {
+    public CommandRun<S> getRun() {
         return run;
     }
 
@@ -50,7 +51,7 @@ public class or {
         this.pieceCheck = pieceCheck;
     }
 
-    public void setRun(CommandRun run) {
+    public void setRun(CommandRun<S> run) {
         this.run = run;
     }
 
@@ -78,7 +79,7 @@ public class or {
         return run != null;
     }
 
-    public void run(String[] command){
+    public void run(S command){
         run.run(command);
     }
 

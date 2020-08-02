@@ -1,12 +1,13 @@
 package com.aye10032.Functions.funcutil;
 
+import com.dazo66.command.interfaces.ICommand;
 import org.meowy.cqp.jcq.entity.Anonymous;
 
 /**
  * CQMsg的包装对象 每个传入的消息都进行包装后交由模块执行
  * @author Dazo66
  */
-public class CQMsg {
+public class CQMsg implements ICommand {
 
     public int subType = -1;
     public int msgId = -1;
@@ -38,6 +39,11 @@ public class CQMsg {
 
     public boolean isTeamspealMsg(){
         return type == MsgType.TEAMSPEAK_MSG;
+    }
+
+    @Override
+    public String[] getCommandPieces() {
+        return msg.trim().replaceAll(" +", " ").split(" ");
     }
 
     /**

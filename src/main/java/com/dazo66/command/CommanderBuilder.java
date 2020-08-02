@@ -24,14 +24,14 @@ import java.util.Stack;
  *                              .build();
  * @author Dazo66
  */
-public class CommanderBuilder {
+public class CommanderBuilder<S extends ICommand> {
 
     private static ExceptionHandler JUST_PRINT = ExceptionUtils::printStack;
     private ExceptionHandler eHandler = JUST_PRINT;
     private Stack<CommandPiece> stack = new Stack<>();
     private CommandPiece main = new CommandPiece();
     private CommandPiece current;
-    private or currentOr;
+    private or<S> currentOr;
 
     /**
      * 设置异常处理器
@@ -39,7 +39,7 @@ public class CommanderBuilder {
      * @param eHandler 异常处理器
      * @return this
      */
-    public CommanderBuilder seteHandler(ExceptionHandler eHandler) {
+    public CommanderBuilder<S> seteHandler(ExceptionHandler eHandler) {
         this.eHandler = eHandler;
         return this;
     }
@@ -48,7 +48,7 @@ public class CommanderBuilder {
      * 开始构建，在开始之前一定要运行此方法，进行初始化
      * @return this
      */
-    public CommanderBuilder start() {
+    public CommanderBuilder<S> start() {
         current = main;
         stack.push(current);
         return this;
@@ -59,7 +59,7 @@ public class CommanderBuilder {
      * @param run 当命令刚好触发时会呼叫
      * @return this
      */
-    public CommanderBuilder run(CommandRun run){
+    public CommanderBuilder<S> run(CommandRun<S> run){
         currentOr.setRun(run);
         return this;
     }
@@ -70,8 +70,8 @@ public class CommanderBuilder {
      * @param b 检查器 运行命令到此深度的时候会触发
      * @return this
      */
-    public CommanderBuilder or(PieceCheck b) {
-        current.addOr(currentOr = new or(b));
+    public CommanderBuilder<S> or(PieceCheck b) {
+        current.addOr(currentOr = new or<S>(b));
         return this;
     }
 
@@ -80,7 +80,7 @@ public class CommanderBuilder {
      * 如果当前分支是数组分支 则无法扩展
      * @return this
      */
-    public CommanderBuilder next(){
+    public CommanderBuilder<S> next(){
         if (currentOr.hasArrayCheck()) {
             //todo
         } else {
@@ -98,8 +98,8 @@ public class CommanderBuilder {
      * @param check 数组分支检查器
      * @return this
      */
-    public CommanderBuilder orArray(ArrayCheck check) {
-        current.addOr(currentOr = new or(null));
+    public CommanderBuilder<S> orArray(ArrayCheck check) {
+        current.addOr(currentOr = new or<S>(null));
         currentOr.setArrayCheck(check);
         return this;
     }
@@ -108,7 +108,7 @@ public class CommanderBuilder {
      * 往上跳出一个深度
      * @return this
      */
-    public CommanderBuilder pop(){
+    public CommanderBuilder<S> pop(){
         stack.pop();
         current = stack.peek();
         currentOr = current.getOrs().get(current.getOrs().size() - 1);
@@ -120,7 +120,7 @@ public class CommanderBuilder {
      * @param runnable 如果当前深度全部判定失败 则运行
      * @return this
      */
-    public CommanderBuilder ifNot(CommandRun runnable){
+    public CommanderBuilder<S> ifNot(CommandRun<S> runnable){
         current.setIfNot(runnable);
         return this;
     }
@@ -129,8 +129,8 @@ public class CommanderBuilder {
      * 以当前的状态进行默认构建
      * @return Commander
      */
-    public Commander build(){
-        Commander ret = new Commander();
+    public Commander<S> build(){
+        Commander<S> ret = new Commander<>();
         ret.seteHandler(eHandler);
         ret.setPiece(main);
         return ret;
@@ -141,8 +141,8 @@ public class CommanderBuilder {
      * @param factory Commander的工厂类 用来创建空白的Commander对象
      * @return
      */
-    public Commander build(CommanderFactory factory){
-        Commander ret = factory.build();
+    public Commander<S> build(CommanderFactory<S> factory){
+        Commander<S> ret = factory.build();
         ret.seteHandler(eHandler);
         ret.setPiece(main);
         return ret;

@@ -1,6 +1,7 @@
 package com.dazo66.command;
 
 import com.dazo66.command.interfaces.ExceptionHandler;
+import com.dazo66.command.interfaces.ICommand;
 import com.google.common.collect.Lists;
 
 import java.util.ArrayList;
@@ -13,7 +14,7 @@ import java.util.List;
  *
  * @author Dazo66
  */
-public class Commander {
+public class Commander<S extends ICommand> {
 
     private ExceptionHandler eHandler;
     private CommandPiece piece;
@@ -43,16 +44,16 @@ public class Commander {
      *
      * @param s 要执行的命令
      */
-    public void execute(String s) {
-        List<String> list = Lists.newArrayList(s.trim().replaceAll(" +", " ").split(" "));
+    public void execute(S s) {
+        List<String> list = Lists.newArrayList(s.getCommandPieces());
         or or = findPiece(list, piece);
 
         List<CommandPiece> patchs = getRoad(list, piece);
         if (or != null) {
             if (list.size() == patchs.size() && !or.hasArrayCheck()) {
-                or.getRun().run(list.toArray(new String[]{}));
+                or.getRun().run(s);
             } else if (or.hasArrayCheck()){
-                or.getRun().run(list.toArray(new String[]{}));
+                or.getRun().run(s);
             }
         } else {
             if (patchs.size() > 0) {
@@ -62,11 +63,11 @@ public class Commander {
                     if (ors.size() > 0) {
                         //more args todo
                     } else if (p.getIfNot() != null) {
-                        p.getIfNot().run(list.toArray(new String[]{}));
+                        p.getIfNot().run(s);
                     }
                 } else {
                     if (p.getIfNot() != null) {
-                        p.getIfNot().run(list.toArray(new String[]{}));
+                        p.getIfNot().run(s);
                     }
                 }
             }

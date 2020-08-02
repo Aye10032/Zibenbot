@@ -6,5 +6,5 @@ package com.dazo66.command.interfaces;
  */
 @FunctionalInterface
 public interface PieceCheck {
-    boolean check(String s);
+    boolean check(String piece);
 }
