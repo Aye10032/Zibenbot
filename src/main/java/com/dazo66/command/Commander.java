@@ -1,5 +1,8 @@
 package com.dazo66.command;
 
+import com.dazo66.command.exceptions.CommandRuntimeException;
+import com.dazo66.command.exceptions.IfNotRuntiomeException;
+import com.dazo66.command.exceptions.RedundantParametersException;
 import com.dazo66.command.interfaces.ExceptionHandler;
 import com.dazo66.command.interfaces.ICommand;
 import com.google.common.collect.Lists;
@@ -17,7 +20,7 @@ import java.util.List;
 public class Commander<S extends ICommand> {
 
     private ExceptionHandler eHandler;
-    private CommandPiece piece;
+    private CommandPiece<S> piece;
 
     /**
      * 执行命令，多个空格视为一个空格，忽略前后空格
@@ -46,38 +49,56 @@ public class Commander<S extends ICommand> {
      */
     public void execute(S s) {
         List<String> list = Lists.newArrayList(s.getCommandPieces());
-        or or = findPiece(list, piece);
-
-        List<CommandPiece> patchs = getRoad(list, piece);
+        or<S> or = findPiece(list, piece);
+        List<CommandPiece<S>> patchs = getRoad(list, piece);
         if (or != null) {
-            if (list.size() == patchs.size() && !or.hasArrayCheck()) {
-                or.getRun().run(s);
-            } else if (or.hasArrayCheck()){
-                or.getRun().run(s);
+            if (list.size() == patchs.size() || or.hasArrayCheck()) {
+                try {
+                    or.getRun().run(s);
+                } catch (Exception e) {
+                    eHandler.commandRuntimeExceptionCatch(new CommandRuntimeException(
+                            "Exception on CommandRun", e));
+                }
             }
         } else {
             if (patchs.size() > 0) {
-                CommandPiece p = patchs.get(patchs.size() - 1);
+                CommandPiece<S> p = patchs.get(patchs.size() - 1);
                 if (patchs.size() < list.size()) {
-                    List<or> ors = p.match(list.subList(patchs.size() - 1, list.size()).toArray(new String[]{}));
+                    List<or<S>> ors =
+                            p.match(list.subList(patchs.size() - 1, list.size()).toArray(new String[]{}), eHandler);
                     if (ors.size() > 0) {
-                        //more args todo
+                        try {
+                            throw new RedundantParametersException("Redundant Parameters " +
+                                    "Exception");
+                        } catch (RedundantParametersException e) {
+                            eHandler.redundantParametersExceptionCatch(e);
+                        }
                     } else if (p.getIfNot() != null) {
-                        p.getIfNot().run(s);
+                        try {
+                            p.getIfNot().run(s);
+                        } catch (Exception e) {
+                            eHandler.ifNotRunntimeExceptionCatch(new IfNotRuntiomeException(
+                                    "Exception on ifnot", e));
+                        }
                     }
                 } else {
                     if (p.getIfNot() != null) {
-                        p.getIfNot().run(s);
+                        try {
+                            p.getIfNot().run(s);
+                        } catch (Exception e) {
+                            eHandler.ifNotRunntimeExceptionCatch(new IfNotRuntiomeException(
+                                    "Exception on ifnot", e));
+                        }
                     }
                 }
             }
         }
     }
 
-    protected or findPiece(List<String> strings, CommandPiece main) {
+    protected or<S> findPiece(List<String> strings, CommandPiece<S> main) {
         if (strings.size() > 0) {
-            List<or> list = main.match(strings.toArray(new String[]{}));
-            for (or or : list) {
+            List<or<S>> list = main.match(strings.toArray(new String[]{}), eHandler);
+            for (or<S> or : list) {
                 if (or.hasRunable()) {
                     if (or.hasArrayCheck()) {
                         return or;
@@ -86,7 +107,7 @@ public class Commander<S extends ICommand> {
                     }
                 }
                 if (or.hasPiece()) {
-                    or or1 = findPiece(strings.subList(1, strings.size()), or.getPiece());
+                    or<S> or1 = findPiece(strings.subList(1, strings.size()), or.getPiece());
                     if (or1 != null) {
                         return or1;
                     }
@@ -104,16 +125,16 @@ public class Commander<S extends ICommand> {
         return eHandler;
     }
 
-    protected List<CommandPiece> getRoad(List<String> strings, CommandPiece main) {
+    protected List<CommandPiece<S>> getRoad(List<String> strings, CommandPiece<S> main) {
         return getRoad(new ArrayList<>(), strings, main);
     }
 
-    private List<CommandPiece> getRoad(List<CommandPiece> ret, List<String> strings,
-                                       CommandPiece main) {
-        List<List<CommandPiece>> ls = new ArrayList<>();
-        List<CommandPiece> l = new ArrayList<>(ret);
+    private List<CommandPiece<S>> getRoad(List<CommandPiece<S>> ret, List<String> strings,
+                                       CommandPiece<S> main) {
+        List<List<CommandPiece<S>>> ls = new ArrayList<>();
+        List<CommandPiece<S>> l = new ArrayList<>(ret);
         if (strings.size() > 0) {
-            List<or> list = main.match(strings.toArray(new String[]{}));
+            List<or<S>> list = main.match(strings.toArray(new String[]{}), eHandler);
             if (list.isEmpty()) {
                 l.add(main);
                 return l;
@@ -121,7 +142,7 @@ public class Commander<S extends ICommand> {
                 l.add(main);
             }
             ls.add(l);
-            for (or or : list) {
+            for (or<S> or : list) {
                 if (or.hasRunable() && strings.size() == 1) {
                     return l;
                 }
@@ -137,8 +158,8 @@ public class Commander<S extends ICommand> {
                     }
                 }
             }
-            List<CommandPiece> ps = new ArrayList<>();
-            for (List<CommandPiece> patches : ls) {
+            List<CommandPiece<S>> ps = new ArrayList<>();
+            for (List<CommandPiece<S>> patches : ls) {
                 if (patches.size() > ps.size()) {
                     ps = patches;
                 }
@@ -158,7 +179,7 @@ public class Commander<S extends ICommand> {
     }
 
 
-    protected void setPiece(CommandPiece piece) {
+    protected void setPiece(CommandPiece<S> piece) {
         this.piece = piece;
     }
 

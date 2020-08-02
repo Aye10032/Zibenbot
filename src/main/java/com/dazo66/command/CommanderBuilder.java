@@ -1,7 +1,11 @@
 package com.dazo66.command;
 
-import com.aye10032.Utils.ExceptionUtils;
+import com.dazo66.command.exceptions.CheckException;
+import com.dazo66.command.exceptions.CommandRuntimeException;
+import com.dazo66.command.exceptions.IfNotRuntiomeException;
+import com.dazo66.command.exceptions.RedundantParametersException;
 import com.dazo66.command.interfaces.*;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import java.util.Stack;
 
@@ -26,11 +30,31 @@ import java.util.Stack;
  */
 public class CommanderBuilder<S extends ICommand> {
 
-    private static ExceptionHandler JUST_PRINT = ExceptionUtils::printStack;
+    private static final ExceptionHandler JUST_PRINT = new ExceptionHandler() {
+        @Override
+        public void checkExceptionCetch(CheckException e) {
+            System.out.println(ExceptionUtils.getMessage(e));
+        }
+
+        @Override
+        public void commandRuntimeExceptionCatch(CommandRuntimeException e) {
+            System.out.println(ExceptionUtils.getMessage(e));
+        }
+
+        @Override
+        public void ifNotRunntimeExceptionCatch(IfNotRuntiomeException e) {
+            System.out.println(ExceptionUtils.getMessage(e));
+        }
+
+        @Override
+        public void redundantParametersExceptionCatch(RedundantParametersException e) {
+            System.out.println(ExceptionUtils.getMessage(e));
+        }
+    };
     private ExceptionHandler eHandler = JUST_PRINT;
-    private Stack<CommandPiece> stack = new Stack<>();
-    private CommandPiece main = new CommandPiece();
-    private CommandPiece current;
+    private Stack<CommandPiece<S>> stack = new Stack<>();
+    private CommandPiece<S> main = new CommandPiece<>();
+    private CommandPiece<S> current;
     private or<S> currentOr;
 
     /**
@@ -71,7 +95,7 @@ public class CommanderBuilder<S extends ICommand> {
      * @return this
      */
     public CommanderBuilder<S> or(PieceCheck b) {
-        current.addOr(currentOr = new or<S>(b));
+        current.addOr(currentOr = new or<>(b));
         return this;
     }
 
@@ -84,7 +108,7 @@ public class CommanderBuilder<S extends ICommand> {
         if (currentOr.hasArrayCheck()) {
             //todo
         } else {
-            current = new CommandPiece();
+            current = new CommandPiece<S>();
             stack.push(current);
             currentOr.setPiece(current);
             currentOr = null;
@@ -99,7 +123,7 @@ public class CommanderBuilder<S extends ICommand> {
      * @return this
      */
     public CommanderBuilder<S> orArray(ArrayCheck check) {
-        current.addOr(currentOr = new or<S>(null));
+        current.addOr(currentOr = new or<>(null));
         currentOr.setArrayCheck(check);
         return this;
     }
@@ -139,7 +163,7 @@ public class CommanderBuilder<S extends ICommand> {
     /**
      * 以当前的状态根据传入factory进行构建的构建
      * @param factory Commander的工厂类 用来创建空白的Commander对象
-     * @return
+     * @return this
      */
     public Commander<S> build(CommanderFactory<S> factory){
         Commander<S> ret = factory.build();
