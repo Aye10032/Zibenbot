@@ -15,7 +15,7 @@ public class or<S extends ICommand> {
     private PieceCheck pieceCheck;
     private ArrayCheck arrayCheck;
     private CommandRun<S> run;
-    private CommandPiece piece;
+    private CommandPiece<S> piece;
 
     public void setArrayCheck(ArrayCheck arrayCheck) {
         if (pieceCheck != null) {
@@ -55,11 +55,11 @@ public class or<S extends ICommand> {
         this.run = run;
     }
 
-    public void setPiece(CommandPiece piece) {
+    public void setPiece(CommandPiece<S> piece) {
         this.piece = piece;
     }
 
-    public CommandPiece getPiece() {
+    public CommandPiece<S> getPiece() {
         return piece;
     }
 
