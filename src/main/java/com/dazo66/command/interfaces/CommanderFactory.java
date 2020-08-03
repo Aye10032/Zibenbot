@@ -1,6 +1,5 @@
 package com.dazo66.command.interfaces;
 
-import com.aye10032.Functions.funcutil.FuncCommander;
 import com.dazo66.command.Commander;
 
 /**
