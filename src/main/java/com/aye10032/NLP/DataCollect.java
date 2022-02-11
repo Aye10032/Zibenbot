@@ -82,8 +82,10 @@ public class DataCollect extends BaseFunc {
                         break;
                     }
                 }
-            }else if (CQmsg.msg.contains("aye") || CQmsg.msg.contains("Aye") || CQmsg.msg.contains("阿叶")
-                    || CQmsg.msg.contains("小叶") || CQmsg.msg.contains("叶受") || CQmsg.msg.contains("叶哥哥")) {
+            }else if ((CQmsg.msg.contains("aye") || CQmsg.msg.contains("Aye") || CQmsg.msg.contains("阿叶")
+                    || CQmsg.msg.contains("小叶") || CQmsg.msg.contains("叶受") || CQmsg.msg.contains("叶哥哥"))&&
+                    !((CQmsg.msg.equals("aye") || CQmsg.msg.equals("Aye") || CQmsg.msg.equals("阿叶")
+                    || CQmsg.msg.equals("小叶") || CQmsg.msg.equals("叶受") || CQmsg.msg.equals("叶哥哥")))) {
                 flag = true;
             }
         }
